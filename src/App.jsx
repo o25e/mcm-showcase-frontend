@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import ProductDetail from './components/ProductDetail';
 
 const categories = ['신상품', '가방', '지갑', '슈즈', '벨트', '악세서리', '카테고리상품', 'MCM-LXXVI', '신용 제안', 'MCM 소개', 'CLOSET'];
 
 const arrivals = [
-  { image: '/assets/mcm-aren.png', eyebrow: '모던 클래식의 재해석', title: 'AREN 컬렉션' },
+  { image: '/assets/mcm-aren.png', eyebrow: '모던 클래식의 재해석', title: 'AREN 컬렉션', href: '/product' },
   { image: '/assets/mcm-new-arrivals.png', eyebrow: '2024 FW 신상품', title: '뉴 아리베' },
   { image: '/assets/product-black.png', eyebrow: '1976 헤리티지 에디션', title: 'MCM LXXVI' },
 ];
@@ -23,6 +24,8 @@ export default function App() {
     setNotice(message);
     window.setTimeout(() => setNotice('무료 배송 · 무료 반품 서비스 안내'), 2200);
   };
+
+  if (window.location.pathname === '/product') return <ProductDetail />;
 
   return (
     <div className="storefront" id="top">
@@ -60,7 +63,7 @@ export default function App() {
         <section className="featured" id="new-arrivals" aria-labelledby="arrivals-title">
           <div className="section-heading"><h1 id="arrivals-title">신상품</h1><a href="#top">전체 보기</a></div>
           <div className="arrival-grid">
-            {arrivals.map((item) => <a href="#top" className="arrival-card" key={item.title}>
+            {arrivals.map((item) => <a href={item.href || '#top'} className="arrival-card" key={item.title}>
               <div className="arrival-image"><img src={item.image} alt={item.title} /></div>
               <p>{item.eyebrow}</p><h2>{item.title}</h2>
             </a>)}
