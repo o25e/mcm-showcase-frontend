@@ -1,4 +1,5 @@
 export const product = {
+  slug: 'aren-mini-bag',
   name: '스몰 크로스백', price: '₩625,000', category: 'MCM / 가방 / 스몰 크로스백',
   images: [
     { src: '/assets/product-detail-main.png', alt: '스몰 크로스백 메인 이미지' },
@@ -13,6 +14,33 @@ export const product = {
     ['배송 & 반품', '무료 배송 (2–3 영업일). 수령 후 14일 이내 미사용 상품 무료 반품 가능.'],
   ],
 };
+export const products = [
+  product,
+  {
+    ...product, slug: 'visetos-tote', name: 'Visetos Tote Bag', price: '₩1,150,000',
+    images: [
+      { src: '/assets/product-detail-alt-1.png', alt: 'Visetos Tote Bag' },
+      { src: '/assets/product-detail-main.png', alt: 'Visetos Tote Bag detail 1' },
+      { src: '/assets/product-detail-alt-2.png', alt: 'Visetos Tote Bag detail 2' },
+    ],
+  },
+  {
+    ...product, slug: 'lxxvi-mini-bag', name: 'LXXVI Mini Bag', price: '₩950,000',
+    images: [
+      { src: '/assets/product-detail-alt-2.png', alt: 'LXXVI Mini Bag' },
+      { src: '/assets/product-detail-alt-1.png', alt: 'LXXVI Mini Bag detail 1' },
+      { src: '/assets/product-detail-main.png', alt: 'LXXVI Mini Bag detail 2' },
+    ],
+  },
+  {
+    ...product, slug: 'ottomar-visetos-wallet', name: 'Ottomar Visetos Wallet', price: '₩1,050,000',
+    images: [
+      { src: '/assets/figma-product.png', alt: 'Ottomar Visetos Wallet' },
+      { src: '/assets/product-detail-main.png', alt: 'Ottomar Visetos Wallet detail 1' },
+      { src: '/assets/product-detail-alt-1.png', alt: 'Ottomar Visetos Wallet detail 2' },
+    ],
+  },
+];
 export const recommendations = [
   { name: '비세토스 트로터', price: '₩1,150,000', image: '/assets/product-detail-alt-1.png' },
   { name: '클래식 쇼퍼', price: '₩985,000', image: '/assets/product-detail-main.png' },

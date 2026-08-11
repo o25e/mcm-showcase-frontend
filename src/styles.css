@@ -31,13 +31,14 @@ button { cursor: pointer; }
 .figma-collection { padding: 40px 21px 70px; }
 .figma-collection h1 { margin: 0 0 23px; font-size: 18px; font-weight: 500; }
 .figma-product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px; }
-.figma-product-image { position: relative; aspect-ratio: 1; overflow: hidden; }
-.figma-product-image > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.figma-product-image { position: relative; aspect-ratio: 1; overflow: hidden; background: #f7f5f1; }
+.figma-product-image > a { display: block; width: 100%; height: 100%; }
+.figma-product-image > a > img { display: block; width: 100%; height: 100%; object-fit: contain; transform: scale(1.08); }
 .figma-product-image button { position: absolute; top: 15px; right: 15px; width: 22px; height: 20px; padding: 0; border: 0; background: transparent; }
 .figma-product-image button img { width: 100%; height: 100%; }
 .figma-product h2, .figma-product p { margin: 0; font-weight: 300; }
-.figma-product h2 { margin-top: 20px; font-size: 17px; }
-.figma-product p { margin-top: 9px; font-size: 15px; }
+.figma-product h2 { margin-top: 20px; font-size: 15px; font-weight: 600; }
+.figma-product p { margin-top: 9px; font-size: 13px; }
 
 @media (max-width: 1000px) {
   .figma-nav nav { gap: 10px; }.figma-nav nav a { font-size: 10px; }.figma-logo { left: 69%; }
