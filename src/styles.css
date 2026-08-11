@@ -95,3 +95,29 @@ button { cursor: pointer; }
 .product-card h3 { margin: 8px 0 2px; font-size: 12px; line-height: 18px; }
 .product-card p { margin: 0; color: #999; font-size: 11px; line-height: 17px; }
 @media (max-width: 800px) { .product { grid-template-columns: 1fr; gap: 36px; padding: 24px 18px 48px; }.main-image-wrap { height: min(125vw, 580px); }.thumbnail { height: calc((100vw - 60px) / 3); }.recommendations { padding: 0 18px 48px; }.recommendation-grid { grid-template-columns: 1fr; gap: 28px; }.product-card img { height: min(125vw, 420px); }.details { max-width: 100%; } }
+
+/* Closet page */
+.closet-page { min-width: 320px; background: #fff; overflow: hidden; }
+.closet-nav nav a.active { font-family: Arial, sans-serif; }
+.closet-hero { position: relative; height: 742px; overflow: hidden; background: #262626; }
+.closet-hero-image, .closet-hero-overlay { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.closet-hero-overlay { object-position: center bottom; }
+.closet-hero-copy { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding-top: 177px; color: #e4e4e4; text-align: center; pointer-events: none; }
+.closet-hero-copy h1 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 85px; font-weight: 400; letter-spacing: -4px; line-height: 1; }
+.closet-hero-copy p { margin: 28px 0 0; font-size: 15px; font-weight: 300; }
+.closet-arrow { position: absolute; top: 199px; z-index: 1; width: 34px; height: 34px; border: 0; background: transparent; color: #e4e4e4; font-family: Georgia, serif; font-size: 37px; font-weight: 300; line-height: 28px; }
+.closet-arrow-left { left: 1.25%; }.closet-arrow-right { right: 1.25%; }
+.closet-login { display: flex; align-items: flex-start; justify-content: space-between; gap: 30px; padding: 30px 1.7% 34px 27px; }
+.closet-login p { margin: 0; font-size: 15px; font-weight: 300; line-height: 1.5; }
+.closet-login button { width: 128px; height: 35px; flex: 0 0 auto; padding: 0 15px; border: 0; border-radius: 3px; background: #000; color: #fff; font-size: 12px; }
+.closet-records { padding: 0 21px 70px; }
+.closet-record-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
+.closet-record-image { position: relative; height: 470px; overflow: hidden; background: #eee; }
+.closet-record-image img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.closet-record-image button { position: absolute; top: 15px; right: 15px; border: 0; background: transparent; color: #111; font-size: 25px; line-height: 1; }
+.closet-record-wish img { filter: brightness(0) invert(1); }
+.closet-record-copy { padding-top: 18px; }
+.closet-record-copy p, .closet-record-copy h2, .closet-record-copy span { margin: 0; }
+.closet-record-copy p { font-size: 14px; letter-spacing: 1.26px; }.closet-record-copy h2 { margin-top: 7px; font-size: 15px; font-weight: 500; }.closet-record-copy span { display: block; margin-top: 12px; color: #545454; font-size: 13px; font-weight: 300; }
+@media (max-width: 1000px) { .closet-hero { height: min(51.5vw, 742px); }.closet-hero-copy { padding-top: 12.3vw; }.closet-hero-copy h1 { font-size: clamp(48px, 5.9vw, 85px); }.closet-record-image { height: min(34vw, 470px); } }
+@media (max-width: 700px) { .closet-hero { height: min(125vw, 620px); }.closet-hero-copy { padding-top: 26vw; }.closet-hero-copy p { margin-top: 16px; font-size: 12px; }.closet-arrow { top: 37%; }.closet-login { align-items: stretch; flex-direction: column; padding: 24px 16px; }.closet-login p { font-size: 13px; }.closet-login button { width: 100%; }.closet-records { padding: 0 14px 44px; }.closet-record-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 25px 12px; }.closet-record-image { height: min(61vw, 360px); }.closet-record-copy { padding-top: 12px; }.closet-record-copy p { font-size: 11px; }.closet-record-copy h2 { margin-top: 5px; font-size: 13px; }.closet-record-copy span { margin-top: 8px; font-size: 11px; } }

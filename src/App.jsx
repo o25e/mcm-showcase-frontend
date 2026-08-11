@@ -1,4 +1,4 @@
-const navigation = ['신상품', '가방', '여성', '남성', '트래블', '라이프스타일', 'MCM ICONS', '스토어 소식', 'MCM 소개', 'CLOSET'];
+const navigation = ['신상품', '가방', '여성', '남성', '트래블', '라이프스타일', 'MCM ICONS', '선물 제안', 'MCM 소개', 'CLOSET'];
 
 const utilities = [
   ['검색', '/assets/figma-search.svg'],
@@ -38,7 +38,7 @@ export default function App() {
   return <div className="figma-home" id="top">
     <div className="figma-announcement">
       <img className="announcement-mark" src="/assets/figma-announcement.svg" alt="" />
-      <span>MCM 아이코닉</span><a href="#collection">Aren 비세토스 컬렉션을 만나보세요</a>
+      <span>MCM 아이콘 |</span><a href="#collection">Aren 비세토스 컬렉션을 만나보세요</a>
       <div className="announcement-links"><a href="#collection">배송조회</a><a href="#collection">1:1 고객 문의</a><a href="#collection">KR(₩)/KO</a><a href="#collection">매장</a></div>
     </div>
     <header className="figma-nav">
