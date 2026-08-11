@@ -1,72 +1,56 @@
-import { useState } from 'react';
 import ProductDetail from './components/ProductDetail';
 
-const categories = ['신상품', '가방', '지갑', '슈즈', '벨트', '악세서리', '카테고리상품', 'MCM-LXXVI', '신용 제안', 'MCM 소개', 'CLOSET'];
+const navigation = ['신상품', '가방', '여성', '남성', '트래블', '라이프스타일', 'MCM ICONS', '선물 제안', 'MCM 소개', 'CLOSET'];
 
-const arrivals = [
-  { image: '/assets/mcm-aren.png', eyebrow: '모던 클래식의 재해석', title: 'AREN 컬렉션', href: '/product' },
-  { image: '/assets/mcm-new-arrivals.png', eyebrow: '2024 FW 신상품', title: '뉴 아리베' },
-  { image: '/assets/product-black.png', eyebrow: '1976 헤리티지 에디션', title: 'MCM LXXVI' },
+const utilities = [
+  ['검색', '/assets/figma-search.svg'],
+  ['마이 페이지', '/assets/figma-user.svg'],
+  ['위시리스트', '/assets/figma-heart.svg'],
+  ['쇼핑백', '/assets/figma-bag.svg'],
 ];
 
-const navIcons = [
-  ['검색', '/assets/icon-search.svg'],
-  ['마이 페이지', '/assets/icon-user.svg'],
-  ['위시리스트', '/assets/icon-heart-outline.svg'],
-  ['쇼핑백', '/assets/icon-bag.svg'],
-];
+const products = Array.from({ length: 4 }, (_, index) => ({
+  id: index,
+  name: 'Ottomar 비세토스 위켄더',
+  price: '₩2,050,000',
+}));
 
 export default function App() {
-  const [activeCategory, setActiveCategory] = useState('CLOSET');
-  const [notice, setNotice] = useState('무료 배송 · 무료 반품 서비스 안내');
-  const [menuOpen, setMenuOpen] = useState(false);
-  const showNotice = (message) => {
-    setNotice(message);
-    window.setTimeout(() => setNotice('무료 배송 · 무료 반품 서비스 안내'), 2200);
-  };
-
   if (window.location.pathname === '/product') return <ProductDetail />;
 
   return (
-    <div className="storefront" id="top">
-      <div className="announcement-bar">
-        <button type="button" aria-label="이전 공지" onClick={() => showNotice('신규 가입 시 첫 구매 혜택을 확인하세요.')}>←</button>
-        <p>{notice}</p>
-        <button type="button" aria-label="다음 공지" onClick={() => showNotice('MCM 공식 온라인 스토어에 오신 것을 환영합니다.')}>→</button>
+    <div className="figma-home" id="top">
+      <div className="figma-announcement">
+        <img className="announcement-mark" src="/assets/figma-announcement.svg" alt="" />
+        <span>MCM 아이콘 |</span>
+        <a href="#collection">Aren 이스트 웨스트 숄더백을 만나보세요</a>
+        <div className="announcement-links"><a href="#collection">배송조회</a><a href="#collection">1:1 고객 문의</a><a href="#collection">KR()/KO</a><a href="#collection">매장</a></div>
       </div>
 
-      <header className="main-nav">
-        <div className="nav-left">
-          <button className="asset-button menu-button" type="button" aria-label="메뉴 열기" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
-            <img src="/assets/icon-menu.svg" alt="" />
-          </button>
-          <a className="mcm-logo" href="#top" aria-label="MCM 홈">MCM</a>
+      <header className="figma-nav">
+        <nav aria-label="주 메뉴">
+          {navigation.map((item) => <a href="#collection" key={item}>{item}</a>)}
+        </nav>
+        <a className="figma-logo" href="#top" aria-label="MCM 홈"><img src="/assets/figma-logo.png" alt="MCM" /></a>
+        <div className="figma-tools">
+          {utilities.map(([label, src]) => <button type="button" aria-label={label} key={label}><img src={src} alt="" /></button>)}
         </div>
-        <div className="nav-tools">
-          {navIcons.map(([label, asset]) => <button className="asset-button" type="button" key={label} aria-label={label} onClick={() => showNotice(`${label} 기능을 준비 중입니다.`)}><img src={asset} alt="" /></button>)}
-          <button className="locale" type="button" onClick={() => showNotice('대한민국 / 한국어가 선택되어 있습니다.')}>KRW / KO</button>
-        </div>
-        {menuOpen && <nav className="menu-popover" aria-label="전체 메뉴">{categories.slice(0, 8).map((item) => <a href="#new-arrivals" key={item} onClick={() => setMenuOpen(false)}>{item}</a>)}</nav>}
       </header>
 
-      <nav className="category-nav" aria-label="상품 카테고리">
-        <div className="category-list">{categories.map((category) => <button type="button" className={activeCategory === category ? 'active' : ''} key={category} onClick={() => setActiveCategory(category)}>{category}</button>)}</div>
-      </nav>
-
       <main>
-        <section className="hero" aria-label="MCM LXXVI 컬렉션">
-          <div className="hero-title"><strong>MCM</strong><em>LXXVI</em><span>1976</span></div>
-          <div className="hero-copy"><p>다리미 달달매의 바이론</p><a href="#new-arrivals">AREN 둘러보기 <img src="/assets/icon-arrow.svg" alt="" /></a></div>
-          <button className="chat-button" type="button" aria-label="고객 상담 열기" onClick={() => showNotice('무엇을 도와드릴까요?')}><img src="/assets/icon-chat.svg" alt="" /></button>
+        <section className="figma-hero" aria-label="MCM 신규 컬렉션">
+          <img className="hero-image" src="/assets/figma-hero.png" alt="MCM 신규 컬렉션" />
+          <div className="hero-detail"><img src="/assets/figma-hero-detail.png" alt="컬렉션 상세 이미지" /></div>
+          <a className="collection-link" href="#collection"><strong>→</strong> 컬렉션 쇼핑하기</a>
         </section>
 
-        <section className="featured" id="new-arrivals" aria-labelledby="arrivals-title">
-          <div className="section-heading"><h1 id="arrivals-title">신상품</h1><a href="#top">전체 보기</a></div>
-          <div className="arrival-grid">
-            {arrivals.map((item) => <a href={item.href || '#top'} className="arrival-card" key={item.title}>
-              <div className="arrival-image"><img src={item.image} alt={item.title} /></div>
-              <p>{item.eyebrow}</p><h2>{item.title}</h2>
-            </a>)}
+        <section className="figma-collection" id="collection" aria-labelledby="collection-title">
+          <h1 id="collection-title">신규 컬렉션</h1>
+          <div className="figma-product-grid">
+            {products.map((product) => <article className="figma-product" key={product.id}>
+              <div className="figma-product-image"><img src="/assets/figma-product.png" alt={product.name} /><button type="button" aria-label={`${product.name} 찜하기`}><img src="/assets/figma-heart-small.svg" alt="" /></button></div>
+              <h2>{product.name}</h2><p>{product.price}</p>
+            </article>)}
           </div>
         </section>
       </main>
