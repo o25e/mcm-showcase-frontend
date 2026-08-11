@@ -2,8 +2,9 @@
 
 :root { font-family: Inter, Arial, sans-serif; color: #111; background: #fff; }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scrollbar-gutter: stable; }
 body { margin: 0; }
+body.modal-open { overflow: hidden; }
 button, a { color: inherit; font: inherit; }
 button { cursor: pointer; }
 
@@ -121,3 +122,26 @@ button { cursor: pointer; }
 .closet-record-copy p { font-size: 14px; letter-spacing: 1.26px; }.closet-record-copy h2 { margin-top: 7px; font-size: 15px; font-weight: 500; }.closet-record-copy span { display: block; margin-top: 12px; color: #545454; font-size: 13px; font-weight: 300; }
 @media (max-width: 1000px) { .closet-hero { height: min(51.5vw, 742px); }.closet-hero-copy { padding-top: 12.3vw; }.closet-hero-copy h1 { font-size: clamp(48px, 5.9vw, 85px); }.closet-record-image { height: min(34vw, 470px); } }
 @media (max-width: 700px) { .closet-hero { height: min(125vw, 620px); }.closet-hero-copy { padding-top: 26vw; }.closet-hero-copy p { margin-top: 16px; font-size: 12px; }.closet-arrow { top: 37%; }.closet-login { align-items: stretch; flex-direction: column; padding: 24px 16px; }.closet-login p { font-size: 13px; }.closet-login button { width: 100%; }.closet-records { padding: 0 14px 44px; }.closet-record-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 25px 12px; }.closet-record-image { height: min(61vw, 360px); }.closet-record-copy { padding-top: 12px; }.closet-record-copy p { font-size: 11px; }.closet-record-copy h2 { margin-top: 5px; font-size: 13px; }.closet-record-copy span { margin-top: 8px; font-size: 11px; } }
+
+/* Closet login drawer */
+.login-modal { position: fixed; inset: 0; z-index: 20; }
+.login-modal-backdrop { position: absolute; inset: 0; width: 100%; padding: 0; border: 0; background: rgb(0 0 0 / .3); }
+.login-drawer { position: absolute; top: 0; right: 0; width: min(31%, 430px); min-width: 360px; height: 100%; overflow-y: auto; background: #fff; box-shadow: -10px 0 28px rgb(0 0 0 / .08); }
+.login-close { position: absolute; top: 20px; right: 20px; width: 28px; height: 28px; padding: 0; border: 0; background: transparent; color: #111; font-size: 22px; font-weight: 300; line-height: 1; }
+.login-drawer-content { padding: 64px 28px 48px; }
+.login-drawer h2 { margin: 0 0 9px; font-size: 17px; font-weight: 700; }
+.login-intro { display: flex; align-items: center; justify-content: flex-start; gap: 9px; margin: 0; color: #333; font-size: 12px; line-height: 1.55; letter-spacing: -.15px; white-space: nowrap; }
+.login-intro a { flex: 0 0 auto; color: inherit; font-size: 11px; text-underline-offset: 2px; }
+.login-required { margin: 25px 0 28px; color: #777; font-size: 11px; }
+.login-form label { position: relative; display: block; color: #777; font-size: 12px; }
+.login-form input { display: block; width: 100%; height: 34px; margin: 5px 0 23px; padding: 0; border: 0; border-bottom: 1px solid #aaa; border-radius: 0; outline: 0; background: transparent; color: #111; font: inherit; }
+.login-form input:focus { border-bottom-color: #111; }
+.password-label { position: absolute; right: 0; top: 0; color: #777; font-size: 10px; text-decoration: underline; }
+.login-form label:nth-of-type(2) input { margin-bottom: 6px; }
+.find-password { display: inline-block; margin-top: 0; color: #555; font-size: 10px; text-underline-offset: 2px; }
+.login-submit { width: 100%; height: 47px; margin-top: 27px; border: 0; border-radius: 2px; background: #242424; color: #fff; font-size: 12px; font-weight: 600; }
+.social-login { margin-top: 26px; padding-top: 26px; border-top: 1px solid #777; }
+.social-login button { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 58px; border-radius: 12px; font-size: 16px; font-weight: 600; }
+.social-login-icon { position: absolute; left: 24px; width: 25px; height: 25px; object-fit: contain; }
+.kakao-login { margin-top: 16px; border: 0; background: #fee14a; color: #181600; }.naver-login { border: 1px solid #e2e2e2; background: #fff; color: #171717; }
+@media (max-width: 700px) { .login-drawer { width: min(100%, 430px); min-width: 0; }.login-drawer-content { padding: 64px 24px 36px; } }
