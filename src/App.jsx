@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import LoginPanel from './components/LoginPanel';
+
 const navigation = ['신상품', '가방', '여성', '남성', '트래블', '라이프스타일', 'MCM ICONS', '선물 제안', 'MCM 소개', 'CLOSET'];
 
 const utilities = [
@@ -35,6 +38,8 @@ const products = [
 ];
 
 export default function App() {
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
   return <div className="figma-home" id="top">
     <div className="figma-announcement">
       <img className="announcement-mark" src="/assets/figma-announcement.svg" alt="" />
@@ -44,7 +49,7 @@ export default function App() {
     <header className="figma-nav">
       <nav aria-label="주 메뉴">{navigation.map((item) => <a href="#collection" key={item}>{item}</a>)}</nav>
       <a className="figma-logo" href="#top" aria-label="MCM 홈"><img src="/assets/figma-logo.png" alt="MCM" /></a>
-      <div className="figma-tools">{utilities.map(([label, src]) => <button type="button" aria-label={label} key={label}><img src={src} alt="" /></button>)}</div>
+      <div className="figma-tools">{utilities.map(([label, src]) => <button type="button" aria-label={label} key={label} onClick={label === '마이 페이지' ? () => setIsLoginOpen(true) : undefined}><img src={src} alt="" /></button>)}</div>
     </header>
     <main>
       <section className="figma-hero" aria-label="MCM 신규 컬렉션">
@@ -60,5 +65,6 @@ export default function App() {
         </article>)}</div>
       </section>
     </main>
+    {isLoginOpen && <LoginPanel onClose={() => setIsLoginOpen(false)} />}
   </div>;
 }

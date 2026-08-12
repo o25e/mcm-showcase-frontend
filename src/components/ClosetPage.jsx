@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import LoginPanel from './LoginPanel';
 
 const navItems = ['신상품', '가방', '여성', '남성', '트래블', '라이프스타일', 'MCM ICONS', '선물 제안', 'MCM 소개', 'CLOSET'];
 
@@ -78,7 +79,7 @@ export default function ClosetPage() {
       <nav aria-label="주 메뉴">{navItems.map((item) => <a href={item === 'CLOSET' ? '#closet' : '#top'} className={item === 'CLOSET' ? 'active' : ''} key={item}>{item}</a>)}</nav>
       <a className="figma-logo" href="#top" aria-label="MCM 홈"><img src="/assets/figma-logo.png" alt="MCM" /></a>
       <div className="figma-tools">
-        {[['검색', 'figma-search.svg'], ['마이 페이지', 'figma-user.svg'], ['위시리스트', 'figma-heart.svg'], ['쇼핑백', 'figma-bag.svg']].map(([label, icon]) => <button type="button" aria-label={label} key={label}><img src={`/assets/${icon}`} alt="" /></button>)}
+        {[['검색', 'figma-search.svg'], ['마이 페이지', 'figma-user.svg'], ['위시리스트', 'figma-heart.svg'], ['쇼핑백', 'figma-bag.svg']].map(([label, icon]) => <button type="button" aria-label={label} key={label} onClick={label === '마이 페이지' ? () => setIsLoginOpen(true) : undefined}><img src={`/assets/${icon}`} alt="" /></button>)}
       </div>
     </header>
     <main>
@@ -92,27 +93,7 @@ export default function ClosetPage() {
       <section className="closet-login" aria-label="로그인 안내"><p>오늘의 스타일을 이어가세요.<br />로그인하면 이 Avatar를 저장하고 다음 쇼핑에서도 나만의 MCM Closet을 이어갈 수 있어요.</p><button type="button" onClick={() => setIsLoginOpen(true)}>로그인 하기</button></section>
       <section className="closet-records" id="closet-records" aria-label="스타일 기록"><div className="closet-record-grid">{records.map((record, index) => <article className="closet-record" key={index} role="button" tabIndex={0} onClick={() => setSelectedRecord(record)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setSelectedRecord(record); }}><div className="closet-record-image"><img src={record.image} alt="스타일 기록" /><button type="button" className='closet-record-wish' aria-label="스타일 기록 저장" onClick={(event) => event.stopPropagation()}><img src="/assets/figma-heart-small.svg" alt=""></img></button></div><div className="closet-record-copy"><p>{record.date}</p><h2>{record.title}</h2><span><img src="/assets/icon-place.svg"></img> 이태원 플래그십</span></div></article>)}</div></section>
     </main>
-    {isLoginOpen && <div className="login-modal" role="presentation">
-      <button className="login-modal-backdrop" type="button" aria-label="로그인 창 닫기" onClick={() => setIsLoginOpen(false)} />
-      <aside className="login-drawer" role="dialog" aria-modal="true" aria-labelledby="login-title">
-        <button className="login-close" type="button" aria-label="로그인 창 닫기" onClick={() => setIsLoginOpen(false)}>×</button>
-        <div className="login-drawer-content">
-          <h2 id="login-title">로그인</h2>
-          <p className="login-intro"><span>회원으로 가입하시면 빠르고 편리하게 이용하실 수 있습니다.</span><a href="#signup">회원가입</a></p>
-          <p className="login-required">* 표시가 있는 모든 입력 항목은 필수입니다.</p>
-          <form className="login-form" onSubmit={(event) => event.preventDefault()}>
-            <label>이메일 주소*<input type="email" name="email" autoComplete="email" required /></label>
-            <label>비밀번호*<span className="password-label">표시</span><input type="password" name="password" autoComplete="current-password" required /></label>
-            <a className="find-password" href="#find-password">비밀번호를 잊으셨나요?</a>
-            <button className="login-submit" type="submit">로그인</button>
-          </form>
-          <div className="social-login" aria-label="간편 로그인">
-            <button type="button" className="naver-login"><img className="social-login-icon" src="/assets/icon-naver.png" alt="" /><span>네이버 아이디로 로그인</span></button>
-            <button type="button" className="kakao-login"><img className="social-login-icon" src="/assets/icon-kakaotalk.png" alt="" /><span>카카오 로그인</span></button>
-          </div>
-        </div>
-      </aside>
-    </div>}
+    {isLoginOpen && <LoginPanel onClose={() => setIsLoginOpen(false)} />}
     {selectedRecord && <div className="closet-detail-modal" role="presentation">
       <button className="closet-detail-backdrop" type="button" aria-label="스타일 상세 닫기" onClick={() => setSelectedRecord(null)} />
       <aside className="closet-detail-sheet" role="dialog" aria-modal="true" aria-labelledby="closet-detail-title">
