@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import ClosetPage from './components/ClosetPage';
+import ArPage from './components/ArPage';
 import App from './App';
 
 export default function ClosetApp() {
+  const isArPage = window.location.pathname.toLowerCase() === '/ar';
   const [showCloset, setShowCloset] = useState(() => window.location.hash === '#closet');
 
   useEffect(() => {
@@ -22,5 +24,6 @@ export default function ClosetApp() {
     };
   }, []);
 
+  if (isArPage) return <ArPage />;
   return showCloset ? <ClosetPage /> : <App />;
 }
