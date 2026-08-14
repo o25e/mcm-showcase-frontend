@@ -70,7 +70,13 @@ button { cursor: pointer; }
 .ar-page__progress-track--scanning span { width: 475px; }
 .ar-page__divider--scanning { top: calc(33.333% - 6px) !important; }
 .ar-page__scanning-title { position: absolute; top: calc(33.333% + 19px); left: 50%; margin: 0; color: #fff; font-size: 28px; font-weight: 300; line-height: 1; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }
-.ar-page__scanning-wave { position: absolute; top: calc(33.333% + 10px); left: 50%; width: 1400px; height: 450px; max-width: none; object-fit: fill; transform: translateX(-50%); pointer-events: none; }
+.ar-page__scanning-wave { position: absolute; top: calc(33.333% + 30px); left: 50%; width: 1400px; height: 340px; max-width: none; object-fit: fill; animation: ar-scanning-wave-float 1.5s ease-in-out infinite alternate; transform: translateX(-50%); pointer-events: none; }
+
+@keyframes ar-scanning-wave-float {
+  from { transform: translateX(-50%) translateY(-6px); }
+  to { transform: translateX(-50%) translateY(4px); }
+}
+
 .ar-page--scanning .ar-page__shade { background: rgb(20 12 10 / .16); }
 @media (max-width: 600px) { .ar-page__title { top: 24px; font-size: 28px; }.ar-page__content { margin-top: 13vh; }.ar-page__content p { margin-bottom: 48px; font-size: clamp(18px, 5vw, 25px); }.ar-page__mask { top: 80px; width: 115vw; }.ar-page__language { top: 24%; }.ar-page__consent-box { width: min(411px, calc(100vw - 36px)); }.ar-page__consent-title { font-size: clamp(21px, 5vw, 28px); }.ar-page__consent-description, .ar-page__consent-question { font-size: clamp(14px, 3.5vw, 19px); }.ar-page__scanning-wave { width: 873px; } }
 @media (max-width: 800px) { .ar-page__progress { gap: clamp(14px, 8vw, 102px); font-size: clamp(12px, 2.6vw, 21px); }.ar-page__question { font-size: clamp(20px, 4.5vw, 28px); }.ar-page__choices { gap: clamp(24px, 8vw, 67px); }.ar-page__progress-track { left: 18px; width: calc(100% - 36px); }.ar-page__scanning-title { font-size: clamp(20px, 4.5vw, 28px); } }
