@@ -101,7 +101,10 @@ export default function ArPage() {
             <img className="ar-page__qr" src="/assets/ar-login-qr.png" alt="MCM 회원 로그인 QR 코드" /> 
             <p className="ar-page__qr-copy">QR을 스캔하면<br />나의 쇼핑 여정을 불러올 수 있어요.</p> 
             <button className="ar-page__login-test" type="button" onClick={() => setScreen('member-loading')}>로그인 완료</button> 
-          </> : <div className="ar-page__choices"><button type="button">여성</button><button type="button">남성</button></div>} 
+          </> : <div className="ar-page__choices">
+            <button type="button" onClick={() => setScreen('consent-form')}>여성</button>
+            <button type="button" onClick={() => setScreen('consent-form')}>남성</button>
+          </div>} 
         </>} 
       </section>} 
     </main> 
