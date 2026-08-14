@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'; 
+import FittingHelpOverlay from './FittingHelpOverlay';
  
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR']; 
  
@@ -12,6 +13,7 @@ export default function ArPage() {
   const isConsentForm = screen === 'consent-form'; 
   const isScan = screen === 'scan'; 
   const isScanning = screen === 'scanning'; 
+  const isFittingHelp = screen === 'fitting-help'; 
  
   useEffect(() => { 
     if (screen !== 'member-loading') return; 
@@ -32,9 +34,20 @@ export default function ArPage() {
  
     return () => clearTimeout(timer); 
   }, [screen]); 
+
+  useEffect(() => {
+    if (screen !== 'scanning') return;
+
+    const timer = setTimeout(() => {
+      setScreen('fitting-help');
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [screen]);
  
   return ( 
     <main className={`ar-page ${isIntro ? 'ar-page--intro' : 'ar-page--flow'} ${isScanning ? 'ar-page--scanning' : ''}`}> 
+      {isFittingHelp ? <FittingHelpOverlay onClose={() => setScreen('intro')} /> : <>
       <img className="ar-page__background" src="/assets/ar-background.png" alt="MCM 매장 내부" /> 
       <div className="ar-page__shade" aria-hidden="true" /> 
  
@@ -104,6 +117,7 @@ export default function ArPage() {
           </> : <div className="ar-page__choices"><button type="button">여성</button><button type="button">남성</button></div>} 
         </>} 
       </section>} 
+      </>}
     </main> 
   ); 
 }
