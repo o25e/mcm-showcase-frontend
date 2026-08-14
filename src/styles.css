@@ -39,7 +39,13 @@ button { cursor: pointer; }
 .ar-page__qr { position: absolute; top: calc(33.333% + 73px); left: 50%; width: 159px; height: 153px; object-fit: contain; filter: drop-shadow(0 0 1.77px rgb(255 255 255 / .56)); transform: translateX(-50%); }
 .ar-page__qr-copy { position: absolute; top: calc(50% + 67px); left: 50%; margin: 0; color: #fff; font-size: 19px; font-weight: 300; line-height: 28px; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); transform: translateX(-50%); white-space: nowrap; }
 .ar-page__loading-message { position: absolute; top: calc(33.333% + 18px); left: 50%; margin: 0; color: #fff; font-size: 28px; font-weight: 300; line-height: 1; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }
-.ar-page__loading-spinner { position: absolute; top: calc(33.333% + 69px); left: 50%; width: 232px; height: 223px; object-fit: contain; transform: translateX(-50%); }
+/* .ar-page__loading-spinner { position: absolute; top: calc(33.333% + 69px); left: 50%; width: 232px; height: 223px; object-fit: contain; transform: translateX(-50%); } */
+.ar-page__loading-spinner { position: absolute; top: calc(33.333% + 79px); left: 50%; width: 232px; height: 223px; object-fit: contain; animation: ar-loading-spin 2s ease-in-out infinite; transform-origin: center; }
+@keyframes ar-loading-spin {
+  0% { transform: translateX(-50%) rotate(0deg); }
+  50% { transform: translateX(-50%) rotate(190deg); }
+  100% { transform: translateX(-50%) rotate(360deg); }
+}
 .ar-page__divider--loading { top: calc(33.333% - 7px) !important; }
 .ar-page__continue-icon { position: absolute; top: 33%; left: 50%; width: 54px; height: 34px; object-fit: contain; transform: translateX(-50%); }
 .ar-page__continue-title { position: absolute; top: calc(33.333% + 45px); left: 50%; margin: 0; color: #fff; font-size: 28px; font-weight: 300; line-height: 1; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }

@@ -15,7 +15,7 @@ export default function ArPage() {
  
     const timer = setTimeout(() => { 
       setScreen('consent'); 
-    }, 3500); 
+    }, 7500); 
  
     return () => clearTimeout(timer); 
   }, [screen]); 
