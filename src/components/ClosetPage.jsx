@@ -4,7 +4,8 @@ import LoginPanel from './LoginPanel';
 const navItems = ['신상품', '가방', '여성', '남성', '트래블', '라이프스타일', 'MCM ICONS', '선물 제안', 'MCM 소개', 'CLOSET'];
 
 const navLinks = {
-  '신상품': 'https://kr.mcmworldwide.com/ko_KR/new-%EC%8B%A0%EC%83%81%ED%92%88',
+  // '신상품': 'https://kr.mcmworldwide.com/ko_KR/new-%EC%8B%A0%EC%83%81%ED%92%88',
+  '신상품': '/',
   '가방': 'https://kr.mcmworldwide.com/ko_KR/%EA%B0%80%EB%B0%A9/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0',
   '여성': 'https://kr.mcmworldwide.com/ko_KR/%EC%97%AC%EC%84%B1/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0',
   '남성': 'https://kr.mcmworldwide.com/ko_KR/%EB%82%A8%EC%84%B1/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0',
@@ -96,8 +97,7 @@ export default function ClosetPage() {
     </header>
     <main>
       <section className="closet-hero" aria-labelledby="closet-title">
-        <img className="closet-hero-image" src="/assets/closet-hero.png" alt="MCM Closet 아바타" />
-        <img className="closet-hero-overlay" src="/assets/closet-hero-overlay.png" alt="" />
+        <img className="closet-hero-overlay" src="/assets/closet-hero-overlay.png" alt="MCM Closet 아바타" />
         <div className="closet-hero-copy"><h1 id="closet-title">CLOSET</h1><p>내 스타일에 맞는 MCM 아바타를 저장해보세요</p></div>
         <button className="closet-arrow closet-arrow-left" type="button" aria-label="이전 아바타">‹</button>
         <button className="closet-arrow closet-arrow-right" type="button" aria-label="다음 아바타">›</button>

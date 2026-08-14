@@ -100,7 +100,7 @@ button { cursor: pointer; }
 /* Closet page */
 .closet-page { min-width: 320px; background: #fff; overflow: hidden; }
 .closet-hero { position: relative; height: 742px; overflow: hidden; background: #262626; }
-.closet-hero-image, .closet-hero-overlay { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.closet-hero-overlay { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .closet-hero-overlay { object-position: center bottom; }
 .closet-hero-copy { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding-top: 177px; color: #e4e4e4; text-align: center; pointer-events: none; }
 .closet-hero-copy h1 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 85px; font-weight: 400; letter-spacing: -4px; line-height: 1; }
