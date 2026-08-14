@@ -10,7 +10,7 @@ button { cursor: pointer; }
 
 /* AR fitting start page */
 .ar-page { position: relative; display: grid; min-width: 320px; min-height: 100svh; overflow: hidden; place-items: center; background: #4c423e; color: #fff; font-family: 'Noto Sans KR', Inter, Arial, sans-serif; isolation: isolate; }
-.ar-page__background { position: absolute; z-index: -3; width: 2186px; min-width: 100%; height: 1230px; min-height: 100%; object-fit: cover; filter: blur(3.6px); }
+.ar-page__background { position: absolute; z-index: -3; left: 50%; width: 2186px; min-width: 100%; height: 1230px; min-height: 100%; object-fit: cover; filter: blur(3.6px); transform: translateX(-58%) translateY(20px); }
 .ar-page__shade { position: absolute; z-index: -2; inset: 0; background: rgb(20 12 10 / .28); }
 .ar-page__mask { position: absolute; z-index: -1; top: 47px; left: 50%; width: min(794px, 90vw); height: min(1127px, 92vh); transform: translateX(-50%); opacity: .9; }
 .ar-page__title { position: absolute; top: 27px; left: 50%; margin: 0; transform: translateX(-50%); color: #fff; font-size: 35px; font-weight: 400; line-height: 1; text-align: center; text-shadow: 0 0 3.26px rgb(255 255 255 / .6); white-space: nowrap; }
