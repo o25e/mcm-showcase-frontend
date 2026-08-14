@@ -3,19 +3,6 @@ import LoginPanel from './LoginPanel';
 
 const navItems = ['신상품', '가방', '여성', '남성', '트래블', '라이프스타일', 'MCM ICONS', '선물 제안', 'MCM 소개', 'CLOSET'];
 
-const navLinks = {
-  // '신상품': 'https://kr.mcmworldwide.com/ko_KR/new-%EC%8B%A0%EC%83%81%ED%92%88',
-  '신상품': '/',
-  '가방': 'https://kr.mcmworldwide.com/ko_KR/%EA%B0%80%EB%B0%A9/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0',
-  '여성': 'https://kr.mcmworldwide.com/ko_KR/%EC%97%AC%EC%84%B1/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0',
-  '남성': 'https://kr.mcmworldwide.com/ko_KR/%EB%82%A8%EC%84%B1/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0',
-  '트래블': 'https://kr.mcmworldwide.com/ko_KR/%EA%B0%80%EB%B0%A9/%ED%8A%B8%EB%9E%98%EB%B8%94',
-  '라이프스타일': 'https://kr.mcmworldwide.com/ko_KR/%EB%9D%BC%EC%9D%B4%ED%94%84%EC%8A%A4%ED%83%80%EC%9D%BC/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0',
-  'MCM ICONS': 'https://kr.mcmworldwide.com/ko_KR/mcm-icons',
-  '선물 제안': 'https://kr.mcmworldwide.com/ko_KR/gifts',
-  'MCM 소개': 'https://kr.mcmworldwide.com/ko_KR/about-us',
-};
-
 const records = [
   { image: '/assets/closet-card-1.png', date: '2026.01.12', title: '스타일 분석 명사구' },
   { image: '/assets/closet-card-1.png', date: '2026.01.12', title: '스타일 분석 명사구' },
@@ -29,6 +16,7 @@ const closetProducts = Array.from({ length: 10 }, () => ({
   name: 'Ottomar 비세토스 위켄더',
   price: '₩2,050,000',
   image: '/assets/figma-product.png',
+  url: 'https://kr.mcmworldwide.com/ko_KR/%ED%8A%B8%EB%9E%98%EB%B8%94/%EB%9F%AC%EA%B8%B0%EC%A7%80-%EB%B0%B1/ottomar-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EC%9C%84%EC%BC%84%EB%8D%94/MMVAAVY02CO001.html',
 }));
 
 export default function ClosetPage() {
@@ -89,7 +77,7 @@ export default function ClosetPage() {
       <div className="announcement-links"><a href="#closet-records">배송조회</a><a href="#closet-records">1:1 고객 문의</a><a href="#closet-records">KR(₩)/KO</a><a href="#closet-records">매장</a></div>
     </div>
     <header className="figma-nav closet-nav">
-      <nav aria-label="주 메뉴">{navItems.map((item) => <a href={item === 'CLOSET' ? '#closet' : navLinks[item]} className={item === 'CLOSET' ? 'active' : ''} key={item}>{item}</a>)}</nav>
+      <nav aria-label="주 메뉴">{navItems.map((item) => <a href={item === 'CLOSET' ? '#closet' : '#top'} className={item === 'CLOSET' ? 'active' : ''} key={item}>{item}</a>)}</nav>
       <a className="figma-logo" href="#top" aria-label="MCM 홈"><img src="/assets/figma-logo.png" alt="MCM" /></a>
       <div className="figma-tools">
         {[['검색', 'figma-search.svg'], ['마이 페이지', 'figma-user.svg'], ['위시리스트', 'figma-heart.svg'], ['쇼핑백', 'figma-bag.svg']].map(([label, icon]) => <button type="button" aria-label={label} key={label} onClick={label === '마이 페이지' ? () => setIsLoginOpen(true) : undefined}><img src={`/assets/${icon}`} alt="" /></button>)}
@@ -115,8 +103,8 @@ export default function ClosetPage() {
           <img className="closet-detail-avatar" src={selectedRecord.image} alt="선택한 스타일 아바타" />
           <div className="closet-detail-main">
             <header className="closet-detail-header"><p>{selectedRecord.date}</p><h2 id="closet-detail-title">{selectedRecord.title}</h2><span><img src="/assets/icon-place.svg" alt="" /> 이태원 플래그십</span><div className="closet-detail-stats"><span><img src="/assets/icon-cloth.png" alt="" />2</span><span><img src="/assets/icon-heart-big.png" alt="" />3</span></div></header>
-            <section className="closet-outfit"><h3>오늘의 룩</h3><div className="closet-product-today"><img src={closetProducts[0].image} alt={closetProducts[0].name} /><button type="button" aria-label="상품 찜하기"><img src="/assets/icon-heart-small.png" alt="" /></button><p>{closetProducts[0].name}</p><small>{closetProducts[0].price}</small></div></section>
-            <section className="closet-history"><h3>HISTORY</h3><div className="closet-history-carousel"><div className="closet-history-list" ref={historyRef} onPointerDown={startHistoryDrag}>{closetProducts.map((product, index) => <article className="closet-history-card" key={index}><div><img src={product.image} alt={product.name} draggable="false" /><button type="button" aria-label="상품 찜하기"><img src="/assets/icon-heart-small.png" alt="" /></button></div><p>{product.name}</p><small>{product.price}</small></article>)}</div><span className="closet-history-next" aria-hidden="true"><img src="/assets/icon-next.png" alt="" /></span></div></section>
+            <section className="closet-outfit"><h3>오늘의 룩</h3><div className="closet-product-today"><a className="closet-product-link" href={closetProducts[0].url} target="_blank" rel="noreferrer"><img src={closetProducts[0].image} alt={closetProducts[0].name} /></a><button type="button" aria-label="상품 찜하기"><img src="/assets/icon-heart-small.png" alt="" /></button><p>{closetProducts[0].name}</p><small>{closetProducts[0].price}</small></div></section>
+            <section className="closet-history"><h3>HISTORY</h3><div className="closet-history-carousel"><div className="closet-history-list" ref={historyRef} onPointerDown={startHistoryDrag}>{closetProducts.map((product, index) => <article className="closet-history-card" key={index}><div><a className="closet-product-link" href={product.url} target="_blank" rel="noreferrer"><img src={product.image} alt={product.name} draggable="false" /></a><button type="button" aria-label="상품 찜하기"><img src="/assets/icon-heart-small.png" alt="" /></button></div><p>{product.name}</p><small>{product.price}</small></article>)}</div><span className="closet-history-next" aria-hidden="true"><img src="/assets/icon-next.png" alt="" /></span></div></section>
           </div>
         </div>
       </aside>
