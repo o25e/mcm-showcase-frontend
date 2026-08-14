@@ -38,6 +38,14 @@ button { cursor: pointer; }
 .ar-page__flow-content .ar-page__question { top: calc(16.667% + 165px); }
 .ar-page__qr { position: absolute; top: calc(33.333% + 73px); left: 50%; width: 159px; height: 153px; object-fit: contain; filter: drop-shadow(0 0 1.77px rgb(255 255 255 / .56)); transform: translateX(-50%); }
 .ar-page__qr-copy { position: absolute; top: calc(50% + 67px); left: 50%; margin: 0; color: #fff; font-size: 19px; font-weight: 300; line-height: 28px; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); transform: translateX(-50%); white-space: nowrap; }
+.ar-page__loading-message { position: absolute; top: calc(33.333% + 18px); left: 50%; margin: 0; color: #fff; font-size: 28px; font-weight: 300; line-height: 1; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }
+.ar-page__loading-spinner { position: absolute; top: calc(33.333% + 69px); left: 50%; width: 232px; height: 223px; object-fit: contain; transform: translateX(-50%); }
+.ar-page__divider--loading { top: calc(33.333% - 7px) !important; }
+.ar-page__continue-icon { position: absolute; top: 33%; left: 50%; width: 54px; height: 34px; object-fit: contain; transform: translateX(-50%); }
+.ar-page__continue-title { position: absolute; top: calc(33.333% + 45px); left: 50%; margin: 0; color: #fff; font-size: 28px; font-weight: 300; line-height: 1; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }
+.ar-page__continue-copy { position: absolute; top: calc(33.333% + 135px); left: 50%; margin: 0; color: #fff; font-size: 19px; font-weight: 300; line-height: 28px; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }
+.ar-page__continue-button { position: absolute; top: calc(50% + 12px); left: 50%; width: 199px; height: 83px; padding: 0; border: 0; border-radius: 5px; background: rgb(217 217 217 / .14); box-shadow: 0 0 5.41px rgb(255 255 255 / .25); color: #fff; font-size: 23px; font-weight: 300; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); transform: translateX(-50%); }
+.ar-page__continue-button:hover, .ar-page__continue-button:focus-visible { background: rgb(217 217 217 / .28); outline: 1px solid rgb(255 255 255 / .7); outline-offset: 4px; }
 @media (max-width: 600px) { .ar-page__title { top: 24px; font-size: 28px; }.ar-page__content { margin-top: 13vh; }.ar-page__content p { margin-bottom: 48px; font-size: clamp(18px, 5vw, 25px); }.ar-page__mask { top: 80px; width: 115vw; }.ar-page__language { top: 24%; } }
 @media (max-width: 800px) { .ar-page__progress { gap: clamp(14px, 8vw, 102px); font-size: clamp(12px, 2.6vw, 21px); }.ar-page__question { font-size: clamp(20px, 4.5vw, 28px); }.ar-page__choices { gap: clamp(24px, 8vw, 67px); }.ar-page__progress-track { left: 18px; width: calc(100% - 36px); } }
 
