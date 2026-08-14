@@ -10,6 +10,7 @@ export default function ArPage() {
   const isMemberLoading = screen === 'member-loading'; 
   const isConsent = screen === 'consent'; 
   const isConsentForm = screen === 'consent-form'; 
+  const isScan = screen === 'scan'; 
  
   useEffect(() => { 
     if (screen !== 'member-loading') return; 
@@ -47,11 +48,11 @@ export default function ArPage() {
           <button type="button" onClick={() => setScreen('member-login')}>네</button> 
           <button type="button" onClick={() => setScreen('guest-gender')}>아니요</button> 
         </div> 
-      </section> : <section className="ar-page__flow-content" aria-labelledby={isMemberLoading ? 'loading-message' : isConsent ? 'consent-message' : isConsentForm ? 'consent-form-title' : 'flow-question'}> 
+      </section> : <section className="ar-page__flow-content" aria-labelledby={isMemberLoading ? 'loading-message' : isConsent ? 'consent-message' : isConsentForm ? 'consent-form-title' : isScan ? 'scan-title' : 'flow-question'}> 
         <nav className="ar-page__progress" aria-label="AR fitting progress"> 
-          {steps.map((label, index) => <span className={index === 0 || (isConsentForm && index === 1) ? 'active' : ''} key={label}>{index === 0 ? (isMemberLogin || isMemberLoading || isConsent || isConsentForm ? 'LOGIN' : 'GENDER') : label}</span>)} 
+          {steps.map((label, index) => <span className={index === 0 || (isConsentForm && index === 1) || (isScan && index <= 2) ? 'active' : ''} key={label}>{index === 0 ? (isMemberLogin || isMemberLoading || isConsent || isConsentForm || isScan ? 'LOGIN' : 'GENDER') : label}</span>)} 
         </nav> 
-        <div className={`ar-page__progress-track ${isConsentForm ? 'ar-page__progress-track--consent' : ''}`} aria-hidden="true"><span /></div> 
+        <div className={`ar-page__progress-track ${isConsentForm ? 'ar-page__progress-track--consent' : ''} ${isScan ? 'ar-page__progress-track--scan' : ''}`} aria-hidden="true"><span /></div> 
         {isMemberLoading ? <> 
           <span className="ar-page__divider ar-page__divider--loading" aria-hidden="true" /> 
           <p id="loading-message" className="ar-page__loading-message">지난번 MCM에서의 쇼핑 여정을 불러오고 있어요.</p> 
@@ -70,6 +71,14 @@ export default function ArPage() {
             <p className="ar-page__consent-question">개인정보 수집 및 이용에 동의하십니까?</p> 
             <button className="ar-page__consent-button" type="button" onClick={() => setScreen('scan')}>동의하고 스캔 시작</button> 
           </div> 
+        </> : isScan ? <> 
+          <span className="ar-page__divider ar-page__divider--scan" aria-hidden="true" /> 
+          <p id="scan-title" className="ar-page__scan-title">스캔을 준비하고 있습니다.</p> 
+          <img className="ar-page__scan-guide" src="/assets/ar-scan-guide.png" alt="스캔 자세 가이드" /> 
+          <div className="ar-page__scan-description"> 
+            <p>바닥의 가이드 라인에 맞춰 서주세요.</p> 
+            <p>화면의 실루엣에 맞춰 자연스럽게 정면을 바라봐 주세요.</p> 
+          </div> 
         </> : <> 
           <span className="ar-page__divider" aria-hidden="true" /> 
           <p id="flow-question" className="ar-page__question">{isMemberLogin ? 'MCM 회원 로그인을 진행해주세요.' : '당신의 성별을 선택해주세요.'}</p> 
@@ -82,4 +91,4 @@ export default function ArPage() {
       </section>} 
     </main> 
   ); 
-} 
+}
