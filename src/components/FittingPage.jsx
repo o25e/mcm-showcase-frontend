@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 const categories = ['Bags', 'Tops', 'Bottoms', 'Shoes', 'Accessories'];
@@ -6,89 +6,257 @@ const categories = ['Bags', 'Tops', 'Bottoms', 'Shoes', 'Accessories'];
 const products = [
   {
     productId: 1,
-    productCode: 'MWPGALR01BK001',
     name: 'New Liz 엠보스드 모노그램 레더 쇼퍼',
     price: 1490000,
     image: 'https://api.mcm-showcase.com/images/MWPGALR01BK001.jpg',
+    avatarImage: '/assets/figma-fitting/avatar-product-1.png',
   },
   {
     productId: 2,
-    productCode: 'MWHGAXT03CO001',
     name: 'Tracy 비세토스 호보',
     price: 1690000,
     image: 'https://api.mcm-showcase.com/images/MWHGAXT03CO001.jpg',
+    avatarImage: '/assets/figma-fitting/avatar-product-2.png',
   },
   {
     productId: 3,
-    productCode: 'MMKGATA01BK001',
     name: 'Aren 다이아몬드 퀼팅 레더 백팩',
     price: 2690000,
     image: 'https://api.mcm-showcase.com/images/MMKGATA01BK001.jpg',
+    avatarImage: '/assets/figma-fitting/avatar-product-3.png',
   },
   {
     productId: 4,
-    productCode: 'MMVAAVY02BK001',
     name: 'Ottomar 비세토스 위켄더',
     price: 2050000,
     image: 'https://api.mcm-showcase.com/images/MMVAAVY02BK001.jpg',
+    avatarImage: '/assets/figma-fitting/avatar-product-4.png',
   },
   {
     productId: 5,
-    productCode: 'MWPGSLR024B001',
     name: 'New Liz 비세토스 쇼퍼',
     price: 1090000,
     image: 'https://api.mcm-showcase.com/images/MWPGSLR024B001.jpg',
+    avatarImage: '/assets/figma-fitting/avatar-product-5.png',
   },
   {
     productId: 6,
-    productCode: 'MMZGSFI01BK001',
     name: 'Fursten 모노그램 나일론 벨트백',
     price: 650000,
     image: 'https://api.mcm-showcase.com/images/MMZGSFI01BK001.jpg',
+    avatarImage: '/assets/figma-fitting/avatar-product-6.png',
   },
 ];
 
-export default function FittingPage({ onFinish }) {
+const defaultAvatar = '/assets/figma-fitting/avatar.png';
+
+export default function FittingPage({ onFinish, arSessionId }) {
   const [category, setCategory] = useState('Bags');
   const [selected, setSelected] = useState(0);
   const [open, setOpen] = useState(false);
+  const [avatarImage, setAvatarImage] = useState(defaultAvatar);
+  const [history, setHistory] = useState([]);
+  const [error, setError] = useState('');
+  const historyRef = useRef(null);
 
   const selectedProduct = products[selected];
 
+  const visibleHistory = [
+    ...history,
+    ...Array.from(
+      { length: Math.max(0, 3 - history.length) },
+      () => null
+    ),
+  ];
+
+  function selectProduct(product, index) {
+    setSelected(index);
+    setOpen(true);
+    setError('');
+  }
+
+  async function fitSelectedProduct() {
+    setAvatarImage(selectedProduct.avatarImage);
+
+    setHistory((items) => [
+      {
+        id: `${selectedProduct.productId}-${Date.now()}`,
+        productId: selectedProduct.productId,
+        productName: selectedProduct.name,
+        imageUrl: selectedProduct.image,
+        avatarImage: selectedProduct.avatarImage,
+      },
+      ...items.filter(
+        (item) => item.productId !== selectedProduct.productId
+      ),
+    ]);
+
+    setOpen(false);
+    setError('');
+
+    try {
+      const response = await fetch('/api/ar-interactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          arSessionId,
+          productId: selectedProduct.productId,
+          interactionType: 'PRODUCT_SELECT',
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+
+        console.error('PRODUCT_SELECT 실패:', {
+          status: response.status,
+          body: errorText,
+          arSessionId,
+          productId: selectedProduct.productId,
+        });
+      }
+    } catch (fitError) {
+      console.error('PRODUCT_SELECT error:', fitError);
+    }
+  }
+
+  useEffect(() => {
+    if (historyRef.current) {
+      historyRef.current.scrollTop = 0;
+    }
+  }, [history.length]);
+
   return (
-    <section className="fitting-page" aria-labelledby="fitting-page-title">
-      <img className="fitting-page__background" src="/assets/figma-fitting/raw_1.png" alt="" aria-hidden="true" />
+    <section
+      className="fitting-page"
+      aria-labelledby="fitting-page-title"
+    >
+      <img
+        className="fitting-page__background"
+        src="/assets/figma-fitting/raw_1.png"
+        alt=""
+        aria-hidden="true"
+      />
+
       <div className="fitting-page__shade" />
 
-      <nav className="fitting-page__steps" aria-label="AR fitting progress">
+      <nav
+        className="fitting-page__steps"
+        aria-label="AR fitting progress"
+      >
         {steps.map((step, index) => (
-          <span className={index < 4 ? 'active' : ''} key={step}>{step}</span>
+          <span
+            className={index < 4 ? 'active' : ''}
+            key={step}
+          >
+            {step}
+          </span>
         ))}
       </nav>
-      <div className="fitting-page__track"><span /></div>
 
-      <h1 id="fitting-page-title" className="fitting-page__history-title">History</h1>
-      <div className="fitting-page__history">
-        {[0, 1, 2].map((item) => (
-          <button className="fitting-page__history-card" type="button" key={item}>
-            <img src="/assets/product-detail-heart-small.svg" alt="" />
-            <img src="/assets/icon-cloth.png" alt="" />
-          </button>
-        ))}
+      <div className="fitting-page__track">
+        <span />
       </div>
+
+      <h1
+        id="fitting-page-title"
+        className="fitting-page__history-title"
+      >
+        History
+      </h1>
+
+      <div
+        className="fitting-page__history"
+        ref={historyRef}
+        aria-label="피팅 히스토리"
+      >
+        {visibleHistory.map((item, index) => {
+          return (
+            <button
+              className={`fitting-page__history-card ${
+                item ? 'active' : ''
+              }`}
+              type="button"
+              key={
+                item
+                  ? item.id
+                  : `history-empty-${index}`
+              }
+              onClick={() =>
+                item &&
+                setAvatarImage(item.avatarImage)
+              }
+              disabled={!item}
+            >
+              <img
+                className="fitting-page__history-heart"
+                src="/assets/product-detail-heart-small.svg"
+                alt=""
+              />
+
+              <img
+                className="fitting-page__history-hanger"
+                src="/assets/icon-cloth.png"
+                alt=""
+              />
+
+              {item && (
+                <img
+                  className="fitting-page__history-product"
+                  src={item.imageUrl}
+                  alt={`${item.productName} 피팅 기록`}
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      <span
+        className="fitting-page__history-rule"
+        aria-hidden="true"
+      />
 
       <div className="fitting-page__comment">
         <h2>Comment</h2>
         <span />
       </div>
 
-      <img className="fitting-page__avatar" src="/assets/figma-fitting/avatar.png" alt="fitting avatar" />
-      <button className="fitting-page__finish" type="button" onClick={onFinish}>피팅 종료하기</button>
+      <img
+        className="fitting-page__avatar"
+        src={avatarImage}
+        alt="fitting avatar"
+      />
 
-      <section className="fitting-page__catalog" aria-label="추천 상품">
-        <div className="fitting-page__tabs" role="tablist">
+      <button
+        className="fitting-page__finish"
+        type="button"
+        onClick={onFinish}
+      >
+        피팅 종료하기
+      </button>
+
+      <section
+        className="fitting-page__catalog"
+        aria-label="추천 상품"
+      >
+        <div
+          className="fitting-page__tabs"
+          role="tablist"
+        >
           {categories.map((item) => (
-            <button className={category === item ? 'active' : ''} type="button" role="tab" aria-selected={category === item} onClick={() => setCategory(item)} key={item}>
+            <button
+              className={
+                category === item ? 'active' : ''
+              }
+              type="button"
+              role="tab"
+              aria-selected={category === item}
+              onClick={() => setCategory(item)}
+              key={item}
+            >
               {item}
             </button>
           ))}
@@ -99,36 +267,83 @@ export default function FittingPage({ onFinish }) {
         <div className="fitting-page__product-grid">
           {products.map((product, index) => (
             <button
-              className={`fitting-page__product ${selected === index ? 'selected' : ''}`}
+              className={`fitting-page__product ${
+                selected === index
+                  ? 'selected'
+                  : ''
+              }`}
               type="button"
-              onClick={() => {
-                setSelected(index);
-                setOpen(true);
-              }}
+              onClick={() =>
+                selectProduct(product, index)
+              }
               key={product.productId}
               aria-label={product.name}
             >
-              <img src={product.image} alt={product.name} />
+              <img
+                src={product.image}
+                alt={product.name}
+              />
             </button>
           ))}
         </div>
 
         <span className="fitting-page__product-bottom-rule" />
 
-        <button className="fitting-page__refresh" type="button" onClick={() => setSelected((selected + 1) % products.length)}>
-          <img src="/assets/figma-fitting-refresh.svg" alt="새로고침" />
+        <button
+          className="fitting-page__refresh"
+          type="button"
+          onClick={() =>
+            setSelected(
+              (selected + 1) % products.length
+            )
+          }
+        >
+          <img
+            src="/assets/figma-fitting-refresh.svg"
+            alt="새로고침"
+          />
         </button>
       </section>
 
       {open && (
-        <div className="fitting-product-frame-backdrop" role="presentation" onClick={() => setOpen(false)}>
-          <article className="fitting-product-frame" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
-            <button className="fitting-product-frame__close" type="button" onClick={() => setOpen(false)} aria-label="닫기">×</button>
+        <div
+          className="fitting-product-frame-backdrop"
+          role="presentation"
+          onClick={() => setOpen(false)}
+        >
+          <article
+            className="fitting-product-frame"
+            role="dialog"
+            aria-modal="true"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+            <button
+              className="fitting-product-frame__close"
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label="닫기"
+            >
+              ×
+            </button>
 
-            <img className="fitting-product-frame__image" src={selectedProduct.image} alt={selectedProduct.name} />
+            <img
+              className="fitting-product-frame__image"
+              src={selectedProduct.image}
+              alt={selectedProduct.name}
+            />
+
             <h2>{selectedProduct.name}</h2>
-            <p className="fitting-product-frame__price">₩ {selectedProduct.price.toLocaleString()}</p>
-            <p className="fitting-product-frame__color">Color</p>
+
+            <p className="fitting-product-frame__price">
+              ₩{' '}
+              {selectedProduct.price.toLocaleString()}
+            </p>
+
+            <p className="fitting-product-frame__color">
+              Color
+            </p>
 
             <div className="fitting-product-frame__swatches">
               <span />
@@ -137,7 +352,22 @@ export default function FittingPage({ onFinish }) {
               <span />
             </div>
 
-            <button className="fitting-product-frame__fit" type="button" onClick={() => setOpen(false)}>피팅하기</button>
+            {error && (
+              <p
+                role="alert"
+                className="fitting-error"
+              >
+                {error}
+              </p>
+            )}
+
+            <button
+              className="fitting-product-frame__fit"
+              type="button"
+              onClick={fitSelectedProduct}
+            >
+              피팅하기
+            </button>
           </article>
         </div>
       )}
