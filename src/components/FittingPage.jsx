@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { getArCopy } from './arCopy';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 const categories = ['Bags', 'Tops', 'Bottoms', 'Shoes', 'Accessories'];
@@ -50,7 +51,8 @@ const products = [
 
 const defaultAvatar = '/assets/figma-fitting/avatar.png';
 
-export default function FittingPage({ onFinish, arSessionId }) {
+export default function FittingPage({ onFinish, arSessionId, language = 'ko' }) {
+  const t = getArCopy(language);
   const [category, setCategory] = useState('Bags');
   const [selected, setSelected] = useState(0);
   const [open, setOpen] = useState(false);
@@ -92,9 +94,9 @@ export default function FittingPage({ onFinish, arSessionId }) {
         <div className="ar-page__progress-track ar-page__progress-track--avatar" aria-hidden="true"><span /></div>
 
         <span className="avatar-generating-page__divider" aria-hidden="true" />
-        <p id="avatar-generating-title" className="avatar-generating-page__message">
+        {language === 'en' ? <p id="avatar-generating-title" className="avatar-generating-page__message">{t.avatarGenerating}</p> : <p id="avatar-generating-title" className="avatar-generating-page__message">
           오늘의 쇼핑 여정을 담은 Avatar를 만들고 있어요.
-        </p>
+        </p>}
         <img className="avatar-generating-page__wave" src="/assets/ar-scanning-wave.png" alt="" aria-hidden="true" />
       </main>
     );
@@ -163,7 +165,7 @@ export default function FittingPage({ onFinish, arSessionId }) {
 
   return (
     <section
-      className="fitting-page"
+      className={`fitting-page ${language === 'en' ? 'fitting-page--en' : ''}`}
       aria-labelledby="fitting-page-title"
     >
       <img
@@ -270,6 +272,8 @@ export default function FittingPage({ onFinish, arSessionId }) {
       >
         피팅 종료하기
       </button>
+
+      {language === 'en' && <button className="fitting-page__finish fitting-page__finish--english" type="button" onClick={() => setIsGeneratingAvatar(true)}>{t.fittingFinish}</button>}
 
       <section
         className="fitting-page__catalog"
