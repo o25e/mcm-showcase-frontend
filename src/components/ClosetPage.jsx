@@ -19,7 +19,7 @@ const closetProducts = Array.from({ length: 10 }, () => ({
   url: 'https://kr.mcmworldwide.com/ko_KR/%ED%8A%B8%EB%9E%98%EB%B8%94/%EB%9F%AC%EA%B8%B0%EC%A7%80-%EB%B0%B1/ottomar-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EC%9C%84%EC%BC%84%EB%8D%94/MMVAAVY02CO001.html',
 }));
 
-export default function ClosetPage() {
+export default function ClosetPage({ member, onLoginSuccess }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const historyRef = useRef(null);
@@ -93,7 +93,7 @@ export default function ClosetPage() {
       <section className="closet-login" aria-label="로그인 안내"><p>오늘의 스타일을 이어가세요.<br />로그인하면 이 Avatar를 저장하고 다음 쇼핑에서도 나만의 MCM Closet을 이어갈 수 있어요.</p><button type="button" onClick={() => setIsLoginOpen(true)}>로그인 하기</button></section>
       <section className="closet-records" id="closet-records" aria-label="스타일 기록"><div className="closet-record-grid">{records.map((record, index) => <article className="closet-record" key={index} role="button" tabIndex={0} onClick={() => setSelectedRecord(record)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setSelectedRecord(record); }}><div className="closet-record-image"><img src={record.image} alt="스타일 기록" /><button type="button" className='closet-record-wish' aria-label="스타일 기록 저장" onClick={(event) => event.stopPropagation()}><img src="/assets/figma-heart-small.svg" alt=""></img></button></div><div className="closet-record-copy"><p>{record.date}</p><h2>{record.title}</h2><span><img src="/assets/icon-place.svg"></img> 이태원 플래그십</span></div></article>)}</div></section>
     </main>
-    {isLoginOpen && <LoginPanel onClose={() => setIsLoginOpen(false)} />}
+    {isLoginOpen && <LoginPanel onClose={() => setIsLoginOpen(false)} onLoginSuccess={onLoginSuccess} />}
     {selectedRecord && <div className="closet-detail-modal" role="presentation">
       <button className="closet-detail-backdrop" type="button" aria-label="스타일 상세 닫기" onClick={() => setSelectedRecord(null)} />
       <aside className="closet-detail-sheet" role="dialog" aria-modal="true" aria-labelledby="closet-detail-title">

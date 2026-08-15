@@ -6,6 +6,7 @@ import App from './App';
 export default function ClosetApp() {
   const isArPage = window.location.pathname.toLowerCase() === '/ar';
   const [showCloset, setShowCloset] = useState(() => window.location.hash === '#closet');
+  const [member, setMember] = useState(null);
 
   useEffect(() => {
     const syncPage = () => setShowCloset(window.location.hash === '#closet');
@@ -25,5 +26,5 @@ export default function ClosetApp() {
   }, []);
 
   if (isArPage) return <ArPage />;
-  return showCloset ? <ClosetPage /> : <App />;
+  return showCloset ? <ClosetPage member={member} onLoginSuccess={setMember} /> : <App member={member} onLoginSuccess={setMember} />;
 }
