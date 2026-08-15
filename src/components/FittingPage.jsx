@@ -9,58 +9,65 @@ const products = [
     name: 'New Liz 엠보스드 모노그램 레더 쇼퍼',
     price: 1490000,
     image: 'https://api.mcm-showcase.com/images/MWPGALR01BK001.jpg',
-    avatarImage: '/assets/figma-fitting/avatar-product-1.png',
   },
   {
     productId: 2,
     name: 'Tracy 비세토스 호보',
     price: 1690000,
     image: 'https://api.mcm-showcase.com/images/MWHGAXT03CO001.jpg',
-    avatarImage: '/assets/figma-fitting/avatar-product-2.png',
   },
   {
     productId: 3,
     name: 'Aren 다이아몬드 퀼팅 레더 백팩',
     price: 2690000,
     image: 'https://api.mcm-showcase.com/images/MMKGATA01BK001.jpg',
-    avatarImage: '/assets/figma-fitting/avatar-product-3.png',
   },
   {
     productId: 4,
     name: 'Ottomar 비세토스 위켄더',
     price: 2050000,
     image: 'https://api.mcm-showcase.com/images/MMVAAVY02BK001.jpg',
-    avatarImage: '/assets/figma-fitting/avatar-product-4.png',
   },
   {
     productId: 5,
     name: 'New Liz 비세토스 쇼퍼',
     price: 1090000,
     image: 'https://api.mcm-showcase.com/images/MWPGSLR024B001.jpg',
-    avatarImage: '/assets/figma-fitting/avatar-product-5.png',
   },
   {
     productId: 6,
     name: 'Fursten 모노그램 나일론 벨트백',
     price: 650000,
     image: 'https://api.mcm-showcase.com/images/MMZGSFI01BK001.jpg',
-    avatarImage: '/assets/figma-fitting/avatar-product-6.png',
   },
 ];
 
-const defaultAvatar = '/assets/figma-fitting/avatar.png';
+const avatarByGender = {
+  FEMALE: '/assets/figma-fitting/model_f.png',
+  MALE: '/assets/figma-fitting/model_m.png',
+};
 
-export default function FittingPage({ onFinish, arSessionId }) {
+const completeAvatarByGender = {
+  FEMALE: '/assets/avatar-complete/avatar_f.png',
+  MALE: '/assets/avatar-complete/avatar_m.png',
+};
+
+export default function FittingPage({ onFinish, arSessionId, gender }) {
   const [category, setCategory] = useState('Bags');
   const [selected, setSelected] = useState(0);
   const [open, setOpen] = useState(false);
-  const [avatarImage, setAvatarImage] = useState(defaultAvatar);
+  const selectedAvatar = avatarByGender[gender] ?? avatarByGender.FEMALE;
+  const [avatarImage, setAvatarImage] = useState(selectedAvatar);
   const [history, setHistory] = useState([]);
   const [error, setError] = useState('');
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const historyRef = useRef(null);
 
   const selectedProduct = products[selected];
+
+  useEffect(() => {
+    setAvatarImage(selectedAvatar);
+  }, [selectedAvatar]);
 
   useEffect(() => {
     if (historyRef.current) {
@@ -72,7 +79,7 @@ export default function FittingPage({ onFinish, arSessionId }) {
     if (!isGeneratingAvatar) return undefined;
 
     const timer = window.setTimeout(() => {
-      onFinish?.(avatarImage);
+      onFinish?.(completeAvatarByGender[gender] ?? completeAvatarByGender.FEMALE);
     }, 5000);
 
     return () => window.clearTimeout(timer);
@@ -115,7 +122,7 @@ export default function FittingPage({ onFinish, arSessionId }) {
   }
 
   async function fitSelectedProduct() {
-    setAvatarImage(selectedProduct.avatarImage);
+    setAvatarImage(selectedAvatar);
 
     setHistory((items) => [
       {
@@ -123,7 +130,7 @@ export default function FittingPage({ onFinish, arSessionId }) {
         productId: selectedProduct.productId,
         productName: selectedProduct.name,
         imageUrl: selectedProduct.image,
-        avatarImage: selectedProduct.avatarImage,
+        avatarImage: selectedAvatar,
       },
       ...items.filter(
         (item) => item.productId !== selectedProduct.productId

@@ -8,7 +8,9 @@ const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 export default function ArPage() { 
   const [language, setLanguage] = useState('ko'); 
   const [screen, setScreen] = useState('intro'); 
-  const [completedAvatar, setCompletedAvatar] = useState('/assets/avatar-complete/avatar.png');
+  const [arSessionId, setArSessionId] = useState(null);
+  const [gender, setGender] = useState(null);
+  const [completedAvatar, setCompletedAvatar] = useState('/assets/avatar-complete/avatar_f.png');
   const isIntro = screen === 'intro'; 
   const isMemberLogin = screen === 'member-login'; 
   const isMemberLoading = screen === 'member-loading'; 
@@ -19,6 +21,69 @@ export default function ArPage() {
   const isFittingHelp = screen === 'fitting-help';
   const isFitting = screen === 'fitting';
   const isAvatarComplete = screen === 'avatar-complete';
+
+  const handleStart = async () => {
+    try {
+      const response = await fetch('https://api.mcm-showcase.com/api/ar-sessions', {
+        method: 'POST',
+        headers: {
+          Accept: '*/*',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`AR 세션 생성 실패: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      setArSessionId(data.arSessionId);
+
+      console.log('AR Session ID:', data.arSessionId);
+
+      setScreen('member-check');
+    } catch (error) {
+      console.error('AR 세션 생성 오류:', error);
+    }
+  };
+
+  const handleGenderSelect = async (gender) => {
+    if (!arSessionId) {
+      console.error('AR Session ID가 없습니다.');
+      return;
+    }
+
+    try {
+      setGender(gender);
+      const response = await fetch(
+        `https://api.mcm-showcase.com/api/ar-sessions/${arSessionId}/gender`,
+        {
+          method: 'PATCH',
+          headers: {
+            Accept: '*/*',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            gender,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('성별 저장 서버 응답:', errorText);
+        throw new Error(`성별 저장 실패: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      console.log('성별 저장 완료:', data);
+
+      setScreen('consent-form');
+    } catch (error) {
+      console.error('성별 저장 오류:', error);
+    }
+  };
  
   useEffect(() => { 
     if (screen !== 'member-loading') return; 
@@ -52,7 +117,7 @@ export default function ArPage() {
  
   return ( 
     <main className={`ar-page ${isIntro ? 'ar-page--intro' : 'ar-page--flow'} ${isScanning ? 'ar-page--scanning' : ''}`}> 
-      {isFittingHelp ? <FittingHelpOverlay onClose={() => setScreen('fitting')} /> : isFitting ? <FittingPage onFinish={() => { setCompletedAvatar('/assets/avatar-complete/avatar.png'); setScreen('avatar-complete'); }} /> : isAvatarComplete ? <AvatarCompletePage avatarImage={completedAvatar} onFinish={() => setScreen('intro')} /> : <>
+      {isFittingHelp ? <FittingHelpOverlay onClose={() => setScreen('fitting')} /> : isFitting ? <FittingPage gender={gender} onFinish={(avatarImage) => { setCompletedAvatar(avatarImage); setScreen('avatar-complete'); }} /> : isAvatarComplete ? <AvatarCompletePage avatarImage={completedAvatar} onFinish={() => setScreen('intro')} /> : <>
       <img className="ar-page__background" src="/assets/ar-background.png" alt="MCM 매장 내부" /> 
       <div className="ar-page__shade" aria-hidden="true" /> 
  
@@ -62,7 +127,7 @@ export default function ArPage() {
         <section className="ar-page__content" aria-labelledby="ar-intro"> 
           <span className="ar-page__logo" aria-label="MCM"><img src="/assets/ar-mcm-logo.png" alt="" /></span> 
           <p id="ar-intro">{language === 'ko' ? '나만의 MCM 스타일을 만나보세요.' : 'Discover your own MCM style.'}</p> 
-          <button className="ar-page__start" type="button" onClick={() => setScreen('member-check')}>START</button> 
+          <button className="ar-page__start" type="button" onClick={handleStart}>START</button> 
         </section> 
         <div className="ar-page__language" role="group" aria-label="언어 선택"> 
           <button type="button" className={language === 'en' ? 'active' : ''} onClick={() => setLanguage('en')}>English</button> 
@@ -120,8 +185,8 @@ export default function ArPage() {
             <p className="ar-page__qr-copy">QR을 스캔하면<br />나의 쇼핑 여정을 불러올 수 있어요.</p> 
             <button className="ar-page__login-test" type="button" onClick={() => setScreen('member-loading')}>로그인 완료</button> 
           </> : <div className="ar-page__choices">
-            <button type="button" onClick={() => setScreen('consent-form')}>여성</button>
-            <button type="button" onClick={() => setScreen('consent-form')}>남성</button>
+            <button type="button" onClick={() => handleGenderSelect('FEMALE')}>여성</button>
+            <button type="button" onClick={() => handleGenderSelect('MALE')}>남성</button>
           </div>} 
         </>} 
       </section>} 

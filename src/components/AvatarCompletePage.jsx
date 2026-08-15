@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 
-export default function AvatarCompletePage({ avatarImage = '/assets/avatar-complete/avatar.png', onFinish }) {
+export default function AvatarCompletePage({ avatarImage = '/assets/avatar-complete/avatar_f.png', onFinish }) {
   const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
 
   useEffect(() => {
