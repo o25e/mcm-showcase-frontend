@@ -76,7 +76,7 @@ export default function ArPage() {
         <nav className="ar-page__progress" aria-label="AR fitting progress"> 
           {steps.map((label, index) => <span className={index === 0 || (isConsentForm && index === 1) || ((isScan || isScanning) && index <= 2) ? 'active' : ''} key={label}>{index === 0 ? (isMemberLogin || isMemberLoading || isConsent || isConsentForm || isScan || isScanning ? 'LOGIN' : 'GENDER') : label}</span>)} 
         </nav> 
-          <div className={`ar-page__progress-track ${isConsentForm ? 'ar-page__progress-track--consent' : ''} ${isScan ? 'ar-page__progress-track--scan' : ''} ${isScanning ? 'ar-page__progress-track--scanning' : ''}`} aria-hidden="true"><span /></div>
+        <div className={`ar-page__progress-track ${isConsentForm ? 'ar-page__progress-track--consent' : ''} ${isScan ? 'ar-page__progress-track--scan' : ''} ${isScanning ? 'ar-page__progress-track--scanning' : ''}`} aria-hidden="true"><span /></div> 
         {isMemberLoading ? <> 
           <span className="ar-page__divider ar-page__divider--loading" aria-hidden="true" /> 
           <p id="loading-message" className="ar-page__loading-message">지난번 MCM에서의 쇼핑 여정을 불러오고 있어요.</p> 
@@ -103,18 +103,21 @@ export default function ArPage() {
             <p>바닥의 가이드 라인에 맞춰 서주세요.</p> 
             <p>화면의 실루엣에 맞춰 자연스럽게 정면을 바라봐 주세요.</p> 
           </div> 
-        </> : isScanning ? <> 
-          <span className="ar-page__divider ar-page__divider--scanning" aria-hidden="true" /> 
-          <p id="scanning-title" className="ar-page__scanning-title">당신의 스타일을 살펴보고 있어요.</p> 
-          <img className="ar-page__scanning-wave" src="/assets/ar-scanning-wave.png" alt="" aria-hidden="true" /> 
-        </> : <> 
+          </> : isScanning ? <> 
+            <span className="ar-page__divider ar-page__divider--scanning" aria-hidden="true" /> 
+            <p id="scanning-title" className="ar-page__scanning-title">당신의 스타일을 살펴보고 있어요.</p> 
+            <img className="ar-page__scanning-wave" src="/assets/ar-scanning-wave.png" alt="" aria-hidden="true" /> 
+          </> : <>
           <span className="ar-page__divider" aria-hidden="true" /> 
           <p id="flow-question" className="ar-page__question">{isMemberLogin ? 'MCM 회원 로그인을 진행해주세요.' : '당신의 성별을 선택해주세요.'}</p> 
           {isMemberLogin ? <> 
             <img className="ar-page__qr" src="/assets/ar-login-qr.png" alt="MCM 회원 로그인 QR 코드" /> 
             <p className="ar-page__qr-copy">QR을 스캔하면<br />나의 쇼핑 여정을 불러올 수 있어요.</p> 
             <button className="ar-page__login-test" type="button" onClick={() => setScreen('member-loading')}>로그인 완료</button> 
-          </> : <div className="ar-page__choices"><button type="button">여성</button><button type="button">남성</button></div>} 
+          </> : <div className="ar-page__choices">
+            <button type="button" onClick={() => setScreen('consent-form')}>여성</button>
+            <button type="button" onClick={() => setScreen('consent-form')}>남성</button>
+          </div>} 
         </>} 
       </section>} 
       </>}
