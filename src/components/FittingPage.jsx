@@ -63,6 +63,7 @@ export default function FittingPage({ onFinish }) {
             </button>
           ))}
         </div>
+        <span className="fitting-page__product-bottom-rule" aria-hidden="true" />
         <button className="fitting-page__refresh" type="button" aria-label="새로고침" onClick={() => setSelected((selected + 1) % products.length)}>
           <img src="/assets/figma-fitting-refresh.svg" alt="" />
         </button>
