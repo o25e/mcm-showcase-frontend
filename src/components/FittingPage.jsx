@@ -127,7 +127,7 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
     const timer = window.setTimeout(() => {
       onFinish?.(
         completeAvatarByGender[gender] ??
-        completeAvatarByGender.FEMALE
+          completeAvatarByGender.FEMALE
       );
     }, 5000);
 
@@ -143,6 +143,99 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
     fetchRecommendations(categoryName);
   }
 
+  async function handleRefresh() {
+    const categoryCode = categoryCodeMap[category];
+
+    if (!arSessionId) {
+      console.error(
+        '추천 상품 새로고침 실패: arSessionId가 없습니다.'
+      );
+      return;
+    }
+
+    if (!categoryCode) {
+      console.error(
+        '추천 상품 새로고침 실패: categoryCode가 없습니다.'
+      );
+      return;
+    }
+
+    try {
+      setError('');
+
+      const response = await fetch(
+        `https://api.mcm-showcase.com/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}/refresh`,
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+
+        console.error('추천 상품 새로고침 실패:', {
+          status: response.status,
+          body: errorText,
+          arSessionId,
+          categoryCode,
+        });
+
+        setError('추천 상품을 새로고침하지 못했습니다.');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!Array.isArray(data.products)) {
+        console.error(
+          '추천 상품 새로고침 실패: products가 배열이 아닙니다.',
+          data
+        );
+
+        setError('추천 상품을 새로고침하지 못했습니다.');
+        return;
+      }
+
+      console.log(
+        '새로고침 전 상품:',
+        recommendedProducts.map((product) => ({
+          productId: product.productId,
+          name: product.name,
+        }))
+      );
+
+      console.log(
+        '새로고침 후 상품:',
+        data.products.map((product) => ({
+          productId: product.productId,
+          name: product.name,
+        }))
+      );
+
+      if (data.products.length === 0) {
+        console.warn('새로고침 API가 상품을 0개 반환했습니다.');
+        return;
+      }
+
+      setRecommendedProducts([...data.products]);
+
+      setSelected(0);
+      setOpen(false);
+
+      console.log('추천 상품 새로고침 완료');
+    } catch (refreshError) {
+      console.error(
+        '추천 상품 새로고침 error:',
+        refreshError
+      );
+
+      setError('추천 상품을 새로고침하지 못했습니다.');
+    }
+  }
+
   function selectProduct(product, index) {
     setSelected(index);
     setOpen(true);
@@ -152,37 +245,32 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
   async function fitSelectedProduct() {
     if (!selectedProduct) return;
 
-    setAvatarImage(selectedAvatar);
+    if (!arSessionId) {
+      console.error(
+        'PRODUCT_SELECT 실패: arSessionId가 없습니다.'
+      );
+      setError('피팅 정보를 저장하지 못했습니다.');
+      return;
+    }
 
-    setHistory((items) => [
-      {
-        id: `${selectedProduct.productId}-${Date.now()}`,
-        productId: selectedProduct.productId,
-        productName: selectedProduct.name,
-        imageUrl: selectedProduct.imageUrl,
-        avatarImage: selectedAvatar,
-      },
-      ...items.filter(
-        (item) =>
-          item.productId !== selectedProduct.productId
-      ),
-    ]);
-
-    setOpen(false);
     setError('');
 
     try {
-      const response = await fetch('/api/ar-interactions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          arSessionId,
-          productId: selectedProduct.productId,
-          interactionType: 'PRODUCT_SELECT',
-        }),
-      });
+      const response = await fetch(
+        'https://api.mcm-showcase.com/api/ar-interactions',
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            arSessionId,
+            productId: selectedProduct.productId,
+            interactionType: 'PRODUCT_SELECT',
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -193,9 +281,42 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
           arSessionId,
           productId: selectedProduct.productId,
         });
+
+        setError('피팅 정보를 저장하지 못했습니다.');
+        return;
       }
+
+      const data = await response.json();
+
+      console.log('PRODUCT_SELECT 저장 성공:', {
+        arInteractionId: data.arInteractionId,
+        arSessionId: data.arSessionId,
+        productId: data.productId,
+        interactionType: data.interactionType,
+        sequenceNo: data.sequenceNo,
+        createdAt: data.createdAt,
+      });
+
+      setAvatarImage(selectedAvatar);
+
+      setHistory((items) => [
+        {
+          id: `${selectedProduct.productId}-${Date.now()}`,
+          productId: selectedProduct.productId,
+          productName: selectedProduct.name,
+          imageUrl: selectedProduct.imageUrl,
+          avatarImage: selectedAvatar,
+        },
+        ...items.filter(
+          (item) =>
+            item.productId !== selectedProduct.productId
+        ),
+      ]);
+
+      setOpen(false);
     } catch (fitError) {
       console.error('PRODUCT_SELECT error:', fitError);
+      setError('피팅 정보를 저장하지 못했습니다.');
     }
   }
 
@@ -445,19 +566,7 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
         <button
           className="fitting-page__refresh"
           type="button"
-          onClick={() => {
-            if (
-              recommendedProducts.length ===
-              0
-            ) {
-              return;
-            }
-
-            setSelected(
-              (selected + 1) %
-                recommendedProducts.length
-            );
-          }}
+          onClick={handleRefresh}
         >
           <img
             src="/assets/figma-fitting-refresh.svg"
@@ -529,9 +638,7 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
             <button
               className="fitting-product-frame__fit"
               type="button"
-              onClick={
-                fitSelectedProduct
-              }
+              onClick={fitSelectedProduct}
             >
               피팅하기
             </button>
