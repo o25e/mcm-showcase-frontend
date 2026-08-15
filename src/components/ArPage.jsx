@@ -117,7 +117,7 @@ export default function ArPage() {
  
   return ( 
     <main className={`ar-page ${isIntro ? 'ar-page--intro' : 'ar-page--flow'} ${isScanning ? 'ar-page--scanning' : ''}`}> 
-      {isFittingHelp ? <FittingHelpOverlay onClose={() => setScreen('fitting')} /> : isFitting ? <FittingPage gender={gender} onFinish={(avatarImage) => { setCompletedAvatar(avatarImage); setScreen('avatar-complete'); }} /> : isAvatarComplete ? <AvatarCompletePage avatarImage={completedAvatar} onFinish={() => setScreen('intro')} /> : <>
+      {isFittingHelp ? <FittingHelpOverlay onClose={() => setScreen('fitting')} /> : isFitting ? <FittingPage arSessionId={arSessionId} gender={gender} onFinish={(avatarImage) => { setCompletedAvatar(avatarImage); setScreen('avatar-complete'); }} /> : isAvatarComplete ? <AvatarCompletePage avatarImage={completedAvatar} onFinish={() => setScreen('intro')} /> : <>
       <img className="ar-page__background" src="/assets/ar-background.png" alt="MCM 매장 내부" /> 
       <div className="ar-page__shade" aria-hidden="true" /> 
  

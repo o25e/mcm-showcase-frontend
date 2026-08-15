@@ -1,46 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 const categories = ['Bags', 'Tops', 'Bottoms', 'Shoes', 'Accessories'];
 
-const products = [
-  {
-    productId: 1,
-    name: 'New Liz 엠보스드 모노그램 레더 쇼퍼',
-    price: 1490000,
-    image: 'https://api.mcm-showcase.com/images/MWPGALR01BK001.jpg',
-  },
-  {
-    productId: 2,
-    name: 'Tracy 비세토스 호보',
-    price: 1690000,
-    image: 'https://api.mcm-showcase.com/images/MWHGAXT03CO001.jpg',
-  },
-  {
-    productId: 3,
-    name: 'Aren 다이아몬드 퀼팅 레더 백팩',
-    price: 2690000,
-    image: 'https://api.mcm-showcase.com/images/MMKGATA01BK001.jpg',
-  },
-  {
-    productId: 4,
-    name: 'Ottomar 비세토스 위켄더',
-    price: 2050000,
-    image: 'https://api.mcm-showcase.com/images/MMVAAVY02BK001.jpg',
-  },
-  {
-    productId: 5,
-    name: 'New Liz 비세토스 쇼퍼',
-    price: 1090000,
-    image: 'https://api.mcm-showcase.com/images/MWPGSLR024B001.jpg',
-  },
-  {
-    productId: 6,
-    name: 'Fursten 모노그램 나일론 벨트백',
-    price: 650000,
-    image: 'https://api.mcm-showcase.com/images/MMZGSFI01BK001.jpg',
-  },
-];
+const categoryCodeMap = {
+  Bags: 'bag',
+  Tops: 'top',
+  Bottoms: 'bottom',
+  Shoes: 'shoes',
+  Accessories: 'accessories',
+};
 
 const avatarByGender = {
   FEMALE: '/assets/figma-fitting/model_f.png',
@@ -54,6 +23,7 @@ const completeAvatarByGender = {
 
 export default function FittingPage({ onFinish, arSessionId, gender }) {
   const [category, setCategory] = useState('Bags');
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [selected, setSelected] = useState(0);
   const [open, setOpen] = useState(false);
   const selectedAvatar = avatarByGender[gender] ?? avatarByGender.FEMALE;
@@ -63,11 +33,87 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const historyRef = useRef(null);
 
-  const selectedProduct = products[selected];
+  const selectedProduct = recommendedProducts[selected] ?? null;
+
+  const fetchRecommendations = useCallback(
+    async (categoryName) => {
+      const categoryCode = categoryCodeMap[categoryName];
+
+      if (!arSessionId) {
+        console.error('추천 상품 조회 실패: arSessionId가 없습니다.');
+        return;
+      }
+
+      if (!categoryCode) {
+        console.error('추천 상품 조회 실패: categoryCode가 없습니다.');
+        return;
+      }
+
+      try {
+        setError('');
+
+        const response = await fetch(
+          `https://api.mcm-showcase.com/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}`,
+          {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+
+          console.error('추천 상품 조회 실패:', {
+            status: response.status,
+            body: errorText,
+            arSessionId,
+            categoryCode,
+          });
+
+          setError('추천 상품을 불러오지 못했습니다.');
+          setRecommendedProducts([]);
+          return;
+        }
+
+        const data = await response.json();
+
+        console.log('추천 상품 조회 성공:', {
+          arSessionId: data.arSessionId,
+          categoryCode,
+          products: data.products,
+        });
+
+        setRecommendedProducts(
+          Array.isArray(data.products)
+            ? data.products
+            : []
+        );
+
+        setSelected(0);
+      } catch (recommendationError) {
+        console.error(
+          '추천 상품 조회 error:',
+          recommendationError
+        );
+
+        setError('추천 상품을 불러오지 못했습니다.');
+        setRecommendedProducts([]);
+      }
+    },
+    [arSessionId]
+  );
 
   useEffect(() => {
     setAvatarImage(selectedAvatar);
   }, [selectedAvatar]);
+
+  useEffect(() => {
+    if (!arSessionId) return;
+
+    fetchRecommendations('Bags');
+  }, [arSessionId, fetchRecommendations]);
 
   useEffect(() => {
     if (historyRef.current) {
@@ -79,41 +125,23 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
     if (!isGeneratingAvatar) return undefined;
 
     const timer = window.setTimeout(() => {
-      onFinish?.(completeAvatarByGender[gender] ?? completeAvatarByGender.FEMALE);
+      onFinish?.(
+        completeAvatarByGender[gender] ??
+        completeAvatarByGender.FEMALE
+      );
     }, 5000);
 
     return () => window.clearTimeout(timer);
-  }, [avatarImage, isGeneratingAvatar, onFinish]);
+  }, [gender, isGeneratingAvatar, onFinish]);
 
-  if (isGeneratingAvatar) {
-    return (
-      <main className="avatar-generating-page" aria-labelledby="avatar-generating-title">
-        <img className="avatar-generating-page__background" src="/assets/ar-background.png" alt="" aria-hidden="true" />
-        <div className="avatar-generating-page__shade" />
+  function handleCategoryClick(categoryName) {
+    setCategory(categoryName);
+    setSelected(0);
+    setOpen(false);
+    setError('');
 
-        <nav className="ar-page__progress" aria-label="AR fitting progress">
-          {steps.map((step, index) => (
-            <span className={index < 5 ? 'active' : ''} key={step}>{step}</span>
-          ))}
-        </nav>
-        <div className="ar-page__progress-track ar-page__progress-track--avatar" aria-hidden="true"><span /></div>
-
-        <span className="avatar-generating-page__divider" aria-hidden="true" />
-        <p id="avatar-generating-title" className="avatar-generating-page__message">
-          오늘의 쇼핑 여정을 담은 Avatar를 만들고 있어요.
-        </p>
-        <img className="avatar-generating-page__wave" src="/assets/ar-scanning-wave.png" alt="" aria-hidden="true" />
-      </main>
-    );
+    fetchRecommendations(categoryName);
   }
-
-  const visibleHistory = [
-    ...history,
-    ...Array.from(
-      { length: Math.max(0, 3 - history.length) },
-      () => null
-    ),
-  ];
 
   function selectProduct(product, index) {
     setSelected(index);
@@ -122,6 +150,8 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
   }
 
   async function fitSelectedProduct() {
+    if (!selectedProduct) return;
+
     setAvatarImage(selectedAvatar);
 
     setHistory((items) => [
@@ -129,11 +159,12 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
         id: `${selectedProduct.productId}-${Date.now()}`,
         productId: selectedProduct.productId,
         productName: selectedProduct.name,
-        imageUrl: selectedProduct.image,
+        imageUrl: selectedProduct.imageUrl,
         avatarImage: selectedAvatar,
       },
       ...items.filter(
-        (item) => item.productId !== selectedProduct.productId
+        (item) =>
+          item.productId !== selectedProduct.productId
       ),
     ]);
 
@@ -167,6 +198,77 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
       console.error('PRODUCT_SELECT error:', fitError);
     }
   }
+
+  if (isGeneratingAvatar) {
+    return (
+      <main
+        className="avatar-generating-page"
+        aria-labelledby="avatar-generating-title"
+      >
+        <img
+          className="avatar-generating-page__background"
+          src="/assets/ar-background.png"
+          alt=""
+          aria-hidden="true"
+        />
+
+        <div className="avatar-generating-page__shade" />
+
+        <nav
+          className="ar-page__progress"
+          aria-label="AR fitting progress"
+        >
+          {steps.map((step, index) => (
+            <span
+              className={index < 5 ? 'active' : ''}
+              key={step}
+            >
+              {step}
+            </span>
+          ))}
+        </nav>
+
+        <div
+          className="ar-page__progress-track ar-page__progress-track--avatar"
+          aria-hidden="true"
+        >
+          <span />
+        </div>
+
+        <span
+          className="avatar-generating-page__divider"
+          aria-hidden="true"
+        />
+
+        <p
+          id="avatar-generating-title"
+          className="avatar-generating-page__message"
+        >
+          오늘의 쇼핑 여정을 담은 Avatar를 만들고 있어요.
+        </p>
+
+        <img
+          className="avatar-generating-page__wave"
+          src="/assets/ar-scanning-wave.png"
+          alt=""
+          aria-hidden="true"
+        />
+      </main>
+    );
+  }
+
+  const visibleHistory = [
+    ...history,
+    ...Array.from(
+      {
+        length: Math.max(
+          0,
+          3 - history.length
+        ),
+      },
+      () => null
+    ),
+  ];
 
   return (
     <section
@@ -273,7 +375,9 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
       <button
         className="fitting-page__finish"
         type="button"
-        onClick={() => setIsGeneratingAvatar(true)}
+        onClick={() =>
+          setIsGeneratingAvatar(true)
+        }
       >
         피팅 종료하기
       </button>
@@ -289,12 +393,16 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
           {categories.map((item) => (
             <button
               className={
-                category === item ? 'active' : ''
+                category === item
+                  ? 'active'
+                  : ''
               }
               type="button"
               role="tab"
               aria-selected={category === item}
-              onClick={() => setCategory(item)}
+              onClick={() =>
+                handleCategoryClick(item)
+              }
               key={item}
             >
               {item}
@@ -305,26 +413,31 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
         <span className="fitting-page__catalog-rule" />
 
         <div className="fitting-page__product-grid">
-          {products.map((product, index) => (
-            <button
-              className={`fitting-page__product ${
-                selected === index
-                  ? 'selected'
-                  : ''
-              }`}
-              type="button"
-              onClick={() =>
-                selectProduct(product, index)
-              }
-              key={product.productId}
-              aria-label={product.name}
-            >
-              <img
-                src={product.image}
-                alt={product.name}
-              />
-            </button>
-          ))}
+          {recommendedProducts.map(
+            (product, index) => (
+              <button
+                className={`fitting-page__product ${
+                  selected === index
+                    ? 'selected'
+                    : ''
+                }`}
+                type="button"
+                onClick={() =>
+                  selectProduct(
+                    product,
+                    index
+                  )
+                }
+                key={product.productId}
+                aria-label={product.name}
+              >
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                />
+              </button>
+            )
+          )}
         </div>
 
         <span className="fitting-page__product-bottom-rule" />
@@ -332,11 +445,19 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
         <button
           className="fitting-page__refresh"
           type="button"
-          onClick={() =>
+          onClick={() => {
+            if (
+              recommendedProducts.length ===
+              0
+            ) {
+              return;
+            }
+
             setSelected(
-              (selected + 1) % products.length
-            )
-          }
+              (selected + 1) %
+                recommendedProducts.length
+            );
+          }}
         >
           <img
             src="/assets/figma-fitting-refresh.svg"
@@ -345,7 +466,7 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
         </button>
       </section>
 
-      {open && (
+      {open && selectedProduct && (
         <div
           className="fitting-product-frame-backdrop"
           role="presentation"
@@ -362,7 +483,9 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
             <button
               className="fitting-product-frame__close"
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpen(false)
+              }
               aria-label="닫기"
             >
               ×
@@ -370,11 +493,13 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
 
             <img
               className="fitting-product-frame__image"
-              src={selectedProduct.image}
+              src={selectedProduct.imageUrl}
               alt={selectedProduct.name}
             />
 
-            <h2>{selectedProduct.name}</h2>
+            <h2>
+              {selectedProduct.name}
+            </h2>
 
             <p className="fitting-product-frame__price">
               ₩{' '}
@@ -404,7 +529,9 @@ export default function FittingPage({ onFinish, arSessionId, gender }) {
             <button
               className="fitting-product-frame__fit"
               type="button"
-              onClick={fitSelectedProduct}
+              onClick={
+                fitSelectedProduct
+              }
             >
               피팅하기
             </button>
