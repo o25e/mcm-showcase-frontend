@@ -192,13 +192,26 @@ button { cursor: pointer; }
 .fitting-page__tabs button.active { color: #fff; }
 .fitting-page__tabs button.active::after { position: absolute; right: 0; bottom: -18px; left: 0; height: 3px; background: rgb(255 255 255 / .75); content: ''; }
 .fitting-page__catalog-rule { width: 336px; margin-top: 18px; margin-left: 10px; }
-.fitting-page__product-grid { display: grid; grid-template-columns: repeat(2, 137px); gap: 15px 16px; margin-top: 15px; margin-left: 10px; }
-.fitting-page__product { display: grid; width: 137px; height: 137px; padding: 0; border: 1px solid rgb(255 255 255 / .28); border-radius: 6px; background: rgb(217 217 217 / .14); box-shadow: 0 0 6px 1px rgb(255 255 255 / .25); place-items: center; }
+.fitting-page__product-grid { display: grid; grid-template-columns: repeat(2, 136.691px); gap: 17.605px 15.649px; margin-top: 15px; margin-left: 10px; }
+.fitting-page__product { display: grid; width: 136.691px; height: 136.691px; padding: 0; border: 0; border-radius: 5.326px; background: rgb(217 217 217 / .14); box-shadow: 0 0 5.681px 1.775px rgb(255 255 255 / .25); place-items: center; overflow: hidden; }
 .fitting-page__product.selected { border-color: rgb(255 255 255 / .8); background: rgb(217 217 217 / .24); }
-.fitting-page__product img { width: 120px; height: 120px; object-fit: contain; }
+.fitting-page__product img { width: 123px; height: 123px; object-fit: contain; }
 .fitting-page__product-bottom-rule { display: block; width: 336px; height: 1px; margin-top: 15px; margin-left: 10px; background: rgb(255 255 255 / .65); box-shadow: 0 0 6px rgb(255 255 255 / .14); }
 .fitting-page__refresh { position: absolute; top: 67px; right: -13px; display: grid; width: 34px; height: 36px; padding: 0; border: 0; background: transparent; place-items: center; }
 .fitting-page__refresh img { display: block; width: 34px; height: 36px; object-fit: contain; transform: translateX(-20px) translateY(-15px); }
+.fitting-product-frame-backdrop { position: absolute; z-index: 10; inset: 0; pointer-events: none; }
+.fitting-product-frame { position: absolute; top: calc(50% + 10px); left: calc(60% - 8.4px); width: 242.19px; height: 321.37px; overflow: hidden; border-radius: 5.07px; background: rgb(0 0 0 / .24); box-shadow: 0 0 5.41px 1.69px rgb(255 255 255 / .25); color: #fff; text-shadow: 0 0 9.69px rgb(255 255 255 / .64); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); pointer-events: auto; }
+.fitting-product-frame__image { position: absolute; top: 48.44px; left: 54.03px; width: 134.14px; height: 137.86px; object-fit: contain; }
+.fitting-product-frame h2 { position: absolute; top: 30.74px; left: 50%; margin: 0; transform: translateX(-50%); font-size: 11px; font-weight: 300; line-height: 1; text-align: center; white-space: nowrap; }
+.fitting-product-frame__price { position: absolute; top: 188.16px; left: 86.63px; margin: 0; font-size: 11px; font-weight: 300; line-height: 1; }
+.fitting-product-frame__color { position: absolute; top: 216.83px; left: 22.36px; margin: 0; font-size: 14px; line-height: 1; }
+.fitting-product-frame__swatches { position: absolute; top: 240.33px; left: 22.36px; display: flex; gap: 6.52px; }
+.fitting-product-frame__swatches span { width: 17.7px; height: 17.7px; border-radius: 50%; background-size: cover; background-position: center; }
+.fitting-product-frame__swatches span:nth-child(1) { background-image: url('https://www.figma.com/api/mcp/asset/76c681ad-87b2-4e22-9f50-4142ff003572.svg'); }
+.fitting-product-frame__swatches span:nth-child(2) { background-image: url('https://www.figma.com/api/mcp/asset/a6624992-bff7-4ef7-a853-9ea646558e20.svg'); }
+.fitting-product-frame__swatches span:nth-child(3) { background-image: url('https://www.figma.com/api/mcp/asset/26607c36-14cf-43cc-95c3-7fe81313efd7.svg'); }
+.fitting-product-frame__swatches span:nth-child(4) { background-image: url('https://www.figma.com/api/mcp/asset/26bce243-80b3-47e8-8161-83369a71fc1d.svg'); }
+.fitting-product-frame__fit { position: absolute; top: 278.52px; left: 35.4px; width: 171.4px; height: 30.74px; border: 0; border-radius: 17.7px; background: rgb(163 163 163 / .63); color: #fff; font-size: 11px; font-weight: 300; }.fitting-product-frame__close { position: absolute; z-index: 1; top: 8px; right: 8px; width: 18px; height: 18px; padding: 0; border: 0; background: transparent; color: #fff; font-size: 20px; font-weight: 200; line-height: 16px; }
 @media (max-width: 800px) {
   .fitting-page { width: 100vw; height: 100svh; min-height: 640px; }
   .fitting-page__steps { left: 18px; right: 18px; font-size: clamp(12px, 2.6vw, 21px); }
