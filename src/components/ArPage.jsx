@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'; 
 import FittingHelpOverlay from './FittingHelpOverlay';
+import FittingPage from './FittingPage';
  
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR']; 
  
@@ -13,7 +14,8 @@ export default function ArPage() {
   const isConsentForm = screen === 'consent-form'; 
   const isScan = screen === 'scan'; 
   const isScanning = screen === 'scanning'; 
-  const isFittingHelp = screen === 'fitting-help'; 
+  const isFittingHelp = screen === 'fitting-help';
+  const isFitting = screen === 'fitting';
  
   useEffect(() => { 
     if (screen !== 'member-loading') return; 
@@ -47,7 +49,7 @@ export default function ArPage() {
  
   return ( 
     <main className={`ar-page ${isIntro ? 'ar-page--intro' : 'ar-page--flow'} ${isScanning ? 'ar-page--scanning' : ''}`}> 
-      {isFittingHelp ? <FittingHelpOverlay onClose={() => setScreen('intro')} /> : <>
+      {isFittingHelp ? <FittingHelpOverlay onClose={() => setScreen('fitting')} /> : isFitting ? <FittingPage onFinish={() => setScreen('intro')} /> : <>
       <img className="ar-page__background" src="/assets/ar-background.png" alt="MCM 매장 내부" /> 
       <div className="ar-page__shade" aria-hidden="true" /> 
  
