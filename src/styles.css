@@ -30,7 +30,7 @@ button { cursor: pointer; }
 .ar-page__choices { position: absolute; top: calc(33.333% + 145px); left: 50%; display: flex; gap: 67px; transform: translateX(-50%); }
 .ar-page__choices button { width: 108px; height: 108px; padding: 0; border: 0; border-radius: 5px; background: rgb(217 217 217 / .14); box-shadow: 0 0 5.5px rgb(255 255 255 / .25); color: #fff; font-family: Pretendard, 'Noto Sans KR', sans-serif; font-size: 23px; font-weight: 300; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); }
 .ar-page__choices button:hover, .ar-page__choices button:focus-visible { background: rgb(217 217 217 / .28); outline: 1px solid rgb(255 255 255 / .7); outline-offset: 4px; }
-.ar-page__progress { position: absolute; top: 48px; left: 50%; display: flex; gap: 102px; color: rgb(255 255 255 / .5); font-size: 21px; font-weight: 400; line-height: 1; text-shadow: 0 0 6.6px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }
+.ar-page__progress { position: absolute; top: 48px; left: 36px; right: 36px; display: flex; justify-content: space-between; color: rgb(255 255 255 / .5); font-size: 21px; font-weight: 400; line-height: 1; text-shadow: 0 0 6.6px rgb(255 255 255 / .63); white-space: nowrap; }
 .ar-page__progress .active { color: #fff; }
 .ar-page__progress-track { position: absolute; top: 92px; left: 36px; width: calc(100% - 72px); height: 10px; overflow: hidden; border-radius: 9px; background: rgb(217 217 217 / .47); box-shadow: 0 0 3.35px rgb(255 255 255 / .45); }
 .ar-page__progress-track span { display: block; width: 43.78px; height: 100%; border-radius: inherit; background: #f8f8f8; }
