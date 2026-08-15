@@ -1,5 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600&display=swap');
 
+/* Avatar generation screen */
+.avatar-generating-page { position: relative; display: grid; min-width: 834px; min-height: 100svh; overflow: hidden; place-items: center; background: #4c423e; color: #fff; font-family: 'Noto Sans KR', Inter, Arial, sans-serif; isolation: isolate; }
+.avatar-generating-page__background { position: absolute; z-index: -3; top: -8px; left: -857px; width: 2186px; height: 1230px; max-width: none; object-fit: cover; filter: blur(3.6px); }
+.avatar-generating-page__shade { position: absolute; z-index: -2; inset: 0; background: rgb(20 12 10 / .16); }
+.avatar-generating-page__divider { position: absolute; top: calc(33.333% - 6px); left: 50%; width: 105px; height: 1px; background: #fff; box-shadow: 0 0 5px rgb(255 255 255 / .63); transform: translateX(-50%); }
+.avatar-generating-page__message { position: absolute; top: calc(33.333% + 19px); left: 50%; margin: 0; color: #fff; font-size: 28px; font-weight: 300; line-height: 1; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }
+.avatar-generating-page__wave { position: absolute; top: calc(33.333% + 30px); left: 50%; width: 1400px; height: 340px; max-width: none; object-fit: fill; animation: ar-scanning-wave-float 1.5s ease-in-out infinite alternate; transform: translateX(-50%); pointer-events: none; }
+@media (max-width: 800px) { .avatar-generating-page__message { font-size: clamp(20px, 4.5vw, 28px); } }
+
 :root { font-family: Inter, Arial, sans-serif; color: #111; background: #fff; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scrollbar-gutter: stable; }
@@ -68,6 +77,7 @@ button { cursor: pointer; }
 .ar-page__scan-description p { margin: 0; }
 .ar-page__scan-description p + p { margin-top: 3px; }
 .ar-page__progress-track--scanning span { width: 475px; }
+.ar-page__progress-track--avatar span { width: 650px; }
 .ar-page__divider--scanning { top: calc(33.333% - 6px) !important; }
 .ar-page__scanning-title { position: absolute; top: calc(33.333% + 19px); left: 50%; margin: 0; color: #fff; font-size: 28px; font-weight: 300; line-height: 1; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }
 .ar-page__scanning-wave { position: absolute; top: calc(33.333% + 30px); left: 50%; width: 1400px; height: 340px; max-width: none; object-fit: fill; animation: ar-scanning-wave-float 1.5s ease-in-out infinite alternate; transform: translateX(-50%); pointer-events: none; }

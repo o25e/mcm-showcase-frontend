@@ -57,9 +57,38 @@ export default function FittingPage({ onFinish, arSessionId }) {
   const [avatarImage, setAvatarImage] = useState(defaultAvatar);
   const [history, setHistory] = useState([]);
   const [error, setError] = useState('');
+  const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const historyRef = useRef(null);
 
   const selectedProduct = products[selected];
+
+  useEffect(() => {
+    if (historyRef.current) {
+      historyRef.current.scrollTop = 0;
+    }
+  }, [history.length]);
+
+  if (isGeneratingAvatar) {
+    return (
+      <main className="avatar-generating-page" aria-labelledby="avatar-generating-title">
+        <img className="avatar-generating-page__background" src="/assets/ar-background.png" alt="" aria-hidden="true" />
+        <div className="avatar-generating-page__shade" />
+
+        <nav className="ar-page__progress" aria-label="AR fitting progress">
+          {steps.map((step, index) => (
+            <span className={index < 5 ? 'active' : ''} key={step}>{step}</span>
+          ))}
+        </nav>
+        <div className="ar-page__progress-track ar-page__progress-track--avatar" aria-hidden="true"><span /></div>
+
+        <span className="avatar-generating-page__divider" aria-hidden="true" />
+        <p id="avatar-generating-title" className="avatar-generating-page__message">
+          오늘의 쇼핑 여정을 담은 Avatar를 만들고 있어요.
+        </p>
+        <img className="avatar-generating-page__wave" src="/assets/ar-scanning-wave.png" alt="" aria-hidden="true" />
+      </main>
+    );
+  }
 
   const visibleHistory = [
     ...history,
@@ -121,12 +150,6 @@ export default function FittingPage({ onFinish, arSessionId }) {
       console.error('PRODUCT_SELECT error:', fitError);
     }
   }
-
-  useEffect(() => {
-    if (historyRef.current) {
-      historyRef.current.scrollTop = 0;
-    }
-  }, [history.length]);
 
   return (
     <section
@@ -233,7 +256,7 @@ export default function FittingPage({ onFinish, arSessionId }) {
       <button
         className="fitting-page__finish"
         type="button"
-        onClick={onFinish}
+        onClick={() => setIsGeneratingAvatar(true)}
       >
         피팅 종료하기
       </button>
