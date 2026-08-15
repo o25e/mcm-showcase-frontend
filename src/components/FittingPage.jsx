@@ -68,6 +68,16 @@ export default function FittingPage({ onFinish, arSessionId }) {
     }
   }, [history.length]);
 
+  useEffect(() => {
+    if (!isGeneratingAvatar) return undefined;
+
+    const timer = window.setTimeout(() => {
+      onFinish?.(avatarImage);
+    }, 5000);
+
+    return () => window.clearTimeout(timer);
+  }, [avatarImage, isGeneratingAvatar, onFinish]);
+
   if (isGeneratingAvatar) {
     return (
       <main className="avatar-generating-page" aria-labelledby="avatar-generating-title">
