@@ -3,7 +3,7 @@
 /* Avatar generation screen */
 .avatar-generating-page { position: relative; display: grid; min-width: 834px; min-height: 100svh; overflow: hidden; place-items: center; background: #4c423e; color: #fff; font-family: 'Noto Sans KR', Inter, Arial, sans-serif; isolation: isolate; }
 .avatar-generating-page__background { position: absolute; z-index: -3; top: -8px; left: -857px; width: 2186px; height: 1230px; max-width: none; object-fit: cover; filter: blur(3.6px); }
-.avatar-generating-page__shade { position: absolute; z-index: -2; inset: 0; background: rgb(20 12 10 / .16); }
+.avatar-generating-page__shade { position: absolute; z-index: -2; inset: 0; background: rgb(20 12 10 / .28); }
 .avatar-generating-page__divider { position: absolute; top: calc(33.333% - 6px); left: 50%; width: 105px; height: 1px; background: #fff; box-shadow: 0 0 5px rgb(255 255 255 / .63); transform: translateX(-50%); }
 .avatar-generating-page__message { position: absolute; top: calc(33.333% + 19px); left: 50%; margin: 0; color: #fff; font-size: 28px; font-weight: 300; line-height: 1; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }
 .avatar-generating-page__wave { position: absolute; top: calc(33.333% + 30px); left: 50%; width: 1400px; height: 340px; max-width: none; object-fit: fill; animation: ar-scanning-wave-float 1.5s ease-in-out infinite alternate; transform: translateX(-50%); pointer-events: none; }
@@ -11,8 +11,8 @@
 
 /* Avatar generation result */
 .avatar-complete-page { position: relative; width: 100%; min-width: 320px; height: 100svh; min-height: 720px; overflow: hidden; isolation: isolate; color: #fff; font-family: 'Noto Sans KR', Inter, Arial, sans-serif; }
-.avatar-complete-page__background { position: absolute; z-index: -3; top: -8px; left: 50%; width: 2186px; height: 1230px; max-width: none; object-fit: cover; filter: blur(3.625px); transform: translateX(-50%); }
-.avatar-complete-page__shade { position: absolute; z-index: -2; inset: 0; background: rgb(30 22 19 / .34); }
+.avatar-complete-page__background { position: absolute; z-index: -3; top: -8px; left: -857px; width: 2186px; height: 1230px; max-width: none; object-fit: cover; filter: blur(3.625px); }
+.avatar-complete-page__shade { position: absolute; z-index: -2; inset: 0; background: rgb(20 12 10 / .28); }
 .avatar-complete-page__steps { position: absolute; top: 48px; left: 36px; right: 36px; display: flex; justify-content: space-between; color: #fff; font-size: 21px; line-height: 1; text-shadow: 0 0 6.6px rgb(255 255 255 / .63); }
 .avatar-complete-page__track { position: absolute; top: 92px; left: 36px; right: 36px; height: 10px; overflow: hidden; border-radius: 9px; background: rgb(217 217 217 / .47); box-shadow: 0 0 3.35px rgb(255 255 255 / .45); }
 .avatar-complete-page__track span { display: block; width: 100%; height: 100%; border-radius: inherit; background: #f8f8f8; }
@@ -43,7 +43,7 @@ button { cursor: pointer; }
 
 /* AR fitting start page */
 .ar-page { position: relative; display: grid; min-width: 320px; min-height: 100svh; overflow: hidden; place-items: center; background: #4c423e; color: #fff; font-family: 'Noto Sans KR', Inter, Arial, sans-serif; isolation: isolate; }
-.ar-page__background { position: absolute; z-index: -3; top: -8px; left: -857px; width: 2186px; height: 1230px; max-width: none; object-fit: cover; filter: blur(3.6px); }
+.ar-page__background { position: absolute; z-index: -3; top: -8px; left: -857px; width: 2186px; height: 1230px; max-width: none; object-fit: cover; filter: blur(3.625px); }
 .ar-page__shade { position: absolute; z-index: -2; inset: 0; background: rgb(20 12 10 / .28); }
 .ar-page__mask { position: absolute; z-index: -1; top: 47px; left: 50%; width: min(794px, 90vw); height: min(1127px, 92vh); transform: translateX(-50%); opacity: .9; }
 .ar-page__title { position: absolute; top: 27px; left: 50%; margin: 0; transform: translateX(-50%); color: #fff; font-size: 35px; font-weight: 400; line-height: 1; text-align: center; text-shadow: 0 0 3.26px rgb(255 255 255 / .6); white-space: nowrap; }
@@ -111,7 +111,7 @@ button { cursor: pointer; }
   to { transform: translateX(-50%) translateY(4px); }
 }
 
-.ar-page--scanning .ar-page__shade { background: rgb(20 12 10 / .16); }
+.ar-page--scanning .ar-page__shade { background: rgb(20 12 10 / .28); }
 
 /* AR fitting help overlay */
 .fitting-help { position: relative; width: min(100vw, 834px); height: min(100svh, 1194px); min-height: 720px; overflow: hidden; color: #fff; font-family: 'Noto Sans KR', Inter, Arial, sans-serif; transform-origin: top center; }
@@ -202,7 +202,7 @@ button { cursor: pointer; }
 /* AR fitting screen */
 .fitting-page { position: relative; width: min(100vw, 834px); height: min(100svh, 1194px); min-height: 720px; overflow: hidden; isolation: isolate; color: #fff; font-family: 'Noto Sans KR', Inter, Arial, sans-serif; }
 .fitting-page__background { position: absolute; z-index: -3; top: -8px; left: -857px; width: 2186px; height: 1230px; max-width: none; object-fit: cover; filter: blur(3.625px); }
-.fitting-page__shade { position: absolute; z-index: -2; inset: 0; background: rgb(27 27 27 / .2); }
+.fitting-page__shade { position: absolute; z-index: -2; inset: 0; background: rgb(20 12 10 / .28); }
 .fitting-page__steps { position: absolute; z-index: 2; top: 48px; left: 36px; right: 36px; display: flex; justify-content: space-between; color: rgb(255 255 255 / .5); font-size: 21px; line-height: 1; text-shadow: 0 0 6.6px rgb(255 255 255 / .63); }
 .fitting-page__steps .active { color: #fff; }
 .fitting-page__track { position: absolute; z-index: 2; top: 92px; left: 36px; width: calc(100% - 72px); height: 10px; overflow: hidden; border-radius: 8px; background: rgb(217 217 217 / .47); box-shadow: 0 0 3.35px rgb(255 255 255 / .45); }
