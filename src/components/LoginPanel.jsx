@@ -16,10 +16,10 @@ export default function LoginPanel({ onClose, onLoginSuccess }) {
 
     try {
       const member = await loginMember({ loginId, password });
-      if (member?.memberId === undefined || !member?.name) {
+      if (member?.memberId === undefined || member?.memberId === null) {
         throw new Error('로그인 응답을 확인할 수 없습니다.');
       }
-      onLoginSuccess?.({ memberId: member.memberId, name: member.name });
+      onLoginSuccess?.({ memberId: member.memberId, name: member.name || '' });
       onClose();
     } catch (error) {
       setErrorMessage(error.status === 401 ? error.message : (error.message || '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.'));

@@ -70,7 +70,7 @@ export default function ClosetPage({ member, onLoginSuccess }) {
     window.addEventListener('pointerup', endHistoryDrag, true);
   };
 
-  return <div className="closet-page" id="top">
+  return <div className={`closet-page${member ? ' is-authenticated' : ''}`} id="top">
     <div className="figma-announcement closet-announcement">
       <img className="announcement-mark" src="/assets/figma-announcement.svg" alt="" />
       <span>MCM 아이콘 |</span><a href="#closet-records">Aren 이스트 웨스트 숄더백을 만나보세요</a>

@@ -357,6 +357,8 @@ button { cursor: pointer; }
 
 /* Closet page */
 .closet-page { min-width: 320px; background: #fff; overflow: hidden; }
+.closet-page.is-authenticated .closet-login { display: none; }
+.closet-page.is-authenticated .closet-records { padding-top: 30px; }
 .closet-hero { position: relative; height: 742px; overflow: hidden; background: #262626; }
 .closet-hero-overlay { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .closet-hero-overlay { object-position: center bottom; }
