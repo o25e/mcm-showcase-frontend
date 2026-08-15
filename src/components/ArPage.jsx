@@ -8,7 +8,7 @@ const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 export default function ArPage() { 
   const [language, setLanguage] = useState('ko'); 
   const [screen, setScreen] = useState('intro'); 
-  const [completedAvatar, setCompletedAvatar] = useState('/assets/figma-fitting/avatar.png');
+  const [completedAvatar, setCompletedAvatar] = useState('/assets/avatar-complete/avatar.png');
   const isIntro = screen === 'intro'; 
   const isMemberLogin = screen === 'member-login'; 
   const isMemberLoading = screen === 'member-loading'; 
@@ -52,7 +52,7 @@ export default function ArPage() {
  
   return ( 
     <main className={`ar-page ${isIntro ? 'ar-page--intro' : 'ar-page--flow'} ${isScanning ? 'ar-page--scanning' : ''}`}> 
-      {isFittingHelp ? <FittingHelpOverlay onClose={() => setScreen('fitting')} /> : isFitting ? <FittingPage onFinish={() => { setCompletedAvatar('/assets/figma-fitting/avatar.png'); setScreen('avatar-complete'); }} /> : isAvatarComplete ? <AvatarCompletePage avatarImage={completedAvatar} onFinish={() => setScreen('intro')} /> : <>
+      {isFittingHelp ? <FittingHelpOverlay onClose={() => setScreen('fitting')} /> : isFitting ? <FittingPage onFinish={() => { setCompletedAvatar('/assets/avatar-complete/avatar.png'); setScreen('avatar-complete'); }} /> : isAvatarComplete ? <AvatarCompletePage avatarImage={completedAvatar} onFinish={() => setScreen('intro')} /> : <>
       <img className="ar-page__background" src="/assets/ar-background.png" alt="MCM 매장 내부" /> 
       <div className="ar-page__shade" aria-hidden="true" /> 
  

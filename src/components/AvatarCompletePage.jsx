@@ -1,6 +1,6 @@
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 
-export default function AvatarCompletePage({ avatarImage = '/assets/figma-fitting/avatar.png', onFinish }) {
+export default function AvatarCompletePage({ avatarImage = '/assets/avatar-complete/avatar.png', onFinish }) {
   return (
     <main className="avatar-complete-page" aria-labelledby="avatar-complete-title">
       <img className="avatar-complete-page__background" src="/assets/ar-background.png" alt="" aria-hidden="true" />
