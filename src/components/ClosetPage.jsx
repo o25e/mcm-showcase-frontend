@@ -366,7 +366,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                 <div className="closet-record-copy">
                   <p>{record.date}</p>
                   <h2>{record.title}</h2>
-                  <span><img src="/assets/icon-place.svg" alt="" /> 이태원 플래그십</span>
+                  <span><img src="/assets/icon-place.svg" alt="" /> 청담 플래그십</span>
                 </div>
               </article>
             ))}
@@ -418,7 +418,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                 <header className="closet-detail-header">
                   <p>{selectedRecord.date}</p>
                   <h2 id="closet-detail-title">{selectedRecord.title}</h2>
-                  <span><img src="/assets/icon-place.svg" alt="" /> 이태원 플래그십</span>
+                  <span><img src="/assets/icon-place.svg" alt="" /> 청담 플래그십</span>
 
                   <div className="closet-detail-stats">
                     <span><img src="/assets/icon-cloth.png" alt="" />{historyProducts.length}</span>
