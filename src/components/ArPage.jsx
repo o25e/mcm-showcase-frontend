@@ -15,6 +15,7 @@ export default function ArPage() {
   const [gender, setGender] = useState(null);
   const [completedAvatar, setCompletedAvatar] = useState('/assets/avatar-complete/avatar_f.png');
   const [completedAvatarLook, setCompletedAvatarLook] = useState(null);
+  const [completedMemberId, setCompletedMemberId] = useState(null);
   const t = getArCopy(language);
   const memberLoginBaseUrl = import.meta.env.VITE_MEMBER_LOGIN_URL || import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin;
   const memberLoginUrl = Number.isFinite(arSessionId)
@@ -48,6 +49,9 @@ export default function ArPage() {
 
       const data = await response.json();
       setArSessionId(data.arSessionId);
+      if (authenticatedMember?.memberId !== undefined && authenticatedMember?.memberId !== null) {
+        setCompletedMemberId(authenticatedMember.memberId);
+      }
       setScreen('member-check');
     } catch (error) {
       console.error('AR 세션 생성 오류:', error);
@@ -103,6 +107,7 @@ export default function ArPage() {
         const data = await response.json();
         if (data.memberId !== null && data.memberId !== undefined) {
           sessionStorage.setItem('mcm.member', JSON.stringify({ memberId: data.memberId, name: '' }));
+          setCompletedMemberId(data.memberId);
           if (isActive) setScreen('member-loading');
         }
       } catch (error) {
@@ -160,6 +165,7 @@ export default function ArPage() {
         language={language}
         avatarImage={completedAvatar}
         avatarLook={completedAvatarLook}
+        memberId={completedMemberId}
         onFinish={() => setScreen('intro')}
       />
     );

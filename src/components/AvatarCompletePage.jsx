@@ -20,6 +20,7 @@ function resolveQrImageUrl(image) {
 export default function AvatarCompletePage({
   avatarImage = '/assets/avatar-complete/avatar_f.png',
   avatarLook = null,
+  memberId = null,
   onFinish,
   language = 'ko',
 }) {
@@ -71,9 +72,11 @@ export default function AvatarCompletePage({
   );
 
   const publicAppUrl = import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin;
-  const shareUrl = styleProfileId
-    ? `${publicAppUrl.replace(/\/$/, '')}/my-closet/share/${styleProfileId}`
-    : '';
+  const shareUrl = memberId !== null && memberId !== undefined
+    ? `${publicAppUrl.replace(/\/$/, '')}/my-closet?memberId=${encodeURIComponent(memberId)}`
+    : styleProfileId
+      ? `${publicAppUrl.replace(/\/$/, '')}/my-closet/share/${styleProfileId}`
+      : '';
 
   return (
     <main

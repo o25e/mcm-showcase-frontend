@@ -12,6 +12,7 @@ export default function ClosetApp() {
   const sharedProfileMatch = window.location.pathname.match(/^\/my-closet\/share\/([^/]+)\/?$/i);
   const detailProfileMatch = window.location.pathname.match(/^\/my-closet\/([^/]+)\/?$/i);
   const isMyCloset = window.location.pathname.toLowerCase() === '/my-closet';
+  const qrMemberId = new URLSearchParams(window.location.search).get('memberId');
   const [showCloset, setShowCloset] = useState(() => window.location.hash === '#closet' || Boolean(sharedProfileMatch) || Boolean(detailProfileMatch) || isMyCloset);
   const [member, setMember] = useState(getStoredMember);
 
@@ -65,6 +66,7 @@ export default function ClosetApp() {
         member={member}
         sharedStyleProfileId={sharedProfileMatch?.[1]}
         detailStyleProfileId={detailProfileMatch?.[1]}
+        qrMemberId={qrMemberId}
         onLoginSuccess={setMember}
       />
     : <App
