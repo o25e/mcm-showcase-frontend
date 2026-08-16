@@ -42,7 +42,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     try {
       setError('');
 
-      const response = await fetch(`/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}`, {
+      const response = await fetch(`${API_BASE_URL}/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}`, {
         method: 'GET',
         headers: { Accept: 'application/json' },
       });
@@ -154,7 +154,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     try {
       setError('');
 
-      const response = await fetch(`/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}/refresh`, {
+      const response = await fetch(`${API_BASE_URL}/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}/refresh`, {
         method: 'POST',
         headers: { Accept: 'application/json' },
       });
