@@ -293,14 +293,6 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
               >
                 <div className="closet-record-image">
                   <img src={record.image} alt="스타일 기록" />
-                  <button
-                    type="button"
-                    className="closet-record-wish"
-                    aria-label="스타일 기록 저장"
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    <img src="/assets/figma-heart-small.svg" alt="" />
-                  </button>
                 </div>
 
                 <div className="closet-record-copy">
