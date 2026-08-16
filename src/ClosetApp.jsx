@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react';
 import ClosetPage from './components/ClosetPage';
 import ArPage from './components/ArPage';
 import App from './App';
+import { API_BASE_URL } from './api/config';
 
 export default function ClosetApp() {
   const isArPage = window.location.pathname.toLowerCase() === '/ar';
+  const arLoginSessionId = Number(new URLSearchParams(window.location.search).get('arSessionId'));
+  const isArLogin = Number.isFinite(arLoginSessionId) && new URLSearchParams(window.location.search).get('arLogin') === '1';
   const sharedProfileMatch = window.location.pathname.match(/^\/my-closet\/share\/([^/]+)\/?$/i);
   const detailProfileMatch = window.location.pathname.match(/^\/my-closet\/([^/]+)\/?$/i);
   const isMyCloset = window.location.pathname.toLowerCase() === '/my-closet';
@@ -34,6 +37,20 @@ export default function ClosetApp() {
     };
   }, []);
 
+  async function handleLoginSuccess(authenticatedMember) {
+    if (isArLogin) {
+      const response = await fetch(`${API_BASE_URL}/api/ar-sessions/${arLoginSessionId}/member`, {
+        method: 'PATCH',
+        headers: { Accept: '*/*', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberId: authenticatedMember.memberId }),
+      });
+
+      if (!response.ok) throw new Error(`AR member link failed (${response.status})`);
+    }
+
+    setMember(authenticatedMember);
+  }
+
   if (isArPage) return <ArPage />;
 
   return showCloset
@@ -43,5 +60,9 @@ export default function ClosetApp() {
         detailStyleProfileId={detailProfileMatch?.[1]}
         onLoginSuccess={setMember}
       />
-    : <App member={member} onLoginSuccess={setMember} />;
+    : <App
+        member={member}
+        autoOpenLogin={isArLogin}
+        onLoginSuccess={handleLoginSuccess}
+      />;
 }

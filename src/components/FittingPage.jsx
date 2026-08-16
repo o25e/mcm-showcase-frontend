@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AR_INTERACTION_TYPES, postArInteraction } from '../api/arInteractions';
+import { API_BASE_URL } from '../api/config';
 import { getArCopy } from './arCopy';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 const categories = ['Bags', 'Tops', 'Bottoms', 'Shoes', 'Accessories'];
 const categoryCodeMap = { Bags: 'bag', Tops: 'top', Bottoms: 'bottom', Shoes: 'shoes', Accessories: 'accessories' };
 const avatarByGender = { FEMALE: '/assets/figma-fitting/model_f.png', MALE: '/assets/figma-fitting/model_m.png' };
-const completeAvatarByGender = { FEMALE: '/assets/avatar-complete/avatar_f.png', MALE: '/assets/avatar-complete/avatar_m.png' };
 
 export default function FittingPage({ onFinish, arSessionId, gender, language = 'ko' }) {
   const t = getArCopy(language);
@@ -62,13 +62,36 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
   useEffect(() => {
     if (!isGeneratingAvatar) return undefined;
 
-    const timer = window.setTimeout(
-      () => onFinish?.(completeAvatarByGender[gender] ?? completeAvatarByGender.FEMALE),
-      5000
-    );
+    const controller = new AbortController();
 
-    return () => window.clearTimeout(timer);
-  }, [gender, isGeneratingAvatar, onFinish]);
+    async function createAvatarLook() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/recommendations/avatar-look/${arSessionId}`, {
+          method: 'POST',
+          headers: { Accept: '*/*' },
+          signal: controller.signal,
+        });
+
+        if (!response.ok) throw new Error(`Avatar look request failed (${response.status})`);
+
+        const data = await response.json();
+        const image = data.avatarImageUrl || data.avatarImage || data.imageUrl;
+        if (!image || !data.styleProfileId) throw new Error('Avatar look response is missing image or style profile');
+
+        const avatarImageUrl = image.startsWith('/') ? `${API_BASE_URL}${image}` : image;
+        onFinish?.({ ...data, avatarImageUrl });
+      } catch (generationError) {
+        if (generationError.name !== 'AbortError') {
+          console.error('아바타 룩 생성 오류:', generationError);
+          setError('아바타 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+          setIsGeneratingAvatar(false);
+        }
+      }
+    }
+
+    createAvatarLook();
+    return () => controller.abort();
+  }, [arSessionId, isGeneratingAvatar, onFinish]);
 
   function handleCategoryClick(categoryName) {
     setCategory(categoryName);

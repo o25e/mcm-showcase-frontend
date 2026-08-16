@@ -1,30 +1,38 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { API_BASE_URL } from '../api/config';
 import { getArCopy } from './arCopy';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 
 export default function AvatarCompletePage({
   avatarImage = '/assets/avatar-complete/avatar_f.png',
-  arSessionId,
+  avatarLook = null,
   onFinish,
   language = 'ko',
 }) {
   const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
-  const [avatarLook, setAvatarLook] = useState(null);
-  const hasCreatedAvatarLook = useRef(false);
   const t = getArCopy(language);
 
   useEffect(() => {
-    if (!Number.isFinite(arSessionId) || hasCreatedAvatarLook.current) return;
-    hasCreatedAvatarLook.current = true;
+    if (!isFinishModalOpen) return undefined;
 
-    async function createAvatarLook() {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setIsFinishModalOpen(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFinishModalOpen]);
+
+  /*
+    Avatar generation is completed in FittingPage before this screen mounts.
+    Keeping the generated look in props also prevents duplicate POST requests.
+  */
+  /* async function createAvatarLook() {
       try {
         const response = await fetch(`${API_BASE_URL}/api/recommendations/avatar-look/${arSessionId}`, {
           method: 'POST',
-          headers: { Accept: '*/*' },
+          headers: { Accept: '* / *' },
         });
 
         if (!response.ok) throw new Error(`Avatar look request failed (${response.status})`);
@@ -38,18 +46,7 @@ export default function AvatarCompletePage({
     }
 
     createAvatarLook();
-  }, [arSessionId]);
-
-  useEffect(() => {
-    if (!isFinishModalOpen) return undefined;
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') setIsFinishModalOpen(false);
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFinishModalOpen]);
+  } */
 
   const styleProfileId = avatarLook?.styleProfileId;
 

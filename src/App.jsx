@@ -41,8 +41,8 @@ const products = [
   },
 ];
 
-export default function App({ member, onLoginSuccess }) {
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
+export default function App({ member, onLoginSuccess, autoOpenLogin = false }) {
+  const [isLoginOpen, setIsLoginOpen] = useState(autoOpenLogin);
 
   return (
     <div className="figma-home" id="top">

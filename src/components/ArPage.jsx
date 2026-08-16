@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import { API_BASE_URL } from '../api/config';
 import FittingHelpOverlay from './FittingHelpOverlay';
 import FittingPage from './FittingPage';
@@ -13,7 +14,12 @@ export default function ArPage() {
   const [arSessionId, setArSessionId] = useState(null);
   const [gender, setGender] = useState(null);
   const [completedAvatar, setCompletedAvatar] = useState('/assets/avatar-complete/avatar_f.png');
+  const [completedAvatarLook, setCompletedAvatarLook] = useState(null);
   const t = getArCopy(language);
+  const memberLoginBaseUrl = import.meta.env.VITE_MEMBER_LOGIN_URL || import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin;
+  const memberLoginUrl = Number.isFinite(arSessionId)
+    ? `${memberLoginBaseUrl}${memberLoginBaseUrl.includes('?') ? '&' : '?'}arLogin=1&arSessionId=${arSessionId}`
+    : memberLoginBaseUrl;
 
   const isIntro = screen === 'intro';
   const isMemberLogin = screen === 'member-login';
@@ -139,8 +145,9 @@ export default function ArPage() {
         language={language}
         arSessionId={arSessionId}
         gender={gender}
-        onFinish={(avatarImage) => {
-          setCompletedAvatar(avatarImage);
+        onFinish={(avatarLook) => {
+          setCompletedAvatar(avatarLook.avatarImageUrl);
+          setCompletedAvatarLook(avatarLook);
           setScreen('avatar-complete');
         }}
       />
@@ -152,7 +159,7 @@ export default function ArPage() {
       <AvatarCompletePage
         language={language}
         avatarImage={completedAvatar}
-        arSessionId={arSessionId}
+        avatarLook={completedAvatarLook}
         onFinish={() => setScreen('intro')}
       />
     );
@@ -275,7 +282,7 @@ export default function ArPage() {
 
               {isMemberLogin ? (
                 <>
-                  <img className="ar-page__qr" src="/assets/ar-login-qr.png" alt="MCM member login QR code" />
+                  <QRCodeSVG className="ar-page__qr" value={memberLoginUrl} size={159} level="H" aria-label="MCM member login QR code" />
                   <p className="ar-page__qr-copy">{t.qrLine1}<br />{t.qrLine2}</p>
                 </>
               ) : (
