@@ -3,7 +3,7 @@ import ClosetPage from './components/ClosetPage';
 import ArPage from './components/ArPage';
 import App from './App';
 import { API_BASE_URL } from './api/config';
-import { getStoredMember } from './api/auth';
+import { clearMember, getStoredMember } from './api/auth';
 
 export default function ClosetApp() {
   const isArPage = window.location.pathname.toLowerCase() === '/ar';
@@ -58,6 +58,13 @@ export default function ClosetApp() {
     setMember(authenticatedMember);
   }
 
+  function handleLogout() {
+    clearMember();
+    setMember(null);
+    window.history.replaceState({}, '', '/');
+    setShowCloset(false);
+  }
+
   if (isArPage) return <ArPage />;
 
   return showCloset
@@ -66,10 +73,12 @@ export default function ClosetApp() {
         sharedStyleProfileId={sharedProfileMatch?.[1]}
         detailStyleProfileId={detailProfileMatch?.[1]}
         onLoginSuccess={setMember}
+        onLogout={handleLogout}
       />
     : <App
         member={member}
         autoOpenLogin={isArLogin}
         onLoginSuccess={handleLoginSuccess}
+        onLogout={handleLogout}
       />;
 }

@@ -15,3 +15,8 @@ export function storeMember(member) {
   sessionStorage.setItem(MEMBER_STORAGE_KEY, serializedMember);
   localStorage.setItem(MEMBER_STORAGE_KEY, serializedMember);
 }
+
+export function clearMember() {
+  sessionStorage.removeItem(MEMBER_STORAGE_KEY);
+  localStorage.removeItem(MEMBER_STORAGE_KEY);
+}

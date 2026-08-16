@@ -41,7 +41,7 @@ const products = [
   },
 ];
 
-export default function App({ member, onLoginSuccess, autoOpenLogin = false }) {
+export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = false }) {
   const [isLoginOpen, setIsLoginOpen] = useState(autoOpenLogin);
 
   return (
@@ -114,8 +114,10 @@ export default function App({ member, onLoginSuccess, autoOpenLogin = false }) {
 
       {isLoginOpen && (
         <LoginPanel
+          member={member}
           onClose={() => setIsLoginOpen(false)}
           onLoginSuccess={onLoginSuccess}
+          onLogout={onLogout}
         />
       )}
     </div>

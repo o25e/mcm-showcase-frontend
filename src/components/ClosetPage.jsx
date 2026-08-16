@@ -25,7 +25,7 @@ const closetProducts = Array.from({ length: 10 }, () => ({
   url: 'https://kr.mcmworldwide.com/ko_KR/%ED%8A%B8%EB%9E%98%EB%B8%94/%EB%9F%AC%EA%B8%B0%EC%A7%80-%EB%B0%B1/ottomar-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EC%9C%84%EC%BC%84%EB%8D%94/MMVAAVY02CO001.html',
 }));
 
-export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess }) {
+export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess, onLogout }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [looks, setLooks] = useState([]);
@@ -308,8 +308,10 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
 
       {isLoginOpen && (
         <LoginPanel
+          member={member}
           onClose={() => setIsLoginOpen(false)}
           onLoginSuccess={onLoginSuccess}
+          onLogout={onLogout}
         />
       )}
 
