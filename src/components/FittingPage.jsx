@@ -29,8 +29,14 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
     try {
       setError('');
-      const response = await fetch(`/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}`, { method: 'GET', headers: { Accept: 'application/json' } });
+
+      const response = await fetch(`/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}`, {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      });
+
       if (!response.ok) throw new Error(`Recommendations request failed (${response.status})`);
+
       const data = await response.json();
       setRecommendedProducts(Array.isArray(data.products) ? data.products : []);
       setSelected(0);
@@ -41,12 +47,26 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     }
   }, [arSessionId]);
 
-  useEffect(() => { setAvatarImage(selectedAvatar); }, [selectedAvatar]);
-  useEffect(() => { if (Number.isFinite(arSessionId)) fetchRecommendations('Bags'); }, [arSessionId, fetchRecommendations]);
-  useEffect(() => { if (historyRef.current) historyRef.current.scrollTop = 0; }, [history.length]);
+  useEffect(() => {
+    setAvatarImage(selectedAvatar);
+  }, [selectedAvatar]);
+
+  useEffect(() => {
+    if (Number.isFinite(arSessionId)) fetchRecommendations('Bags');
+  }, [arSessionId, fetchRecommendations]);
+
+  useEffect(() => {
+    if (historyRef.current) historyRef.current.scrollTop = 0;
+  }, [history.length]);
+
   useEffect(() => {
     if (!isGeneratingAvatar) return undefined;
-    const timer = window.setTimeout(() => onFinish?.(completeAvatarByGender[gender] ?? completeAvatarByGender.FEMALE), 5000);
+
+    const timer = window.setTimeout(
+      () => onFinish?.(completeAvatarByGender[gender] ?? completeAvatarByGender.FEMALE),
+      5000
+    );
+
     return () => window.clearTimeout(timer);
   }, [gender, isGeneratingAvatar, onFinish]);
 
@@ -64,10 +84,17 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
     try {
       setError('');
-      const response = await fetch(`/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}/refresh`, { method: 'POST', headers: { Accept: 'application/json' } });
+
+      const response = await fetch(`/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}/refresh`, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+      });
+
       if (!response.ok) throw new Error(`Recommendations refresh failed (${response.status})`);
+
       const data = await response.json();
       if (!Array.isArray(data.products)) throw new Error('Recommendations refresh returned an invalid products value');
+
       setRecommendedProducts([...data.products]);
       setSelected(0);
       setOpen(false);
@@ -87,10 +114,28 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     if (!selectedProduct || !Number.isFinite(arSessionId)) return;
 
     setError('');
+
     try {
-      await postArInteraction({ arSessionId, productId: selectedProduct.productId, interactionType: AR_INTERACTION_TYPES.PRODUCT_SELECT });
+      await postArInteraction({
+        arSessionId,
+        productId: selectedProduct.productId,
+        interactionType: AR_INTERACTION_TYPES.PRODUCT_SELECT,
+      });
+
       setAvatarImage(selectedAvatar);
-      setHistory((items) => [{ id: `${selectedProduct.productId}-${Date.now()}`, productId: selectedProduct.productId, productName: selectedProduct.name, imageUrl: selectedProduct.imageUrl, avatarImage: selectedAvatar, wishlisted: false }, ...items.filter((item) => item.productId !== selectedProduct.productId)]);
+
+      setHistory((items) => [
+        {
+          id: `${selectedProduct.productId}-${Date.now()}`,
+          productId: selectedProduct.productId,
+          productName: selectedProduct.name,
+          imageUrl: selectedProduct.imageUrl,
+          avatarImage: selectedAvatar,
+          wishlisted: false,
+        },
+        ...items.filter((item) => item.productId !== selectedProduct.productId),
+      ]);
+
       setOpen(false);
     } catch (fitError) {
       console.error('PRODUCT_SELECT 오류:', fitError);
@@ -100,38 +145,207 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
   async function toggleWishlist(item) {
     const nextWishlisted = !item.wishlisted;
-    setHistory((items) => items.map((historyItem) => historyItem.id === item.id ? { ...historyItem, wishlisted: nextWishlisted } : historyItem));
+
+    setHistory((items) =>
+      items.map((historyItem) =>
+        historyItem.id === item.id ? { ...historyItem, wishlisted: nextWishlisted } : historyItem
+      )
+    );
+
     try {
-      await postArInteraction({ arSessionId, productId: item.productId, interactionType: nextWishlisted ? AR_INTERACTION_TYPES.WISHLIST_ADD : AR_INTERACTION_TYPES.WISHLIST_REMOVE });
+      await postArInteraction({
+        arSessionId,
+        productId: item.productId,
+        interactionType: nextWishlisted ? AR_INTERACTION_TYPES.WISHLIST_ADD : AR_INTERACTION_TYPES.WISHLIST_REMOVE,
+      });
     } catch (interactionError) {
       console.error('WISHLIST interaction 오류:', interactionError);
-      setHistory((items) => items.map((historyItem) => historyItem.id === item.id ? { ...historyItem, wishlisted: !nextWishlisted } : historyItem));
+
+      setHistory((items) =>
+        items.map((historyItem) =>
+          historyItem.id === item.id ? { ...historyItem, wishlisted: !nextWishlisted } : historyItem
+        )
+      );
     }
   }
 
   async function requestFitting(item) {
     if (fittingProductIds.has(item.productId)) return;
+
     setFittingProductIds((ids) => new Set(ids).add(item.productId));
+
     try {
-      await postArInteraction({ arSessionId, productId: item.productId, interactionType: AR_INTERACTION_TYPES.FITTING });
+      await postArInteraction({
+        arSessionId,
+        productId: item.productId,
+        interactionType: AR_INTERACTION_TYPES.FITTING,
+      });
     } catch (interactionError) {
       console.error('FITTING interaction 오류:', interactionError);
-      setFittingProductIds((ids) => { const next = new Set(ids); next.delete(item.productId); return next; });
+
+      setFittingProductIds((ids) => {
+        const next = new Set(ids);
+        next.delete(item.productId);
+        return next;
+      });
     }
   }
 
-  if (isGeneratingAvatar) return <main className="avatar-generating-page" aria-labelledby="avatar-generating-title"><img className="avatar-generating-page__background" src="/assets/ar-background.png" alt="" aria-hidden="true" /><div className="avatar-generating-page__shade" /><nav className="ar-page__progress" aria-label="AR fitting progress">{steps.map((step) => <span className="active" key={step}>{step}</span>)}</nav><div className="ar-page__progress-track ar-page__progress-track--avatar" aria-hidden="true"><span /></div><span className="avatar-generating-page__divider" aria-hidden="true" /><p id="avatar-generating-title" className="avatar-generating-page__message">{t.avatarGenerating}</p><img className="avatar-generating-page__wave" src="/assets/ar-scanning-wave.png" alt="" aria-hidden="true" /></main>;
+  if (isGeneratingAvatar) {
+    return (
+      <main className="avatar-generating-page" aria-labelledby="avatar-generating-title">
+        <img className="avatar-generating-page__background" src="/assets/ar-background.png" alt="" aria-hidden="true" />
+        <div className="avatar-generating-page__shade" />
 
-  const visibleHistory = [...history, ...Array.from({ length: Math.max(0, 3 - history.length) }, () => null)];
+        <nav className="ar-page__progress" aria-label="AR fitting progress">
+          {steps.map((step) => <span className="active" key={step}>{step}</span>)}
+        </nav>
 
-  return <section className={`fitting-page ${language === 'en' ? 'fitting-page--en' : ''}`} aria-labelledby="fitting-page-title">
-    <img className="fitting-page__background" src="/assets/figma-fitting/raw_1.png" alt="" aria-hidden="true" /><div className="fitting-page__shade" />
-    <nav className="fitting-page__steps" aria-label="AR fitting progress">{steps.map((step, index) => <span className={index < 4 ? 'active' : ''} key={step}>{step}</span>)}</nav><div className="fitting-page__track"><span /></div>
-    <h1 id="fitting-page-title" className="fitting-page__history-title">History</h1>
-    <div className="fitting-page__history" ref={historyRef} aria-label="피팅 히스토리">{visibleHistory.map((item, index) => <button className={`fitting-page__history-card ${item ? 'active' : ''}`} type="button" key={item ? item.id : `history-empty-${index}`} onClick={() => item && setAvatarImage(item.avatarImage)} disabled={!item}>{item && <img className="fitting-page__history-heart" src="/assets/product-detail-heart-small.svg" alt="" onClick={(event) => { event.stopPropagation(); toggleWishlist(item); }} />}{item && <img className="fitting-page__history-hanger" src="/assets/icon-cloth.png" alt="" onClick={(event) => { event.stopPropagation(); requestFitting(item); }} />}{item && <img className="fitting-page__history-product" src={item.imageUrl} alt={`${item.productName} 피팅 기록`} />}</button>)}</div>
-    <span className="fitting-page__history-rule" aria-hidden="true" /><div className="fitting-page__comment"><h2>Comment</h2><span /></div><img className="fitting-page__avatar" src={avatarImage} alt="fitting avatar" />
-    <button className={`fitting-page__finish ${language === 'en' ? 'fitting-page__finish--english' : ''}`} type="button" onClick={() => setIsGeneratingAvatar(true)}>{t.fittingFinish}</button>
-    <section className="fitting-page__catalog" aria-label="추천 상품"><div className="fitting-page__tabs" role="tablist">{categories.map((item) => <button className={category === item ? 'active' : ''} type="button" role="tab" aria-selected={category === item} onClick={() => handleCategoryClick(item)} key={item}>{item}</button>)}</div><span className="fitting-page__catalog-rule" /><div className="fitting-page__product-grid">{recommendedProducts.map((product, index) => <button className={`fitting-page__product ${selected === index ? 'selected' : ''}`} type="button" onClick={() => selectProduct(product, index)} key={product.productId} aria-label={product.name}><img src={product.imageUrl} alt={product.name} /></button>)}</div><span className="fitting-page__product-bottom-rule" /><button className="fitting-page__refresh" type="button" onClick={handleRefresh}><img src="/assets/figma-fitting-refresh.svg" alt="새로고침" /></button></section>
-    {open && selectedProduct && <div className="fitting-product-frame-backdrop" role="presentation" onClick={() => setOpen(false)}><article className="fitting-product-frame" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}><button className="fitting-product-frame__close" type="button" onClick={() => setOpen(false)} aria-label="닫기">×</button><img className="fitting-product-frame__image" src={selectedProduct.imageUrl} alt={selectedProduct.name} /><h2>{selectedProduct.name}</h2><p className="fitting-product-frame__price">₩ {selectedProduct.price.toLocaleString()}</p><p className="fitting-product-frame__color">Color</p><div className="fitting-product-frame__swatches"><span /><span /><span /><span /></div>{error && <p role="alert" className="fitting-error">{error}</p>}<button className="fitting-product-frame__fit" type="button" onClick={fitSelectedProduct}>{language === 'en' ? 'Try on' : '피팅하기'}</button></article></div>}
-  </section>;
+        <div className="ar-page__progress-track ar-page__progress-track--avatar" aria-hidden="true"><span /></div>
+        <span className="avatar-generating-page__divider" aria-hidden="true" />
+        <p id="avatar-generating-title" className="avatar-generating-page__message">{t.avatarGenerating}</p>
+        <img className="avatar-generating-page__wave" src="/assets/ar-scanning-wave.png" alt="" aria-hidden="true" />
+      </main>
+    );
+  }
+
+  const visibleHistory = [
+    ...history,
+    ...Array.from({ length: Math.max(0, 3 - history.length) }, () => null),
+  ];
+
+  return (
+    <section className={`fitting-page ${language === 'en' ? 'fitting-page--en' : ''}`} aria-labelledby="fitting-page-title">
+      <img className="fitting-page__background" src="/assets/figma-fitting/raw_1.png" alt="" aria-hidden="true" />
+      <div className="fitting-page__shade" />
+
+      <nav className="fitting-page__steps" aria-label="AR fitting progress">
+        {steps.map((step, index) => <span className={index < 4 ? 'active' : ''} key={step}>{step}</span>)}
+      </nav>
+      <div className="fitting-page__track"><span /></div>
+
+      <h1 id="fitting-page-title" className="fitting-page__history-title">History</h1>
+
+      <div className="fitting-page__history" ref={historyRef} aria-label="피팅 히스토리">
+        {visibleHistory.map((item, index) => (
+          <button
+            className={`fitting-page__history-card ${item ? 'active' : ''}`}
+            type="button"
+            key={item ? item.id : `history-empty-${index}`}
+            onClick={() => item && setAvatarImage(item.avatarImage)}
+            disabled={!item}
+          >
+            {item && (
+              <img
+                className="fitting-page__history-heart"
+                src="/assets/product-detail-heart-small.svg"
+                alt=""
+                onClick={(event) => {
+                  event.stopPropagation();
+                  toggleWishlist(item);
+                }}
+              />
+            )}
+
+            {item && (
+              <img
+                className="fitting-page__history-hanger"
+                src="/assets/icon-cloth.png"
+                alt=""
+                onClick={(event) => {
+                  event.stopPropagation();
+                  requestFitting(item);
+                }}
+              />
+            )}
+
+            {item && <img className="fitting-page__history-product" src={item.imageUrl} alt={`${item.productName} 피팅 기록`} />}
+          </button>
+        ))}
+      </div>
+
+      <span className="fitting-page__history-rule" aria-hidden="true" />
+
+      <div className="fitting-page__comment">
+        <h2>Comment</h2>
+        <span />
+      </div>
+
+      <img className="fitting-page__avatar" src={avatarImage} alt="fitting avatar" />
+
+      <button
+        className={`fitting-page__finish ${language === 'en' ? 'fitting-page__finish--english' : ''}`}
+        type="button"
+        onClick={() => setIsGeneratingAvatar(true)}
+      >
+        {t.fittingFinish}
+      </button>
+
+      <section className="fitting-page__catalog" aria-label="추천 상품">
+        <div className="fitting-page__tabs" role="tablist">
+          {categories.map((item) => (
+            <button
+              className={category === item ? 'active' : ''}
+              type="button"
+              role="tab"
+              aria-selected={category === item}
+              onClick={() => handleCategoryClick(item)}
+              key={item}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
+        <span className="fitting-page__catalog-rule" />
+
+        <div className="fitting-page__product-grid">
+          {recommendedProducts.map((product, index) => (
+            <button
+              className={`fitting-page__product ${selected === index ? 'selected' : ''}`}
+              type="button"
+              onClick={() => selectProduct(product, index)}
+              key={product.productId}
+              aria-label={product.name}
+            >
+              <img src={product.imageUrl} alt={product.name} />
+            </button>
+          ))}
+        </div>
+
+        <span className="fitting-page__product-bottom-rule" />
+
+        <button className="fitting-page__refresh" type="button" onClick={handleRefresh}>
+          <img src="/assets/figma-fitting-refresh.svg" alt="새로고침" />
+        </button>
+      </section>
+
+      {open && selectedProduct && (
+        <div className="fitting-product-frame-backdrop" role="presentation" onClick={() => setOpen(false)}>
+          <article
+            className="fitting-product-frame"
+            role="dialog"
+            aria-modal="true"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button className="fitting-product-frame__close" type="button" onClick={() => setOpen(false)} aria-label="닫기">×</button>
+            <img className="fitting-product-frame__image" src={selectedProduct.imageUrl} alt={selectedProduct.name} />
+            <h2>{selectedProduct.name}</h2>
+            <p className="fitting-product-frame__price">₩ {selectedProduct.price.toLocaleString()}</p>
+            <p className="fitting-product-frame__color">Color</p>
+
+            <div className="fitting-product-frame__swatches">
+              <span /><span /><span /><span />
+            </div>
+
+            {error && <p role="alert" className="fitting-error">{error}</p>}
+
+            <button className="fitting-product-frame__fit" type="button" onClick={fitSelectedProduct}>
+              {language === 'en' ? 'Try on' : '피팅하기'}
+            </button>
+          </article>
+        </div>
+      )}
+    </section>
+  );
 }

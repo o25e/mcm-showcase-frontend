@@ -10,15 +10,19 @@ export default function ClosetApp() {
 
   useEffect(() => {
     const syncPage = () => setShowCloset(window.location.hash === '#closet');
+
     const openCloset = (event) => {
       const link = event.target.closest('a');
+
       if (link?.textContent.trim() === 'CLOSET') {
         event.preventDefault();
         window.location.hash = 'closet';
       }
     };
+
     window.addEventListener('hashchange', syncPage);
     document.addEventListener('click', openCloset);
+
     return () => {
       window.removeEventListener('hashchange', syncPage);
       document.removeEventListener('click', openCloset);
@@ -26,5 +30,8 @@ export default function ClosetApp() {
   }, []);
 
   if (isArPage) return <ArPage />;
-  return showCloset ? <ClosetPage member={member} onLoginSuccess={setMember} /> : <App member={member} onLoginSuccess={setMember} />;
+
+  return showCloset
+    ? <ClosetPage member={member} onLoginSuccess={setMember} />
+    : <App member={member} onLoginSuccess={setMember} />;
 }
