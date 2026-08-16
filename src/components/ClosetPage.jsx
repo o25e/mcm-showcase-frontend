@@ -28,12 +28,24 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [looks, setLooks] = useState([]);
   const [lookError, setLookError] = useState('');
+  const sharedLookStorageKey = sharedStyleProfileId
+    ? `mcm.shared-look-viewed:${sharedStyleProfileId}`
+    : '';
+  const [isSharedLookVisible, setIsSharedLookVisible] = useState(() => {
+    if (!sharedStyleProfileId || member) return true;
+
+    try {
+      return localStorage.getItem(`mcm.shared-look-viewed:${sharedStyleProfileId}`) !== '1';
+    } catch {
+      return true;
+    }
+  });
   const historyRef = useRef(null);
   const historyDragRef = useRef(null);
   const isModalOpen = isLoginOpen || selectedRecord !== null;
 
   useEffect(() => {
-    if (!sharedStyleProfileId) return undefined;
+    if (!sharedStyleProfileId || !isSharedLookVisible) return undefined;
     let cancelled = false;
     getMyClosetLook(sharedStyleProfileId).then((look) => {
       if (!cancelled) setLooks([look]);
@@ -42,7 +54,22 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
       if (!cancelled) setLookError('아바타 정보를 불러오지 못했습니다. QR 코드를 다시 스캔해 주세요.');
     });
     return () => { cancelled = true; };
-  }, [sharedStyleProfileId]);
+  }, [sharedStyleProfileId, isSharedLookVisible]);
+
+  useEffect(() => {
+    if (!sharedStyleProfileId || member || !isSharedLookVisible) return undefined;
+
+    const markSharedLookAsViewed = () => {
+      try {
+        localStorage.setItem(sharedLookStorageKey, '1');
+      } catch {
+        // Storage may be unavailable in private browsing.
+      }
+    };
+
+    window.addEventListener('pagehide', markSharedLookAsViewed);
+    return () => window.removeEventListener('pagehide', markSharedLookAsViewed);
+  }, [member, sharedLookStorageKey, sharedStyleProfileId, isSharedLookVisible]);
 
   useEffect(() => {
     if (!detailStyleProfileId) return undefined;
@@ -87,7 +114,11 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
     title: look.styleIdentityTitle || '오늘의 스타일',
     raw: look,
   });
-  const visibleRecords = sharedStyleProfileId || detailStyleProfileId ? looks.map(toRecord) : (member ? looks.map(toRecord) : records);
+  const visibleRecords = sharedStyleProfileId
+    ? (isSharedLookVisible ? looks.map(toRecord) : [])
+    : detailStyleProfileId
+      ? looks.map(toRecord)
+      : (member ? looks.map(toRecord) : records);
 
   const handleLoginSuccess = async (authenticatedMember) => {
     onLoginSuccess?.(authenticatedMember);
@@ -207,7 +238,15 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
           <button className="closet-arrow closet-arrow-right" type="button" aria-label="다음 아바타">›</button>
         </section>
 
-        {sharedStyleProfileId && (
+        {!member && <section className="closet-login" aria-label="로그인 안내">
+          <p>
+            오늘의 스타일을 이어가세요.<br />
+            로그인하면 이 Avatar를 저장하고 다음 쇼핑에서도 나만의 MCM Closet을 이어갈 수 있어요.
+          </p>
+          <button type="button" onClick={() => setIsLoginOpen(true)}>로그인 하기</button>
+        </section>}
+
+        {sharedStyleProfileId && isSharedLookVisible && (
           <section className="closet-shared-result" aria-live="polite">
             {lookError ? <p>{lookError}</p> : visibleRecords[0] ? (
               <button type="button" onClick={() => setSelectedRecord(visibleRecords[0])}>
@@ -215,17 +254,8 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                 <span>{visibleRecords[0].title}</span>
               </button>
             ) : <p>나의 아바타를 불러오는 중입니다...</p>}
-            {!member && <button type="button" onClick={() => setIsLoginOpen(true)}>로그인/회원가입</button>}
           </section>
         )}
-
-        {!sharedStyleProfileId && <section className="closet-login" aria-label="로그인 안내">
-          <p>
-            오늘의 스타일을 이어가세요.<br />
-            로그인하면 이 Avatar를 저장하고 다음 쇼핑에서도 나만의 MCM Closet을 이어갈 수 있어요.
-          </p>
-          <button type="button" onClick={() => setIsLoginOpen(true)}>로그인 하기</button>
-        </section>}
 
         <section className="closet-records" id="closet-records" aria-label="스타일 기록">
           <div className="closet-record-grid">

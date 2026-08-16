@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { loginMember } from '../api/members';
+import { storeMember } from '../api/auth';
 
 export default function LoginPanel({ onClose, onLoginSuccess }) {
   const [loginId, setLoginId] = useState('');
@@ -22,7 +23,8 @@ export default function LoginPanel({ onClose, onLoginSuccess }) {
       }
 
       const authenticatedMember = { memberId: member.memberId, name: member.name || '' };
-      sessionStorage.setItem('mcm.member', JSON.stringify(authenticatedMember));
+      // QR 결과 페이지가 새 탭에서 열려도 회원 로그인 상태를 유지합니다.
+      storeMember(authenticatedMember);
       await onLoginSuccess?.(authenticatedMember);
       onClose();
     } catch (error) {

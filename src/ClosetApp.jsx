@@ -3,6 +3,7 @@ import ClosetPage from './components/ClosetPage';
 import ArPage from './components/ArPage';
 import App from './App';
 import { API_BASE_URL } from './api/config';
+import { getStoredMember } from './api/auth';
 
 export default function ClosetApp() {
   const isArPage = window.location.pathname.toLowerCase() === '/ar';
@@ -12,9 +13,7 @@ export default function ClosetApp() {
   const detailProfileMatch = window.location.pathname.match(/^\/my-closet\/([^/]+)\/?$/i);
   const isMyCloset = window.location.pathname.toLowerCase() === '/my-closet';
   const [showCloset, setShowCloset] = useState(() => window.location.hash === '#closet' || Boolean(sharedProfileMatch) || Boolean(detailProfileMatch) || isMyCloset);
-  const [member, setMember] = useState(() => {
-    try { return JSON.parse(sessionStorage.getItem('mcm.member')) || null; } catch { return null; }
-  });
+  const [member, setMember] = useState(getStoredMember);
 
   useEffect(() => {
     const syncPage = () => setShowCloset(window.location.hash === '#closet');
