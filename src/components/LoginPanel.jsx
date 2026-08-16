@@ -21,7 +21,9 @@ export default function LoginPanel({ onClose, onLoginSuccess }) {
         throw new Error('로그인 응답을 확인할 수 없습니다.');
       }
 
-      onLoginSuccess?.({ memberId: member.memberId, name: member.name || '' });
+      const authenticatedMember = { memberId: member.memberId, name: member.name || '' };
+      sessionStorage.setItem('mcm.member', JSON.stringify(authenticatedMember));
+      await onLoginSuccess?.(authenticatedMember);
       onClose();
     } catch (error) {
       setErrorMessage(

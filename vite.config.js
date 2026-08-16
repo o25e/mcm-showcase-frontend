@@ -175,6 +175,7 @@ export default defineConfig(({ mode }) => {
       fittingApi(),
     ],
     server: {
+      host: true,
       proxy: {
         '/api': {
           target: process.env.VITE_API_PROXY_TARGET || 'https://api.mcm-showcase.com',

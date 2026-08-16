@@ -25,9 +25,17 @@ export default function ArPage() {
 
   async function handleStart() {
     try {
+      let authenticatedMember = null;
+      try {
+        authenticatedMember = JSON.parse(sessionStorage.getItem('mcm.member'));
+      } catch {
+        authenticatedMember = null;
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/ar-sessions`, {
         method: 'POST',
-        headers: { Accept: '*/*' },
+        headers: { Accept: '*/*', 'Content-Type': 'application/json' },
+        body: JSON.stringify(authenticatedMember?.memberId ? { memberId: authenticatedMember.memberId } : {}),
       });
 
       if (!response.ok) throw new Error(`AR session creation failed (${response.status})`);
@@ -68,6 +76,44 @@ export default function ArPage() {
     const timer = window.setTimeout(() => setScreen('consent'), 7500);
     return () => window.clearTimeout(timer);
   }, [screen]);
+
+  useEffect(() => {
+    if (screen !== 'member-login' || !Number.isFinite(arSessionId)) return undefined;
+
+    let isActive = true;
+    let isRequesting = false;
+
+    const checkMemberLogin = async () => {
+      if (!isActive || isRequesting) return;
+      isRequesting = true;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/ar-sessions/${arSessionId}`, {
+          headers: { Accept: '*/*' },
+        });
+
+        if (!response.ok) throw new Error(`AR session lookup failed (${response.status})`);
+
+        const data = await response.json();
+        if (data.memberId !== null && data.memberId !== undefined) {
+          sessionStorage.setItem('mcm.member', JSON.stringify({ memberId: data.memberId, name: '' }));
+          if (isActive) setScreen('member-loading');
+        }
+      } catch (error) {
+        console.error('AR 회원 로그인 상태 확인 오류:', error);
+      } finally {
+        isRequesting = false;
+      }
+    };
+
+    checkMemberLogin();
+    const intervalId = window.setInterval(checkMemberLogin, 1000);
+
+    return () => {
+      isActive = false;
+      window.clearInterval(intervalId);
+    };
+  }, [arSessionId, screen]);
 
   useEffect(() => {
     if (screen !== 'scan') return undefined;
@@ -231,7 +277,6 @@ export default function ArPage() {
                 <>
                   <img className="ar-page__qr" src="/assets/ar-login-qr.png" alt="MCM member login QR code" />
                   <p className="ar-page__qr-copy">{t.qrLine1}<br />{t.qrLine2}</p>
-                  <button className="ar-page__login-test" type="button" onClick={() => setScreen('member-loading')}>{t.loginDone}</button>
                 </>
               ) : (
                 <div className="ar-page__choices">

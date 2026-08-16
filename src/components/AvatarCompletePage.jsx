@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import { API_BASE_URL } from '../api/config';
 import { getArCopy } from './arCopy';
 
@@ -28,7 +29,9 @@ export default function AvatarCompletePage({
 
         if (!response.ok) throw new Error(`Avatar look request failed (${response.status})`);
 
-        setAvatarLook(await response.json());
+        const data = await response.json();
+        console.log('아바타 룩 생성 응답:', data);
+        setAvatarLook(data);
       } catch (error) {
         console.error('아바타 룩 생성 오류:', error);
       }
@@ -47,6 +50,13 @@ export default function AvatarCompletePage({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFinishModalOpen]);
+
+  const styleProfileId = avatarLook?.styleProfileId;
+
+  const publicAppUrl = import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin;
+  const shareUrl = styleProfileId
+    ? `${publicAppUrl.replace(/\/$/, '')}/my-closet/share/${styleProfileId}`
+    : '';
 
   return (
     <main
@@ -86,7 +96,17 @@ export default function AvatarCompletePage({
       </aside>
 
       <section className="avatar-complete-page__qr-card" aria-label="Fitting result information">
-        <img className="avatar-complete-page__qr-mark" src="/assets/avatar-complete/qr-mark.png" alt="" aria-hidden="true" />
+        {shareUrl ? (
+          <QRCodeSVG
+            className="avatar-complete-page__qr-code"
+            value={shareUrl}
+            size={180}
+            level="H"
+          />
+        ) : (
+          <div className="avatar-complete-page__qr-mark" />
+        )}
+
         <p>{t.qr1}</p>
 
         {language === 'en' ? (
