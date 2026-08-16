@@ -6,7 +6,7 @@ import { getArCopy } from './arCopy';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 
-export default function ArPage() {
+export default function ArPage({ arSessionId }) {
   const [language, setLanguage] = useState('ko');
   const [screen, setScreen] = useState('intro');
   const [completedAvatar, setCompletedAvatar] = useState('/assets/avatar-complete/avatar.png');
@@ -41,7 +41,7 @@ export default function ArPage() {
   }, [screen]);
 
   if (isFittingHelp) return <FittingHelpOverlay language={language} onClose={() => setScreen('fitting')} />;
-  if (isFitting) return <FittingPage language={language} onFinish={() => { setCompletedAvatar('/assets/avatar-complete/avatar.png'); setScreen('avatar-complete'); }} />;
+  if (isFitting) return <FittingPage language={language} arSessionId={arSessionId} onFinish={() => { setCompletedAvatar('/assets/avatar-complete/avatar.png'); setScreen('avatar-complete'); }} />;
   if (isAvatarComplete) return <AvatarCompletePage language={language} avatarImage={completedAvatar} onFinish={() => setScreen('intro')} />;
 
   return <main className={`ar-page ${isIntro ? 'ar-page--intro' : 'ar-page--flow'} ${isScanning ? 'ar-page--scanning' : ''} ${language === 'en' ? 'ar-page--en' : ''}`}>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getArCopy } from './arCopy';
+import { AR_INTERACTION_TYPES, postArInteraction } from '../api/arInteractions';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 const categories = ['Bags', 'Tops', 'Bottoms', 'Shoes', 'Accessories'];
@@ -58,6 +59,7 @@ export default function FittingPage({ onFinish, arSessionId, language = 'ko' }) 
   const [open, setOpen] = useState(false);
   const [avatarImage, setAvatarImage] = useState(defaultAvatar);
   const [history, setHistory] = useState([]);
+  const [fittingProductIds, setFittingProductIds] = useState(() => new Set());
   const [error, setError] = useState('');
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const historyRef = useRef(null);
@@ -116,6 +118,13 @@ export default function FittingPage({ onFinish, arSessionId, language = 'ko' }) 
     setError('');
   }
 
+  function recordInteraction(productId, interactionType) {
+    if (!Number.isFinite(arSessionId)) return;
+    postArInteraction({ arSessionId, productId, interactionType }).catch((interactionError) => {
+      console.error('AR interaction failed:', interactionError);
+    });
+  }
+
   async function fitSelectedProduct() {
     setAvatarImage(selectedProduct.avatarImage);
 
@@ -126,6 +135,7 @@ export default function FittingPage({ onFinish, arSessionId, language = 'ko' }) 
         productName: selectedProduct.name,
         imageUrl: selectedProduct.image,
         avatarImage: selectedProduct.avatarImage,
+        wishlisted: false,
       },
       ...items.filter(
         (item) => item.productId !== selectedProduct.productId
@@ -135,32 +145,19 @@ export default function FittingPage({ onFinish, arSessionId, language = 'ko' }) 
     setOpen(false);
     setError('');
 
-    try {
-      const response = await fetch('/api/ar-interactions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          arSessionId,
-          productId: selectedProduct.productId,
-          interactionType: 'PRODUCT_SELECT',
-        }),
-      });
+    recordInteraction(selectedProduct.productId, AR_INTERACTION_TYPES.PRODUCT_SELECT);
+  }
 
-      if (!response.ok) {
-        const errorText = await response.text();
+  function toggleWishlist(item) {
+    const nextSaved = !item.wishlisted;
+    setHistory((items) => items.map((historyItem) => historyItem.id === item.id ? { ...historyItem, wishlisted: nextSaved } : historyItem));
+    recordInteraction(item.productId, nextSaved ? AR_INTERACTION_TYPES.WISHLIST_ADD : AR_INTERACTION_TYPES.WISHLIST_REMOVE);
+  }
 
-        console.error('PRODUCT_SELECT 실패:', {
-          status: response.status,
-          body: errorText,
-          arSessionId,
-          productId: selectedProduct.productId,
-        });
-      }
-    } catch (fitError) {
-      console.error('PRODUCT_SELECT error:', fitError);
-    }
+  function requestFitting(item) {
+    if (fittingProductIds.has(item.productId)) return;
+    setFittingProductIds((ids) => new Set(ids).add(item.productId));
+    recordInteraction(item.productId, AR_INTERACTION_TYPES.FITTING);
   }
 
   return (
@@ -219,23 +216,11 @@ export default function FittingPage({ onFinish, arSessionId, language = 'ko' }) 
                   ? item.id
                   : `history-empty-${index}`
               }
-              onClick={() =>
-                item &&
-                setAvatarImage(item.avatarImage)
-              }
+              onClick={() => item && setAvatarImage(item.avatarImage)}
               disabled={!item}
             >
-              <img
-                className="fitting-page__history-heart"
-                src="/assets/product-detail-heart-small.svg"
-                alt=""
-              />
-
-              <img
-                className="fitting-page__history-hanger"
-                src="/assets/icon-cloth.png"
-                alt=""
-              />
+              {item && <img className="fitting-page__history-heart" src="/assets/product-detail-heart-small.svg" alt="찜" onClick={(event) => { event.stopPropagation(); toggleWishlist(item); }} />}
+              {item && <img className="fitting-page__history-hanger" src="/assets/icon-cloth.png" alt="시착" onClick={(event) => { event.stopPropagation(); requestFitting(item); }} />}
 
               {item && (
                 <img
