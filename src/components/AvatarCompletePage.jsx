@@ -1,8 +1,21 @@
 import { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { API_BASE_URL } from '../api/config';
 import { getArCopy } from './arCopy';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
+const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
+
+function resolveQrImageUrl(image) {
+  if (typeof image !== 'string' || !image.trim()) return '';
+
+  const trimmedImage = image.trim();
+  if (trimmedImage.startsWith('/') && !trimmedImage.startsWith('//')) {
+    return `${API_ASSET_BASE_URL}${trimmedImage}`;
+  }
+
+  return trimmedImage;
+}
 
 export default function AvatarCompletePage({
   avatarImage = '/assets/avatar-complete/avatar_f.png',
@@ -49,6 +62,13 @@ export default function AvatarCompletePage({
   } */
 
   const styleProfileId = avatarLook?.styleProfileId;
+  const qrImageUrl = resolveQrImageUrl(
+    avatarLook?.qrImageUrl
+      || avatarLook?.qrCodeImageUrl
+      || avatarLook?.qrImage
+      || avatarLook?.qrCodeUrl
+      || avatarLook?.qrCodeImage
+  );
 
   const publicAppUrl = import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin;
   const shareUrl = styleProfileId
@@ -84,7 +104,22 @@ export default function AvatarCompletePage({
 
         <div className="avatar-complete-page__preview-inner">
           <div className="avatar-complete-page__preview-avatar">
-            <img src="/assets/avatar-complete/preview-avatar.png" alt="" />
+            {qrImageUrl ? (
+              <img
+                className="avatar-complete-page__qr-code"
+                src={qrImageUrl}
+                alt="Today's fitting result QR code"
+              />
+            ) : shareUrl ? (
+              <QRCodeSVG
+                className="avatar-complete-page__qr-code"
+                value={shareUrl}
+                size={180}
+                level="H"
+              />
+            ) : (
+              <img src="/assets/avatar-complete/preview-avatar.png" alt="" />
+            )}
           </div>
           <img className="avatar-complete-page__preview-product" src="/assets/avatar-complete/preview-product.png" alt="MCM" />
         </div>
@@ -93,17 +128,7 @@ export default function AvatarCompletePage({
       </aside>
 
       <section className="avatar-complete-page__qr-card" aria-label="Fitting result information">
-        {shareUrl ? (
-          <QRCodeSVG
-            className="avatar-complete-page__qr-code"
-            value={shareUrl}
-            size={180}
-            level="H"
-          />
-        ) : (
-          <div className="avatar-complete-page__qr-mark" />
-        )}
-
+        <img className="avatar-complete-page__qr-mark" src="/assets/avatar-complete/qr-mark.png" alt="" aria-hidden="true" />
         <p>{t.qr1}</p>
 
         {language === 'en' ? (

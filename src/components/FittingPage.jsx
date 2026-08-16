@@ -7,6 +7,18 @@ const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 const categories = ['Bags', 'Tops', 'Bottoms', 'Shoes', 'Accessories'];
 const categoryCodeMap = { Bags: 'bag', Tops: 'top', Bottoms: 'bottom', Shoes: 'shoes', Accessories: 'accessories' };
 const avatarByGender = { FEMALE: '/assets/figma-fitting/model_f.png', MALE: '/assets/figma-fitting/model_m.png' };
+const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
+
+function resolveAvatarImageUrl(image) {
+  if (typeof image !== 'string' || !image.trim()) return '';
+
+  const trimmedImage = image.trim();
+  if (trimmedImage.startsWith('/') && !trimmedImage.startsWith('//')) {
+    return `${API_ASSET_BASE_URL}${trimmedImage}`;
+  }
+
+  return trimmedImage;
+}
 
 export default function FittingPage({ onFinish, arSessionId, gender, language = 'ko' }) {
   const t = getArCopy(language);
@@ -66,20 +78,54 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
     async function createAvatarLook() {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/recommendations/avatar-look/${arSessionId}`, {
-          method: 'POST',
-          headers: { Accept: '*/*' },
+        // [테스트용] 미리 생성된 아바타 이미지를 조회합니다.
+        const response = await fetch(`${API_BASE_URL}/api/test/avatar-images/latest`, {
+          method: 'GET',
+          headers: { Accept: 'application/json' },
           signal: controller.signal,
         });
 
-        if (!response.ok) throw new Error(`Avatar look request failed (${response.status})`);
+        // [실제 생성용] 실제 아바타 생성 API로 교체할 때 아래 주석을 해제합니다.
+        // 현재는 테스트용 API를 사용하므로 이 블록은 실행되지 않습니다.
+        // const response = await fetch(`${API_BASE_URL}/api/recommendations/avatar-look/${arSessionId}`, {
+        //   method: 'POST',
+        //   headers: {
+        //     Accept: '*/*',
+        //     Authorization: `Bearer ${import.meta.env.VITE_API_TOKEN}`,
+        //   },
+        //   signal: controller.signal,
+        // });
+        //
+        // const data = await response.json();
+        // const image = data.avatarImageUrl || data.avatarImage || data.imageUrl;
+        // if (!image || !data.styleProfileId) throw new Error('Avatar look response is missing image or style profile');
+        // const avatarImageUrl = image.startsWith('/') ? `${API_BASE_URL}${image}` : image;
+        // onFinish?.({ ...data, avatarImageUrl });
+
+        if (!response.ok) throw new Error(`Latest avatar request failed (${response.status})`);
 
         const data = await response.json();
-        const image = data.avatarImageUrl || data.avatarImage || data.imageUrl;
+        const result = data.result || data.data || data.latest || data;
+        const candidates = Array.isArray(result) ? result : [result, data];
+        const imageValue = candidates
+          .map((candidate) => typeof candidate === 'string'
+            ? candidate
+            : candidate?.avatarImageUrl
+              || candidate?.avatarImage
+              || candidate?.imageUrl
+              || candidate?.image
+              || candidate?.url
+              || candidate?.sample)
+          .find(Boolean);
+        const image = typeof imageValue === 'object' ? imageValue.url : imageValue;
         if (!image || !data.styleProfileId) throw new Error('Avatar look response is missing image or style profile');
 
-        const avatarImageUrl = image.startsWith('/') ? `${API_BASE_URL}${image}` : image;
-        onFinish?.({ ...data, avatarImageUrl });
+        const avatarImageUrl = resolveAvatarImageUrl(image);
+        onFinish?.({
+          ...data,
+          ...(result && typeof result === 'object' && !Array.isArray(result) ? result : {}),
+          avatarImageUrl,
+        });
       } catch (generationError) {
         if (generationError.name !== 'AbortError') {
           console.error('아바타 룩 생성 오류:', generationError);
