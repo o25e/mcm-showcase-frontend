@@ -5,6 +5,17 @@ import { API_BASE_URL } from '../api/config';
 const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
 import { getMyClosetList, getMyClosetLook, saveLookToMember } from '../api/myCloset';
 
+function resolveLookImage(look) {
+  const image = look?.avatarImageUrl || look?.avatarImage || look?.avatarUrl || look?.imageUrl || look?.image;
+  if (typeof image !== 'string' || !image.trim()) return '/assets/avatar-complete/avatar_f.png';
+  return image.startsWith('/') ? `${API_ASSET_BASE_URL}${image}` : image;
+}
+
+function extractLookList(data) {
+  if (Array.isArray(data)) return data;
+  return [data?.content, data?.items, data?.data, data?.results].find(Array.isArray) || [];
+}
+
 const navItems = ['신상품', '가방', '여성', '남성', '트래블', '라이프스타일', 'MCM ICONS', '선물 제안', 'MCM 소개', 'CLOSET'];
 
 const records = [
@@ -93,10 +104,9 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
     getMyClosetLook(detailStyleProfileId).then((look) => {
       if (!cancelled) {
         setLooks([look]);
-        const detailImage = look.avatarImageUrl || look.avatarImage;
         setSelectedRecord({
           styleProfileId: look.styleProfileId,
-          image: detailImage?.startsWith('/') ? `${API_ASSET_BASE_URL}${detailImage}` : (detailImage || '/assets/avatar-complete/avatar_f.png'),
+          image: resolveLookImage(look),
           date: look.createdAt ? new Date(look.createdAt).toLocaleDateString('ko-KR') : '오늘',
           title: look.styleIdentityTitle || '오늘의 스타일',
           raw: look,
@@ -114,7 +124,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
     if (!hasMemberId || sharedStyleProfileId || detailStyleProfileId) return undefined;
     let cancelled = false;
     getMyClosetList(member.memberId).then((data) => {
-      if (!cancelled) setLooks(Array.isArray(data) ? data : (data?.content || data?.items || []));
+      if (!cancelled) setLooks(extractLookList(data));
     }).catch((error) => {
       console.error('클로젯 목록 조회 오류:', error);
       if (!cancelled) setLookError('저장된 스타일을 불러오지 못했습니다.');
@@ -124,9 +134,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
 
   const toRecord = (look) => ({
     styleProfileId: look.styleProfileId,
-    image: (look.avatarImageUrl || look.avatarImage || '').startsWith('/')
-      ? `${API_ASSET_BASE_URL}${look.avatarImageUrl || look.avatarImage}`
-      : (look.avatarImageUrl || look.avatarImage || '/assets/avatar-complete/avatar_f.png'),
+    image: resolveLookImage(look),
     date: look.createdAt ? new Date(look.createdAt).toLocaleDateString('ko-KR') : '오늘',
     title: look.styleIdentityTitle || '오늘의 스타일',
     raw: look,
