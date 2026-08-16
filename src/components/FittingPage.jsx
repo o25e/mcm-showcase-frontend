@@ -307,7 +307,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
             {item && (
               <img
                 className="fitting-page__history-heart"
-                src="/assets/product-detail-heart-small.svg"
+                src={item.wishlisted ? '/assets/product-detail-heart-click.png' : '/assets/product-detail-heart.png'}
                 alt=""
                 onClick={(event) => {
                   event.stopPropagation();
@@ -319,7 +319,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
             {item && (
               <img
                 className="fitting-page__history-hanger"
-                src="/assets/icon-cloth.png"
+                src={fittingProductIds.has(item.productId) ? '/assets/icon-cloth-click.png' : '/assets/product-detail-cloth.png'}
                 alt=""
                 onClick={(event) => {
                   event.stopPropagation();

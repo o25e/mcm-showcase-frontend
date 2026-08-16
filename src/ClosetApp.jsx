@@ -23,7 +23,15 @@ export default function ClosetApp() {
 
       if (link?.textContent.trim() === 'CLOSET') {
         event.preventDefault();
-        window.location.hash = 'closet';
+        // A detail view can leave `/my-closet/:styleProfileId` in the URL.
+        // Clear that detail route when returning through the CLOSET menu so
+        // the detail panel is opened only after an explicit record click.
+        if (/^\/my-closet\/[^/]+\/?$/i.test(window.location.pathname)) {
+          window.history.replaceState({}, '', '/my-closet#closet');
+          setShowCloset(true);
+        } else {
+          window.location.hash = 'closet';
+        }
       }
     };
 
