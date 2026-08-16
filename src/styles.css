@@ -39,8 +39,8 @@
 
 /* Avatar completion finish confirmation */
 .avatar-complete-finish-modal { position: absolute; z-index: 10; inset: 0; display: grid; place-items: center; }
-.avatar-complete-finish-modal__backdrop { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: rgb(70 70 70 / .63); cursor: default; }
-.avatar-complete-finish-modal__card { position: relative; width: min(488px, calc(100% - 36px)); min-height: 278px; padding: 72px 24px 42px; border-radius: 11px; background: rgb(168 168 168 / .14); box-shadow: 0 0 6.3px rgb(255 255 255 / .25); color: #fff; text-align: center; }
+.avatar-complete-finish-modal__backdrop { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: rgb(70 70 70 / .63); cursor: default; background: linear-gradient(180deg, rgb(136 136 136 / .76) 0%, rgb(27 27 27 / .76) .0.673%); }
+.avatar-complete-finish-modal__card { position: relative; width: min(488px, calc(100% - 36px)); min-height: 278px; padding: 72px 24px 42px; border-radius: 11px; background: rgb(168 168 168 / .24); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); box-shadow: 0 0 6.3px rgb(255 255 255 / .25); color: #fff; text-align: center; }
 .avatar-complete-finish-modal__logo { position: absolute; top: 26px; left: 50%; width: 96px; height: 30px; object-fit: contain; transform: translateX(-50%); }
 .avatar-complete-finish-modal__rule { position: absolute; top: 110px; left: 50%; width: 205px; height: 1px; background: #fff; box-shadow: 0 0 3px rgb(255 255 255 / .63); transform: translateX(-50%); }
 .avatar-complete-finish-modal__card p { margin: 0; font-size: 19px; font-weight: 300; line-height: 28px; text-shadow: 0 0 2.8px rgb(255 255 255 / .63); white-space: nowrap; }
@@ -138,12 +138,12 @@ button { cursor: pointer; }
 /* AR fitting help overlay */
 .fitting-help { position: relative; width: min(100vw, 834px); height: min(100svh, 1194px); min-height: 720px; overflow: hidden; color: #fff; font-family: 'Noto Sans KR', Inter, Arial, sans-serif; transform-origin: top center; }
 .fitting-help__background { position: absolute; top: -8px; left: -857px; width: 2186px; height: 1230px; max-width: none; object-fit: cover; filter: blur(3.625px); }
-.fitting-help__veil { position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgb(136 136 136 / .76) 0%, rgb(27 27 27 / .76) 70.673%); }
+.fitting-help__veil { position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgb(136 136 136 / .76) 0%, rgb(27 27 27 / .76) .0.673%); }
 .fitting-help__steps { position: absolute; z-index: 2; top: 48px; left: 36px; right: 36px; display: flex; align-items: center; justify-content: space-between; color: rgb(255 255 255 / .5); font-size: 21px; font-weight: 400; line-height: 1; text-shadow: 0 0 6.6px rgb(255 255 255 / .63); white-space: nowrap; }
 .fitting-help__steps .active { color: #fff; }
 .fitting-help__track { position: absolute; z-index: 2; top: 92px; left: 36px; width: calc(100% - 72px); height: 10px; overflow: hidden; border-radius: 8.4px; background: rgb(217 217 217 / .47); box-shadow: 0 0 3.35px rgb(255 255 255 / .45); }
 .fitting-help__track span { display: block; width: 572px; height: 100%; border-radius: inherit; background: #f8f8f8; }
-.fitting-help__note { position: absolute; z-index: 4; display: flex; align-items: center; justify-content: center; min-height: 37px; padding: 8px 13px 9px; border: 1px solid rgb(255 255 255 / .55); border-radius: 6.6px; background: rgb(255 255 255 / .1); color: #fff; font-size: 12px; font-weight: 300; line-height: 18.7px; text-align: center; white-space: nowrap; }
+.fitting-help__note { position: absolute; z-index: 4; display: flex; align-items: center; justify-content: center; min-height: 37px; padding: 8px 12px 9px; border: 1px solid rgb(255 255 255 / .55); border-radius: 6.6px; background: rgb(255 255 255 / .1); color: #fff; font-size: 12px; font-weight: 300; line-height: 18.7px; text-align: center; white-space: nowrap; }
 .fitting-help__note--comment-top { top: calc(16.667% + 19px); left: calc(60% + 23.6px); width: 289px; }
 .fitting-help__note--comment-bottom { top: calc(16.667% + 156px); left: calc(40% + 143.4px); width: 255px; }
 .fitting-help__note--history { top: calc(16.667% + 160px); left: calc(20% + 9.2px); width: 244px; }

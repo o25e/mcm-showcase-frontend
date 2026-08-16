@@ -52,7 +52,7 @@ export default function FittingHelpOverlay({ onClose, language = 'ko' }) {
       <Pointer className="fitting-help__pointer--product" />
 
       <Note className="fitting-help__note--refresh">
-        {language === 'ko' ? <>새로운 선택을 받고 싶다면<br />새로고침을 눌러주세요.</> : t.refresh}
+        {language === 'ko' ? <>새로운 선택을 받고 싶다면 새로고침을 눌러주세요.</> : t.refresh}
       </Note>
       <Pointer className="fitting-help__pointer--refresh" />
 
