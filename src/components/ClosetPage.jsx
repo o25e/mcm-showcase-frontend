@@ -18,15 +18,6 @@ function extractLookList(data) {
 
 const navItems = ['신상품', '가방', '여성', '남성', '트래블', '라이프스타일', 'MCM ICONS', '선물 제안', 'MCM 소개', 'CLOSET'];
 
-const records = [
-  { image: '/assets/closet-card-1.png', date: '2026.01.12', title: '스타일 분석 명사구' },
-  { image: '/assets/closet-card-1.png', date: '2026.01.12', title: '스타일 분석 명사구' },
-  { image: '/assets/closet-card-4.png', date: '2026.01.12', title: '스타일 분석 명사구' },
-  { image: '/assets/closet-card-1.png', date: '2026.01.12', title: '스타일 분석 명사구' },
-  { image: '/assets/closet-card-4.png', date: '2026.01.12', title: '스타일 분석 명사구' },
-  { image: '/assets/closet-card-1.png', date: '2026.01.12', title: '스타일 분석 명사구' },
-];
-
 const closetProducts = Array.from({ length: 10 }, () => ({
   name: 'Ottomar 비세토스 위켄더',
   price: '₩2,050,000',
@@ -34,7 +25,7 @@ const closetProducts = Array.from({ length: 10 }, () => ({
   url: 'https://kr.mcmworldwide.com/ko_KR/%ED%8A%B8%EB%9E%98%EB%B8%94/%EB%9F%AC%EA%B8%B0%EC%A7%80-%EB%B0%B1/ottomar-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EC%9C%84%EC%BC%84%EB%8D%94/MMVAAVY02CO001.html',
 }));
 
-export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, qrMemberId, onLoginSuccess }) {
+export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [looks, setLooks] = useState([]);
@@ -120,7 +111,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   }, [detailStyleProfileId]);
 
   useEffect(() => {
-    const closetMemberId = member?.memberId ?? qrMemberId;
+    const closetMemberId = member?.memberId;
     const hasMemberId = closetMemberId !== undefined && closetMemberId !== null && closetMemberId !== '';
     if (!hasMemberId || sharedStyleProfileId || detailStyleProfileId) return undefined;
     let cancelled = false;
@@ -131,7 +122,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
       if (!cancelled) setLookError('저장된 스타일을 불러오지 못했습니다.');
     });
     return () => { cancelled = true; };
-  }, [member?.memberId, qrMemberId, sharedStyleProfileId, detailStyleProfileId]);
+  }, [member?.memberId, sharedStyleProfileId, detailStyleProfileId]);
 
   const toRecord = (look) => ({
     styleProfileId: look.styleProfileId,
@@ -144,11 +135,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
     ? (isSharedLookVisible ? looks.map(toRecord) : [])
     : detailStyleProfileId
       ? looks.map(toRecord)
-      : (member || qrMemberId ? looks.map(toRecord) : records);
-
-  const handleLoginSuccess = async (authenticatedMember) => {
-    onLoginSuccess?.(authenticatedMember);
-  };
+      : (member ? looks.map(toRecord) : []);
 
   const closeSelectedRecord = () => {
     if (detailStyleProfileId) {
@@ -330,7 +317,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
       {isLoginOpen && (
         <LoginPanel
           onClose={() => setIsLoginOpen(false)}
-          onLoginSuccess={handleLoginSuccess}
+          onLoginSuccess={onLoginSuccess}
         />
       )}
 
