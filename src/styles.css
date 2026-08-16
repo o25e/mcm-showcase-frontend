@@ -489,7 +489,17 @@ button { cursor: pointer; }
 @media (max-width: 700px) { .closet-outfit-list .closet-product-today { flex-basis: 100px; } }
 
 @media (min-width: 1001px) {
-  .closet-hero { height: 600px; }
+  .closet-hero { height: 670px; }
+  .closet-hero-copy { padding-top: 155px; }
+  .closet-hero-copy h1 { font-size: 78px; }
+  .closet-hero-copy p { font-size: 13.5px; }
+  .figma-nav { height: 52px; padding-inline: 22px; }
+  .figma-nav nav { gap: 14px; }
+  .figma-nav nav a { font-size: 11px; }
+  .figma-logo { width: 70px; height: 27px; }
+  .figma-tools { right: 22px; gap: 11px; }
+  .figma-tools button { width: 15px; height: 15px; }
+  .figma-hero { height: 720px; }
 }
 
 /* Keep the detail sheet flush with the bottom of the viewport and reserve a solid header below the drag handle. */
