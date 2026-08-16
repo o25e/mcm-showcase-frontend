@@ -38,7 +38,6 @@ export default function ArPage() {
       const data = await response.json();
 
       setArSessionId(data.arSessionId);
-
       console.log('AR Session ID:', data.arSessionId);
 
       setScreen('member-check');
@@ -55,6 +54,7 @@ export default function ArPage() {
 
     try {
       setGender(gender);
+
       const response = await fetch(
         `https://api.mcm-showcase.com/api/ar-sessions/${arSessionId}/gender`,
         {
@@ -117,7 +117,7 @@ export default function ArPage() {
  
   return ( 
     <main className={`ar-page ${isIntro ? 'ar-page--intro' : 'ar-page--flow'} ${isScanning ? 'ar-page--scanning' : ''}`}> 
-      {isFittingHelp ? <FittingHelpOverlay onClose={() => setScreen('fitting')} /> : isFitting ? <FittingPage arSessionId={arSessionId} gender={gender} onFinish={(avatarImage) => { setCompletedAvatar(avatarImage); setScreen('avatar-complete'); }} /> : isAvatarComplete ? <AvatarCompletePage avatarImage={completedAvatar} onFinish={() => setScreen('intro')} /> : <>
+      {isFittingHelp ? <FittingHelpOverlay onClose={() => setScreen('fitting')} /> : isFitting ? <FittingPage arSessionId={arSessionId} gender={gender} onFinish={(avatarImage) => { setCompletedAvatar(avatarImage); setScreen('avatar-complete'); }} /> : isAvatarComplete ? <AvatarCompletePage avatarImage={completedAvatar} arSessionId={arSessionId} onFinish={() => setScreen('intro')} /> : <>
       <img className="ar-page__background" src="/assets/ar-background.png" alt="MCM 매장 내부" /> 
       <div className="ar-page__shade" aria-hidden="true" /> 
  
@@ -147,6 +147,7 @@ export default function ArPage() {
           {steps.map((label, index) => <span className={index === 0 || (isConsentForm && index === 1) || ((isScan || isScanning) && index <= 2) ? 'active' : ''} key={label}>{index === 0 ? (isMemberLogin || isMemberLoading || isConsent || isConsentForm || isScan || isScanning ? 'LOGIN' : 'GENDER') : label}</span>)} 
         </nav> 
         <div className={`ar-page__progress-track ${isConsentForm ? 'ar-page__progress-track--consent' : ''} ${isScan ? 'ar-page__progress-track--scan' : ''} ${isScanning ? 'ar-page__progress-track--scanning' : ''}`} aria-hidden="true"><span /></div> 
+
         {isMemberLoading ? <> 
           <span className="ar-page__divider ar-page__divider--loading" aria-hidden="true" /> 
           <p id="loading-message" className="ar-page__loading-message">지난번 MCM에서의 쇼핑 여정을 불러오고 있어요.</p> 
@@ -173,11 +174,11 @@ export default function ArPage() {
             <p>바닥의 가이드 라인에 맞춰 서주세요.</p> 
             <p>화면의 실루엣에 맞춰 자연스럽게 정면을 바라봐 주세요.</p> 
           </div> 
-          </> : isScanning ? <> 
-            <span className="ar-page__divider ar-page__divider--scanning" aria-hidden="true" /> 
-            <p id="scanning-title" className="ar-page__scanning-title">당신의 스타일을 살펴보고 있어요.</p> 
-            <img className="ar-page__scanning-wave" src="/assets/ar-scanning-wave.png" alt="" aria-hidden="true" /> 
-          </> : <>
+        </> : isScanning ? <> 
+          <span className="ar-page__divider ar-page__divider--scanning" aria-hidden="true" /> 
+          <p id="scanning-title" className="ar-page__scanning-title">당신의 스타일을 살펴보고 있어요.</p> 
+          <img className="ar-page__scanning-wave" src="/assets/ar-scanning-wave.png" alt="" aria-hidden="true" /> 
+        </> : <>
           <span className="ar-page__divider" aria-hidden="true" /> 
           <p id="flow-question" className="ar-page__question">{isMemberLogin ? 'MCM 회원 로그인을 진행해주세요.' : '당신의 성별을 선택해주세요.'}</p> 
           {isMemberLogin ? <> 
