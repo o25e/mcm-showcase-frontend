@@ -234,8 +234,8 @@ button { cursor: pointer; }
 .fitting-page__history::-webkit-scrollbar-thumb { border-radius: 4px; background: rgb(255 255 255 / .55); }
 .fitting-page__history-card { position: relative; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; width: 96px; height: 82px; padding: 7px 9px; border: 1px solid rgb(255 255 255 / .2); border-radius: 6px; background: rgb(217 217 217 / .14); box-shadow: 0 0 6px rgb(255 255 255 / .25); }
 .fitting-page__history-card img { display: block; object-fit: contain; }
-.fitting-page__history-heart { position: absolute; top: 7px; right: 8px; width: 13px; height: 13px; filter: brightness(0) invert(1); }
-.fitting-page__history-hanger { position: absolute; top: 27px; right: 8px; width: 13px; height: 13px; filter: brightness(0) invert(1); }
+.fitting-page__history-heart { position: absolute; top: 7px; right: 8px; width: 14px; height: 14px; filter: brightness(0) invert(1); }
+.fitting-page__history-hanger { position: absolute; top: 25px; right: 8px; width: 14px; height: 14px; object-fit: fill !important; filter: brightness(0) invert(1); }
 .fitting-page__history-product { align-self: flex-start; width: 66px; height: 58px; margin-top: 10px; object-fit: contain !important; filter: none !important; }
 .fitting-page__history-rule { position: absolute; z-index: 2; top: calc(33.333% + 324px); left: 27px; display: block; width: 96px; height: 1px; background: rgb(255 255 255 / .6); }
 .fitting-page__comment { position: absolute; z-index: 2; top: calc(16.667% + 74px); left: calc(40% + 134px); width: 336px; }
