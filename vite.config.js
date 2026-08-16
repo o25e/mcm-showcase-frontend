@@ -174,5 +174,14 @@ export default defineConfig(({ mode }) => {
       react(),
       fittingApi(),
     ],
+    server: {
+      proxy: {
+        '/api': {
+          target: process.env.VITE_API_PROXY_TARGET || 'https://api.mcm-showcase.com',
+          changeOrigin: true,
+          secure: true,
+        },
+      },
+    },
   };
 });

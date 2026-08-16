@@ -37,7 +37,7 @@ const products = [
   },
 ];
 
-export default function App() {
+export default function App({ member, onLoginSuccess }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   return <div className="figma-home" id="top">
@@ -65,6 +65,6 @@ export default function App() {
         </article>)}</div>
       </section>
     </main>
-    {isLoginOpen && <LoginPanel onClose={() => setIsLoginOpen(false)} />}
+    {isLoginOpen && <LoginPanel onClose={() => setIsLoginOpen(false)} onLoginSuccess={onLoginSuccess} />}
   </div>;
 }
