@@ -72,6 +72,22 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   }, [member, sharedLookStorageKey, sharedStyleProfileId, isSharedLookVisible]);
 
   useEffect(() => {
+    if (!sharedStyleProfileId || !member?.memberId) return undefined;
+
+    let cancelled = false;
+    saveLookToMember(sharedStyleProfileId, member.memberId)
+      .then(() => {
+        if (!cancelled) window.location.replace('/my-closet');
+      })
+      .catch((error) => {
+        console.error('QR 아바타 회원 연결 오류:', error);
+        if (!cancelled) setLookError('아바타를 회원 클로젯에 저장하지 못했습니다.');
+      });
+
+    return () => { cancelled = true; };
+  }, [member?.memberId, sharedStyleProfileId]);
+
+  useEffect(() => {
     if (!detailStyleProfileId) return undefined;
     let cancelled = false;
     getMyClosetLook(detailStyleProfileId).then((look) => {
@@ -94,7 +110,8 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   }, [detailStyleProfileId]);
 
   useEffect(() => {
-    if (!member?.memberId || sharedStyleProfileId || detailStyleProfileId) return undefined;
+    const hasMemberId = member?.memberId !== undefined && member?.memberId !== null;
+    if (!hasMemberId || sharedStyleProfileId || detailStyleProfileId) return undefined;
     let cancelled = false;
     getMyClosetList(member.memberId).then((data) => {
       if (!cancelled) setLooks(Array.isArray(data) ? data : (data?.content || data?.items || []));
@@ -122,10 +139,15 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
 
   const handleLoginSuccess = async (authenticatedMember) => {
     onLoginSuccess?.(authenticatedMember);
-    if (sharedStyleProfileId) {
-      await saveLookToMember(sharedStyleProfileId, authenticatedMember.memberId);
-      window.location.assign('/my-closet');
+  };
+
+  const closeSelectedRecord = () => {
+    if (detailStyleProfileId) {
+      window.location.replace('/my-closet');
+      return;
     }
+
+    setSelectedRecord(null);
   };
 
   useEffect(() => {
@@ -265,14 +287,11 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                 key={index}
                 role="button"
                 tabIndex={0}
-                onClick={() => record.styleProfileId
-                  ? window.location.assign(`/my-closet/${record.styleProfileId}`)
-                  : setSelectedRecord(record)}
+                onClick={() => setSelectedRecord(record)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    if (record.styleProfileId) window.location.assign(`/my-closet/${record.styleProfileId}`);
-                    else setSelectedRecord(record);
+                    setSelectedRecord(record);
                   }
                 }}
               >
@@ -312,7 +331,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
             className="closet-detail-backdrop"
             type="button"
             aria-label="스타일 상세 닫기"
-            onClick={() => setSelectedRecord(null)}
+            onClick={closeSelectedRecord}
           />
 
           <aside className="closet-detail-sheet" role="dialog" aria-modal="true" aria-labelledby="closet-detail-title">
@@ -320,7 +339,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
               className="closet-detail-handle"
               type="button"
               aria-label="스타일 상세 닫기"
-              onClick={() => setSelectedRecord(null)}
+              onClick={closeSelectedRecord}
             >
               <span />
             </button>
@@ -329,7 +348,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
               className="closet-detail-close"
               type="button"
               aria-label="스타일 상세 닫기"
-              onClick={() => setSelectedRecord(null)}
+              onClick={closeSelectedRecord}
             >
               ×
             </button>
