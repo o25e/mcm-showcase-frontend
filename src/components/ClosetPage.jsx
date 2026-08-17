@@ -4,6 +4,7 @@ import { API_BASE_URL } from '../api/config';
 
 const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
 import { getMyClosetList, getMyClosetLook, saveLookToMember } from '../api/myCloset';
+import { getProductNameLines } from '../utils/productName';
 
 function resolveLookImage(look) {
   const image = look?.avatarImageUrl || look?.avatarImage || look?.avatarUrl || look?.imageUrl || look?.image;
@@ -438,7 +439,14 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                         <button type="button" aria-label="상품 찜하기">
                           <img src={product.isWishlisted ? '/assets/icon-heart-small-click.svg' : '/assets/icon-heart-small.svg'} alt="" />
                         </button>
-                        <p>{product.name}</p>
+                        <p>
+                          {getProductNameLines(product, language).map((line, index) => (
+                            <span key={`${line}-${index}`}>
+                              {index > 0 && <br />}
+                              {line}
+                            </span>
+                          ))}
+                        </p>
                         <small>{product.price}</small>
                       </div>
                     ))}
@@ -460,7 +468,14 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                               <img src={product.isWishlisted ? '/assets/icon-heart-small-click.svg' : '/assets/icon-heart-small.svg'} alt="" />
                             </button>
                           </div>
-                          <p>{product.name}</p>
+                          <p>
+                            {getProductNameLines(product, language).map((line, index) => (
+                              <span key={`${line}-${index}`}>
+                                {index > 0 && <br />}
+                                {line}
+                              </span>
+                            ))}
+                          </p>
                           <small>{product.price}</small>
                         </article>
                       ))}

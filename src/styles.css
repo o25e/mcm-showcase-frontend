@@ -301,7 +301,7 @@ button { cursor: pointer; }
 .fitting-product-frame { position: absolute; top: calc(50% + 10px); left: calc(60% - 8.4px); width: 242.19px; height: 321.37px; overflow: hidden; border-radius: 5.07px; background: rgb(0 0 0 / .24); box-shadow: 0 0 5.41px 1.69px rgb(255 255 255 / .25); color: #fff; text-shadow: 0 0 9.69px rgb(255 255 255 / .64); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); pointer-events: auto; }
 .fitting-product-frame__image { position: absolute; top: 48.44px; left: 54.03px; width: 134.14px; height: 137.86px; object-fit: contain; }
 .fitting-product-frame h2 { position: absolute; top: 30.74px; left: 50%; margin: 0; transform: translateX(-50%); font-size: 11px; font-weight: 300; line-height: 1; text-align: center; white-space: nowrap; }
-.fitting-product-frame__price { position: absolute; top: 188.16px; left: 86.63px; margin: 0; font-size: 11px; font-weight: 300; line-height: 1; }
+.fitting-product-frame__price { position: absolute; top: 188.16px; left: 50%; margin: 0; font-size: 11px; font-weight: 300; line-height: 1; white-space: nowrap; transform: translateX(-50%); }
 .fitting-product-frame__color { position: absolute; top: 216.83px; left: 22.36px; margin: 0; font-size: 14px; line-height: 1; }
 .fitting-product-frame__swatches { position: absolute; top: 240.33px; left: 22.36px; display: flex; gap: 6.52px; }
 .fitting-product-frame__swatches span { width: 17.7px; height: 17.7px; border-radius: 50%; background-size: cover; background-position: center; }

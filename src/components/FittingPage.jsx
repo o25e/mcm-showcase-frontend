@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AR_INTERACTION_TYPES, postArInteraction } from '../api/arInteractions';
 import { API_BASE_URL } from '../api/config';
 import { getArCopy } from './arCopy';
+import { getProductName, getProductNameLines } from '../utils/productName';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 const categories = ['Bags', 'Tops', 'Bottoms', 'Shoes', 'Accessories'];
@@ -179,7 +180,8 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
         {
           id: `${selectedProduct.productId}-${Date.now()}`,
           productId: selectedProduct.productId,
-          productName: selectedProduct.name,
+          name: selectedProduct.name,
+          nameEn: selectedProduct.nameEn,
           imageUrl: selectedProduct.imageUrl,
           avatarImage: selectedAvatar,
           wishlisted: false,
@@ -330,7 +332,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
               />
             )}
 
-            {item && <img className="fitting-page__history-product" src={item.imageUrl} alt={`${item.productName} 피팅 기록`} />}
+            {item && <img className="fitting-page__history-product" src={item.imageUrl} alt={`${getProductName(item, language)} 피팅 기록`} />}
           </button>
         ))}
       </div>
@@ -377,9 +379,9 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
               type="button"
               onClick={() => selectProduct(product, index)}
               key={product.productId}
-              aria-label={product.name}
+              aria-label={getProductName(product, language)}
             >
-              <img src={product.imageUrl} alt={product.name} />
+              <img src={product.imageUrl} alt={getProductName(product, language)} />
             </button>
           ))}
         </div>
@@ -400,8 +402,15 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
             onClick={(event) => event.stopPropagation()}
           >
             <button className="fitting-product-frame__close" type="button" onClick={() => setOpen(false)} aria-label="닫기">×</button>
-            <img className="fitting-product-frame__image" src={selectedProduct.imageUrl} alt={selectedProduct.name} />
-            <h2>{selectedProduct.name}</h2>
+            <img className="fitting-product-frame__image" src={selectedProduct.imageUrl} alt={getProductName(selectedProduct, language)} />
+            <h2>
+              {getProductNameLines(selectedProduct, language).map((line, index) => (
+                <span key={`${line}-${index}`}>
+                  {index > 0 && <br />}
+                  {line}
+                </span>
+              ))}
+            </h2>
             <p className="fitting-product-frame__price">₩ {selectedProduct.price.toLocaleString()}</p>
             <p className="fitting-product-frame__color">Color</p>
 
