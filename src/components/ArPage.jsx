@@ -60,6 +60,8 @@ export default function ArPage() {
       setArSessionId(data.arSessionId);
       if (authenticatedMember?.memberId !== undefined && authenticatedMember?.memberId !== null) {
         setCompletedMemberId(authenticatedMember.memberId);
+        const storedGender = normalizeGender(authenticatedMember.gender);
+        if (storedGender) setGender(storedGender);
       }
       setScreen('member-check');
     } catch (error) {
@@ -115,6 +117,13 @@ export default function ArPage() {
 
         const data = await response.json();
         if (data.memberId !== null && data.memberId !== undefined) {
+          let linkedMember = null;
+          try {
+            linkedMember = JSON.parse(localStorage.getItem(`mcm.ar-member.${arSessionId}`));
+          } catch {
+            linkedMember = null;
+          }
+
           let storedMember = null;
           try {
             storedMember = JSON.parse(sessionStorage.getItem('mcm.member'));
@@ -123,7 +132,11 @@ export default function ArPage() {
           }
 
           const memberGender = normalizeGender(
-            data.gender ?? data.memberGender ?? data.member?.gender ?? storedMember?.gender,
+            data.gender
+              ?? data.memberGender
+              ?? data.member?.gender
+              ?? linkedMember?.gender
+              ?? storedMember?.gender,
           );
           const authenticatedMember = {
             ...(storedMember || {}),
@@ -133,8 +146,10 @@ export default function ArPage() {
           };
           sessionStorage.setItem('mcm.member', JSON.stringify(authenticatedMember));
           setCompletedMemberId(data.memberId);
-          if (memberGender && isActive) setGender(memberGender);
-          if (isActive) setScreen('member-loading');
+          if (memberGender && isActive) {
+            setGender(memberGender);
+            setScreen('member-loading');
+          }
         }
       } catch (error) {
         console.error('AR 회원 로그인 상태 확인 오류:', error);
