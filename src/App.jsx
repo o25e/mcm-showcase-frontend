@@ -43,6 +43,7 @@ const products = [
 
 export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = false }) {
   const [isLoginOpen, setIsLoginOpen] = useState(autoOpenLogin);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <div className="figma-home" id="top">
@@ -59,9 +60,23 @@ export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = 
         </div>
       </div>
 
-      <header className="figma-nav">
+      <header className={`figma-nav${isMobileMenuOpen ? ' is-mobile-menu-open' : ''}`}>
+        <button
+          className="mobile-menu-button"
+          type="button"
+          aria-label="메뉴 열기"
+          aria-expanded={isMobileMenuOpen}
+          onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
+        >
+          <img src="/assets/icon-menu.svg" alt="" />
+        </button>
+        <button className="mobile-search-button" type="button" aria-label="검색">
+          <img src="/assets/figma-search.svg" alt="" />
+        </button>
         <nav aria-label="주 메뉴">
-          {navigation.map((item) => <a href="#collection" key={item}>{item}</a>)}
+          {navigation.map((item) => (
+            <a href="#collection" key={item} onClick={() => setIsMobileMenuOpen(false)}>{item}</a>
+          ))}
         </nav>
 
         <a className="figma-logo" href="#top" aria-label="MCM 홈">
@@ -80,6 +95,7 @@ export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = 
             </button>
           ))}
         </div>
+        {isMobileMenuOpen && <button className="mobile-menu-backdrop" type="button" aria-label="메뉴 닫기" onClick={() => setIsMobileMenuOpen(false)} />}
       </header>
 
       <main>

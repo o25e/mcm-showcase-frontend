@@ -48,6 +48,7 @@ function mapProduct(product, language) {
 
 export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess, onLogout, language = 'ko' }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [looks, setLooks] = useState([]);
   const [lookError, setLookError] = useState('');
@@ -271,10 +272,22 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
         </div>
       </div>
 
-      <header className="figma-nav closet-nav">
+      <header className={`figma-nav closet-nav${isMobileMenuOpen ? ' is-mobile-menu-open' : ''}`}>
+        <button
+          className="mobile-menu-button"
+          type="button"
+          aria-label="메뉴 열기"
+          aria-expanded={isMobileMenuOpen}
+          onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
+        >
+          <img src="/assets/icon-menu.svg" alt="" />
+        </button>
+        <button className="mobile-search-button" type="button" aria-label="검색">
+          <img src="/assets/figma-search.svg" alt="" />
+        </button>
         <nav aria-label="주 메뉴">
           {navItems.map((item) => (
-            <a href={item === 'CLOSET' ? '#closet' : '#top'} className={item === 'CLOSET' ? 'active' : ''} key={item}>
+            <a href={item === 'CLOSET' ? '#closet' : '#top'} className={item === 'CLOSET' ? 'active' : ''} key={item} onClick={() => setIsMobileMenuOpen(false)}>
               {item}
             </a>
           ))}
@@ -301,6 +314,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
             </button>
           ))}
         </div>
+        {isMobileMenuOpen && <button className="mobile-menu-backdrop" type="button" aria-label="메뉴 닫기" onClick={() => setIsMobileMenuOpen(false)} />}
       </header>
 
       <main>
