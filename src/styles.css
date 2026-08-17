@@ -244,10 +244,11 @@ button { cursor: pointer; }
 .fitting-page__history-rule { position: absolute; z-index: 2; top: calc(33.333% + 324px); left: 27px; display: block; width: 96px; height: 1px; background: rgb(255 255 255 / .6); }
 .fitting-page__comment { position: absolute; z-index: 2; top: calc(16.667% + 74px); left: calc(40% + 134px); width: 336px; }
 .fitting-page__comment h2 { margin: 0; font-size: 21px; font-weight: 400; line-height: 1; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); }
-.fitting-page__comment span, .fitting-page__catalog-rule { display: block; height: 1px; box-shadow: 0 0 6px rgb(255 255 255 / .14); }
-.fitting-page__comment span { background: rgb(255 255 255 / .65); }
+.fitting-page__comment p { position: absolute; top: 34px; left: 0; margin: 0; color: #fff; font-size: 16px; font-weight: 300; line-height: 1.3; white-space: normal; text-shadow: 0 0 6px rgb(255 255 255 / .63); }
+.fitting-page__comment-rule, .fitting-page__catalog-rule { display: block; height: 1px; box-shadow: 0 0 6px rgb(255 255 255 / .14); }
+.fitting-page__comment-rule { background: rgb(255 255 255 / .65); }
 .fitting-page__catalog-rule { background: rgb(255 255 255 / .65); }
-.fitting-page__comment span { width: 336px; margin-top: 107px; }
+.fitting-page__comment-rule { position: absolute; z-index: 2; top: calc(33.333% - 2px); left: calc(40% + 134px); width: 336px; margin: 0; background: rgb(255 255 255 / .65); }
 .fitting-page__finish { position: absolute; z-index: 3; top: calc(33.333% + 18px); left: calc(80% + 27px); width: 110px; height: 29px; border: 1px solid rgb(255 255 255 / .2); border-radius: 18px; background: rgb(171 171 171 / .25); color: #fff; font-size: 12px; font-weight: 300; }
 .fitting-page--en .fitting-page__finish:not(.fitting-page__finish--english) { display: none; }
 .fitting-page--en .fitting-page__finish--english { width: 140px; height: 36px; font-size: 14px; }
@@ -317,7 +318,8 @@ button { cursor: pointer; }
   .fitting-page__avatar { left: 11%; width: 34%; height: 71%; }
   .fitting-page__catalog { left: 48%; width: 43%; }
   .fitting-page__comment { left: 48%; width: 40%; }
-  .fitting-page__comment span, .fitting-page__catalog-rule { width: 100%; }
+  .fitting-page__comment-rule { left: 48%; width: 40%; }
+  .fitting-page__catalog-rule { width: 100%; }
   .fitting-page__product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-left: 0; }
   .fitting-page__product { width: 100%; height: auto; aspect-ratio: 1; }
   .fitting-page__product img { width: 88%; height: 88%; }

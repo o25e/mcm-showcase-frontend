@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AR_INTERACTION_TYPES, postArInteraction } from '../api/arInteractions';
+import { evaluateArSessionMessage } from '../api/arSessions';
 import { API_BASE_URL } from '../api/config';
 import { getArCopy } from './arCopy';
 import { getProductName, getProductNameLines } from '../utils/productName';
@@ -30,6 +31,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
   const selectedAvatar = avatarByGender[gender] ?? avatarByGender.FEMALE;
   const [avatarImage, setAvatarImage] = useState(selectedAvatar);
   const [history, setHistory] = useState([]);
+  const [comment, setComment] = useState('');
   const [fittingProductIds, setFittingProductIds] = useState(() => new Set());
   const [fittingRecordedProductIds, setFittingRecordedProductIds] = useState(() => new Set());
   const [fittingPendingIds, setFittingPendingIds] = useState(() => new Set());
@@ -173,6 +175,16 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
         productId: selectedProduct.productId,
         interactionType: AR_INTERACTION_TYPES.PRODUCT_SELECT,
       });
+
+      void evaluateArSessionMessage(arSessionId)
+        .then((result) => {
+          if (result?.triggered === true) {
+            setComment(result.message ?? '');
+          }
+        })
+        .catch((evaluationError) => {
+          console.error('Comment evaluation 오류:', evaluationError);
+        });
 
       setAvatarImage(selectedAvatar);
 
@@ -341,8 +353,19 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
       <div className="fitting-page__comment">
         <h2>Comment</h2>
-        <span />
+        {comment && (
+          <p>
+            {comment.split('\n').map((line, index) => (
+              <span key={`${line}-${index}`}>
+                {index > 0 && <br />}
+                {line}
+              </span>
+            ))}
+          </p>
+        )}
       </div>
+
+      <span className="fitting-page__comment-rule" aria-hidden="true" />
 
       <img className="fitting-page__avatar" src={avatarImage} alt="fitting avatar" />
 
