@@ -146,10 +146,8 @@ export default function ArPage() {
           };
           sessionStorage.setItem('mcm.member', JSON.stringify(authenticatedMember));
           setCompletedMemberId(data.memberId);
-          if (memberGender && isActive) {
-            setGender(memberGender);
-            setScreen('member-loading');
-          }
+          if (memberGender && isActive) setGender(memberGender);
+          if (isActive) setScreen('member-loading');
         }
       } catch (error) {
         console.error('AR 회원 로그인 상태 확인 오류:', error);
