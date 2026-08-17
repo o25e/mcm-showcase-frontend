@@ -46,7 +46,7 @@ function mapProduct(product, language) {
   };
 }
 
-export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess, language = 'ko' }) {
+export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess, onLogout, language = 'ko' }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [looks, setLooks] = useState([]);
@@ -354,14 +354,6 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
               >
                 <div className="closet-record-image">
                   <img src={record.image} alt="스타일 기록" />
-                  <button
-                    type="button"
-                    className="closet-record-wish"
-                    aria-label="스타일 기록 저장"
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    <img src="/assets/figma-heart-small.svg" alt="" />
-                  </button>
                 </div>
 
                 <div className="closet-record-copy">
@@ -377,8 +369,10 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
 
       {isLoginOpen && (
         <LoginPanel
+          member={member}
           onClose={() => setIsLoginOpen(false)}
           onLoginSuccess={onLoginSuccess}
+          onLogout={onLogout}
         />
       )}
 

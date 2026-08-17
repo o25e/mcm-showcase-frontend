@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { loginMember } from '../api/members';
 import { storeMember } from '../api/auth';
 
-export default function LoginPanel({ onClose, onLoginSuccess }) {
+export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout }) {
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -26,6 +26,7 @@ export default function LoginPanel({ onClose, onLoginSuccess }) {
         ...member,
         memberId: member.memberId,
         name: member.name || '',
+        loginId: member.loginId || loginId,
       };
       // QR 결과 페이지가 새 탭에서 열려도 회원 로그인 상태를 유지합니다.
       storeMember(authenticatedMember);
@@ -41,6 +42,46 @@ export default function LoginPanel({ onClose, onLoginSuccess }) {
       setIsLoading(false);
     }
   };
+
+  if (member) {
+    return (
+      <div className="login-modal" role="presentation">
+        <button className="login-modal-backdrop" type="button" aria-label="로그인 창 닫기" onClick={onClose} />
+
+        <aside className="login-drawer" role="dialog" aria-modal="true" aria-labelledby="login-title">
+          <button className="login-close" type="button" aria-label="로그인 창 닫기" onClick={onClose}>×</button>
+
+          <div className="login-drawer-content">
+            <h2 id="login-title">{member.loginId || member.name || 'USER'}님</h2>
+            <div className="login-account-menu" aria-label="회원 메뉴">
+              <button type="button" aria-label="회원 정보" title="회원 정보">
+                <img src="/assets/figma-user.svg" alt="" />
+                <span>회원 정보</span>
+              </button>
+              <button type="button" aria-label="찜 목록" title="찜 목록">
+                <img src="/assets/figma-heart.svg" alt="" />
+                <span>찜 목록</span>
+              </button>
+              <button type="button" aria-label="장바구니" title="장바구니">
+                <img src="/assets/figma-bag.svg" alt="" />
+                <span>장바구니</span>
+              </button>
+            </div>
+            <button
+              className="login-submit"
+              type="button"
+              onClick={() => {
+                onLogout?.();
+                onClose();
+              }}
+            >
+              로그아웃
+            </button>
+          </div>
+        </aside>
+      </div>
+    );
+  }
 
   return (
     <div className="login-modal" role="presentation">
