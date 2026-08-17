@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AR_INTERACTION_TYPES, postArInteraction } from '../api/arInteractions';
+import { evaluateArSessionMessage } from '../api/arSessions';
 import { API_BASE_URL } from '../api/config';
 import { getArCopy } from './arCopy';
+import { getProductName, getProductNameLines } from '../utils/productName';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 const categories = ['Bags', 'Tops', 'Bottoms', 'Shoes', 'Accessories'];
@@ -29,7 +31,10 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
   const selectedAvatar = avatarByGender[gender] ?? avatarByGender.FEMALE;
   const [avatarImage, setAvatarImage] = useState(selectedAvatar);
   const [history, setHistory] = useState([]);
+  const [comment, setComment] = useState('');
   const [fittingProductIds, setFittingProductIds] = useState(() => new Set());
+  const [fittingRecordedProductIds, setFittingRecordedProductIds] = useState(() => new Set());
+  const [fittingPendingIds, setFittingPendingIds] = useState(() => new Set());
   const [error, setError] = useState('');
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const historyRef = useRef(null);
@@ -171,13 +176,24 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
         interactionType: AR_INTERACTION_TYPES.PRODUCT_SELECT,
       });
 
+      void evaluateArSessionMessage(arSessionId)
+        .then((result) => {
+          if (result?.triggered === true) {
+            setComment(result.message ?? '');
+          }
+        })
+        .catch((evaluationError) => {
+          console.error('Comment evaluation 오류:', evaluationError);
+        });
+
       setAvatarImage(selectedAvatar);
 
       setHistory((items) => [
         {
           id: `${selectedProduct.productId}-${Date.now()}`,
           productId: selectedProduct.productId,
-          productName: selectedProduct.name,
+          name: selectedProduct.name,
+          nameEn: selectedProduct.nameEn,
           imageUrl: selectedProduct.imageUrl,
           avatarImage: selectedAvatar,
           wishlisted: false,
@@ -219,9 +235,21 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
   }
 
   async function requestFitting(item) {
-    if (fittingProductIds.has(item.productId)) return;
+    if (fittingPendingIds.has(item.productId)) return;
 
-    setFittingProductIds((ids) => new Set(ids).add(item.productId));
+    const wasFitting = fittingProductIds.has(item.productId);
+    const nextFitting = !wasFitting;
+
+    setFittingProductIds((ids) => {
+      const next = new Set(ids);
+      if (nextFitting) next.add(item.productId);
+      else next.delete(item.productId);
+      return next;
+    });
+
+    if (fittingRecordedProductIds.has(item.productId)) return;
+
+    setFittingPendingIds((ids) => new Set(ids).add(item.productId));
 
     try {
       await postArInteraction({
@@ -229,10 +257,18 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
         productId: item.productId,
         interactionType: AR_INTERACTION_TYPES.FITTING,
       });
+      setFittingRecordedProductIds((ids) => new Set(ids).add(item.productId));
     } catch (interactionError) {
       console.error('FITTING interaction 오류:', interactionError);
 
       setFittingProductIds((ids) => {
+        const next = new Set(ids);
+        if (wasFitting) next.add(item.productId);
+        else next.delete(item.productId);
+        return next;
+      });
+    } finally {
+      setFittingPendingIds((ids) => {
         const next = new Set(ids);
         next.delete(item.productId);
         return next;
@@ -308,7 +344,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
               />
             )}
 
-            {item && <img className="fitting-page__history-product" src={item.imageUrl} alt={`${item.productName} 피팅 기록`} />}
+            {item && <img className="fitting-page__history-product" src={item.imageUrl} alt={`${getProductName(item, language)} 피팅 기록`} />}
           </button>
         ))}
       </div>
@@ -317,8 +353,19 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
       <div className="fitting-page__comment">
         <h2>Comment</h2>
-        <span />
+        {comment && (
+          <p>
+            {comment.split('\n').map((line, index) => (
+              <span key={`${line}-${index}`}>
+                {index > 0 && <br />}
+                {line}
+              </span>
+            ))}
+          </p>
+        )}
       </div>
+
+      <span className="fitting-page__comment-rule" aria-hidden="true" />
 
       <img className="fitting-page__avatar" src={avatarImage} alt="fitting avatar" />
 
@@ -355,9 +402,9 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
               type="button"
               onClick={() => selectProduct(product, index)}
               key={product.productId}
-              aria-label={product.name}
+              aria-label={getProductName(product, language)}
             >
-              <img src={product.imageUrl} alt={product.name} />
+              <img src={product.imageUrl} alt={getProductName(product, language)} />
             </button>
           ))}
         </div>
@@ -378,8 +425,15 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
             onClick={(event) => event.stopPropagation()}
           >
             <button className="fitting-product-frame__close" type="button" onClick={() => setOpen(false)} aria-label="닫기">×</button>
-            <img className="fitting-product-frame__image" src={selectedProduct.imageUrl} alt={selectedProduct.name} />
-            <h2>{selectedProduct.name}</h2>
+            <img className="fitting-product-frame__image" src={selectedProduct.imageUrl} alt={getProductName(selectedProduct, language)} />
+            <h2>
+              {getProductNameLines(selectedProduct, language).map((line, index) => (
+                <span key={`${line}-${index}`}>
+                  {index > 0 && <br />}
+                  {line}
+                </span>
+              ))}
+            </h2>
             <p className="fitting-product-frame__price">₩ {selectedProduct.price.toLocaleString()}</p>
             <p className="fitting-product-frame__color">Color</p>
 

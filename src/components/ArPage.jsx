@@ -8,6 +8,15 @@ import { getArCopy } from './arCopy';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 
+function normalizeGender(value) {
+  if (typeof value !== 'string') return null;
+
+  const normalized = value.trim().toUpperCase();
+  if (['MALE', 'M', '남성', '남자'].includes(normalized)) return 'MALE';
+  if (['FEMALE', 'F', '여성', '여자'].includes(normalized)) return 'FEMALE';
+  return null;
+}
+
 export default function ArPage() {
   const [language, setLanguage] = useState('ko');
   const [screen, setScreen] = useState('intro');
@@ -106,8 +115,25 @@ export default function ArPage() {
 
         const data = await response.json();
         if (data.memberId !== null && data.memberId !== undefined) {
-          sessionStorage.setItem('mcm.member', JSON.stringify({ memberId: data.memberId, name: '' }));
+          let storedMember = null;
+          try {
+            storedMember = JSON.parse(sessionStorage.getItem('mcm.member'));
+          } catch {
+            storedMember = null;
+          }
+
+          const memberGender = normalizeGender(
+            data.gender ?? data.memberGender ?? data.member?.gender ?? storedMember?.gender,
+          );
+          const authenticatedMember = {
+            ...(storedMember || {}),
+            memberId: data.memberId,
+            name: data.name || storedMember?.name || '',
+            ...(memberGender ? { gender: memberGender } : {}),
+          };
+          sessionStorage.setItem('mcm.member', JSON.stringify(authenticatedMember));
           setCompletedMemberId(data.memberId);
+          if (memberGender && isActive) setGender(memberGender);
           if (isActive) setScreen('member-loading');
         }
       } catch (error) {

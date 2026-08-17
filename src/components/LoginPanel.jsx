@@ -23,6 +23,7 @@ export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout }
       }
 
       const authenticatedMember = {
+        ...member,
         memberId: member.memberId,
         name: member.name || '',
         loginId: member.loginId || loginId,

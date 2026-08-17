@@ -4,6 +4,7 @@ import { API_BASE_URL } from '../api/config';
 
 const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
 import { getMyClosetList, getMyClosetLook, saveLookToMember } from '../api/myCloset';
+import { getProductNameLines } from '../utils/productName';
 
 function resolveLookImage(look) {
   const image = look?.avatarImageUrl || look?.avatarImage || look?.avatarUrl || look?.imageUrl || look?.image;
@@ -18,18 +19,40 @@ function extractLookList(data) {
 
 const navItems = ['신상품', '가방', '여성', '남성', '트래블', '라이프스타일', 'MCM ICONS', '선물 제안', 'MCM 소개', 'CLOSET'];
 
-const closetProducts = Array.from({ length: 10 }, () => ({
-  name: 'Ottomar 비세토스 위켄더',
-  price: '₩2,050,000',
-  image: '/assets/figma-product.png',
-  url: 'https://kr.mcmworldwide.com/ko_KR/%ED%8A%B8%EB%9E%98%EB%B8%94/%EB%9F%AC%EA%B8%B0%EC%A7%80-%EB%B0%B1/ottomar-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EC%9C%84%EC%BC%84%EB%8D%94/MMVAAVY02CO001.html',
-}));
+function resolveProductImage(product) {
+  const image = product?.imageUrl || product?.image;
+  if (typeof image !== 'string' || !image.trim()) return '/assets/figma-product.png';
+  return image.startsWith('/') ? `${API_ASSET_BASE_URL}${image}` : image;
+}
 
-export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess, onLogout }) {
+function getProductName(product, language) {
+  return language === 'en' ? (product?.nameEn || product?.name || '') : (product?.name || product?.nameEn || '');
+}
+
+function formatProductPrice(price) {
+  if (typeof price === 'number' && Number.isFinite(price)) return `₩${price.toLocaleString()}`;
+  return price || '';
+}
+
+function mapProduct(product, language) {
+  return {
+    productId: product?.productId,
+    name: getProductName(product, language),
+    price: formatProductPrice(product?.price),
+    image: resolveProductImage(product),
+    url: product?.productUrl || '#',
+    isWishlisted: product?.isWishlisted === true,
+    raw: product,
+  };
+}
+
+export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess, onLogout, language = 'ko' }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [looks, setLooks] = useState([]);
   const [lookError, setLookError] = useState('');
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState('');
   const sharedLookStorageKey = sharedStyleProfileId
     ? `mcm.shared-look-viewed:${sharedStyleProfileId}`
     : '';
@@ -92,6 +115,8 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   useEffect(() => {
     if (!detailStyleProfileId) return undefined;
     let cancelled = false;
+    setDetailLoading(true);
+    setDetailError('');
     getMyClosetLook(detailStyleProfileId).then((look) => {
       if (!cancelled) {
         setLooks([look]);
@@ -102,10 +127,14 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
           title: look.styleIdentityTitle || '오늘의 스타일',
           raw: look,
         });
+        setDetailLoading(false);
       }
     }).catch((error) => {
       console.error('클로젯 상세 조회 오류:', error);
-      if (!cancelled) setLookError('스타일 정보를 불러오지 못했습니다.');
+      if (!cancelled) {
+        setDetailError('상세 정보를 불러오지 못했습니다.');
+        setDetailLoading(false);
+      }
     });
     return () => { cancelled = true; };
   }, [detailStyleProfileId]);
@@ -136,6 +165,27 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
     : detailStyleProfileId
       ? looks.map(toRecord)
       : (member ? looks.map(toRecord) : []);
+
+  async function handleRecordSelect(record) {
+    setSelectedRecord(record);
+    setDetailLoading(true);
+    setDetailError('');
+
+    if (!record?.styleProfileId) {
+      setDetailLoading(false);
+      return;
+    }
+
+    try {
+      const look = await getMyClosetLook(record.styleProfileId);
+      setSelectedRecord(toRecord(look));
+    } catch (error) {
+      console.error('Closet detail request failed:', error);
+      setDetailError('상세 정보를 불러오지 못했습니다.');
+    } finally {
+      setDetailLoading(false);
+    }
+  }
 
   const closeSelectedRecord = () => {
     if (detailStyleProfileId) {
@@ -196,6 +246,16 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
     window.addEventListener('pointerup', endHistoryDrag, true);
   };
 
+  const selectedLook = selectedRecord?.raw || {};
+  const todayProducts = Array.isArray(selectedLook.todayLook?.products)
+    ? selectedLook.todayLook.products.map((product) => mapProduct(product, language))
+    : [];
+  const historyProducts = Array.isArray(selectedLook.fittingHistory)
+    ? selectedLook.fittingHistory.map((product) => mapProduct(product, language))
+    : [];
+  const wishlistCount = [...todayProducts, ...historyProducts]
+    .filter((product) => product.isWishlisted).length;
+
   return (
     <div className={`closet-page${member ? ' is-authenticated' : ''}`} id="top">
       <div className="figma-announcement closet-announcement">
@@ -244,6 +304,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
       </header>
 
       <main>
+        {detailError && !selectedRecord && <p role="alert">{detailError}</p>}
         <section className="closet-hero" aria-labelledby="closet-title">
           <img className="closet-hero-overlay" src="/assets/closet-hero-overlay.png" alt="MCM Closet 아바타" />
 
@@ -267,7 +328,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
         {sharedStyleProfileId && isSharedLookVisible && (
           <section className="closet-shared-result" aria-live="polite">
             {lookError ? <p>{lookError}</p> : visibleRecords[0] ? (
-              <button type="button" onClick={() => setSelectedRecord(visibleRecords[0])}>
+              <button type="button" onClick={() => handleRecordSelect(visibleRecords[0])}>
                 <img src={visibleRecords[0].image} alt="QR로 불러온 나의 아바타" />
                 <span>{visibleRecords[0].title}</span>
               </button>
@@ -283,11 +344,11 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                 key={index}
                 role="button"
                 tabIndex={0}
-                onClick={() => setSelectedRecord(record)}
+                onClick={() => handleRecordSelect(record)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    setSelectedRecord(record);
+                    handleRecordSelect(record);
                   }
                 }}
               >
@@ -298,7 +359,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                 <div className="closet-record-copy">
                   <p>{record.date}</p>
                   <h2>{record.title}</h2>
-                  <span><img src="/assets/icon-place.svg" alt="" /> 이태원 플래그십</span>
+                  <span><img src="/assets/icon-place.svg" alt="" /> 청담 플래그십</span>
                 </div>
               </article>
             ))}
@@ -344,32 +405,45 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
             </button>
 
             <div className="closet-detail-content">
+              {detailLoading && <p role="status">상세 정보를 불러오는 중입니다...</p>}
+              {detailError && <p role="alert">{detailError}</p>}
               <img className="closet-detail-avatar" src={selectedRecord.image} alt="선택한 스타일 아바타" />
 
               <div className="closet-detail-main">
                 <header className="closet-detail-header">
                   <p>{selectedRecord.date}</p>
                   <h2 id="closet-detail-title">{selectedRecord.title}</h2>
-                  <span><img src="/assets/icon-place.svg" alt="" /> 이태원 플래그십</span>
+                  <span><img src="/assets/icon-place.svg" alt="" /> 청담 플래그십</span>
 
                   <div className="closet-detail-stats">
-                    <span><img src="/assets/icon-cloth.png" alt="" />2</span>
-                    <span><img src="/assets/icon-heart-big.png" alt="" />3</span>
+                    <span><img src="/assets/icon-cloth.png" alt="" />{historyProducts.length}</span>
+                    <span><img src="/assets/icon-heart-big.png" alt="" />{wishlistCount}</span>
                   </div>
                 </header>
 
                 <section className="closet-outfit">
                   <h3>오늘의 룩</h3>
 
-                  <div className="closet-product-today">
-                    <a className="closet-product-link" href={closetProducts[0].url} target="_blank" rel="noreferrer">
-                      <img src={closetProducts[0].image} alt={closetProducts[0].name} />
-                    </a>
-                    <button type="button" aria-label="상품 찜하기">
-                      <img src="/assets/icon-heart-small.png" alt="" />
-                    </button>
-                    <p>{closetProducts[0].name}</p>
-                    <small>{closetProducts[0].price}</small>
+                  <div className="closet-outfit-list">
+                    {todayProducts.map((product) => (
+                      <div className="closet-product-today" key={product.productId}>
+                        <a className="closet-product-link" href={product.url} target="_blank" rel="noreferrer">
+                          <img src={product.image} alt={product.name} />
+                        </a>
+                        <button type="button" aria-label="상품 찜하기">
+                          <img src={product.isWishlisted ? '/assets/icon-heart-small-click.svg' : '/assets/icon-heart-small.svg'} alt="" />
+                        </button>
+                        <p>
+                          {getProductNameLines(product, language).map((line, index) => (
+                            <span key={`${line}-${index}`}>
+                              {index > 0 && <br />}
+                              {line}
+                            </span>
+                          ))}
+                        </p>
+                        <small>{product.price}</small>
+                      </div>
+                    ))}
                   </div>
                 </section>
 
@@ -378,25 +452,34 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
 
                   <div className="closet-history-carousel">
                     <div className="closet-history-list" ref={historyRef} onPointerDown={startHistoryDrag}>
-                      {closetProducts.map((product, index) => (
-                        <article className="closet-history-card" key={index}>
+                      {historyProducts.map((product) => (
+                        <article className="closet-history-card" key={product.productId}>
                           <div>
                             <a className="closet-product-link" href={product.url} target="_blank" rel="noreferrer">
                               <img src={product.image} alt={product.name} draggable="false" />
                             </a>
                             <button type="button" aria-label="상품 찜하기">
-                              <img src="/assets/icon-heart-small.png" alt="" />
+                              <img src={product.isWishlisted ? '/assets/icon-heart-small-click.svg' : '/assets/icon-heart-small.svg'} alt="" />
                             </button>
                           </div>
-                          <p>{product.name}</p>
+                          <p>
+                            {getProductNameLines(product, language).map((line, index) => (
+                              <span key={`${line}-${index}`}>
+                                {index > 0 && <br />}
+                                {line}
+                              </span>
+                            ))}
+                          </p>
                           <small>{product.price}</small>
                         </article>
                       ))}
                     </div>
 
-                    <span className="closet-history-next" aria-hidden="true">
-                      <img src="/assets/icon-next.png" alt="" />
-                    </span>
+                    {historyProducts.length >= 5 && (
+                      <span className="closet-history-next" aria-hidden="true">
+                        <img src="/assets/icon-next.png" alt="" />
+                      </span>
+                    )}
                   </div>
                 </section>
               </div>

@@ -46,10 +46,16 @@ export default function ClosetApp() {
 
   async function handleLoginSuccess(authenticatedMember) {
     if (isArLogin) {
+      const gender = typeof authenticatedMember.gender === 'string'
+        ? authenticatedMember.gender.trim().toUpperCase()
+        : null;
       const response = await fetch(`${API_BASE_URL}/api/ar-sessions/${arLoginSessionId}/member`, {
         method: 'PATCH',
         headers: { Accept: '*/*', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ memberId: authenticatedMember.memberId }),
+        body: JSON.stringify({
+          memberId: authenticatedMember.memberId,
+          ...(gender ? { gender } : {}),
+        }),
       });
 
       if (!response.ok) throw new Error(`AR member link failed (${response.status})`);
