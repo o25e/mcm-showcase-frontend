@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ClosetPage from './components/ClosetPage';
 import ArPage from './components/ArPage';
 import App from './App';
@@ -14,6 +14,39 @@ export default function ClosetApp() {
   const isMyCloset = window.location.pathname.toLowerCase() === '/my-closet';
   const [showCloset, setShowCloset] = useState(() => window.location.hash === '#closet' || Boolean(sharedProfileMatch) || Boolean(detailProfileMatch) || isMyCloset);
   const [member, setMember] = useState(getStoredMember);
+  const initialArMember = useRef(member);
+
+  useEffect(() => {
+    const existingMember = initialArMember.current;
+    if (!isArLogin || existingMember?.memberId === undefined || existingMember?.memberId === null) return undefined;
+
+    let isActive = true;
+
+    async function linkExistingMemberToArSession() {
+      try {
+        const gender = typeof existingMember.gender === 'string'
+          ? existingMember.gender.trim().toUpperCase()
+          : null;
+        const response = await fetch(`${API_BASE_URL}/api/ar-sessions/${arLoginSessionId}/member`, {
+          method: 'PATCH',
+          headers: { Accept: '*/*', 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            memberId: existingMember.memberId,
+            ...(gender ? { gender } : {}),
+          }),
+        });
+
+        if (!response.ok) throw new Error(`AR member link failed (${response.status})`);
+      } catch (error) {
+        if (isActive) console.error('기존 회원 AR 세션 연결 오류:', error);
+      }
+    }
+
+    linkExistingMemberToArSession();
+    return () => {
+      isActive = false;
+    };
+  }, [arLoginSessionId, isArLogin]);
 
   useEffect(() => {
     const syncPage = () => setShowCloset(window.location.hash === '#closet');
@@ -83,7 +116,7 @@ export default function ClosetApp() {
       />
     : <App
         member={member}
-        autoOpenLogin={isArLogin}
+        autoOpenLogin={isArLogin && !member}
         onLoginSuccess={handleLoginSuccess}
         onLogout={handleLogout}
       />;
