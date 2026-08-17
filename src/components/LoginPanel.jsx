@@ -22,7 +22,11 @@ export default function LoginPanel({ onClose, onLoginSuccess }) {
         throw new Error('로그인 응답을 확인할 수 없습니다.');
       }
 
-      const authenticatedMember = { memberId: member.memberId, name: member.name || '' };
+      const authenticatedMember = {
+        ...member,
+        memberId: member.memberId,
+        name: member.name || '',
+      };
       // QR 결과 페이지가 새 탭에서 열려도 회원 로그인 상태를 유지합니다.
       storeMember(authenticatedMember);
       await onLoginSuccess?.(authenticatedMember);

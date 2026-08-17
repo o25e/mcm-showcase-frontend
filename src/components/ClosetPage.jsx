@@ -436,7 +436,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                           <img src={product.image} alt={product.name} />
                         </a>
                         <button type="button" aria-label="상품 찜하기">
-                          <img src={product.isWishlisted ? '/assets/product-detail-heart-click.png' : '/assets/product-detail-heart.png'} alt="" />
+                          <img src={product.isWishlisted ? '/assets/icon-heart-small-click.svg' : '/assets/icon-heart-small.svg'} alt="" />
                         </button>
                         <p>{product.name}</p>
                         <small>{product.price}</small>
@@ -457,7 +457,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                               <img src={product.image} alt={product.name} draggable="false" />
                             </a>
                             <button type="button" aria-label="상품 찜하기">
-                              <img src={product.isWishlisted ? '/assets/product-detail-heart-click.png' : '/assets/product-detail-heart.png'} alt="" />
+                              <img src={product.isWishlisted ? '/assets/icon-heart-small-click.svg' : '/assets/icon-heart-small.svg'} alt="" />
                             </button>
                           </div>
                           <p>{product.name}</p>
