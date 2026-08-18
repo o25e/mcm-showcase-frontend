@@ -164,7 +164,7 @@ button { cursor: pointer; }
 .fitting-help__pointer--comment-bottom::after { top: -4px; left: -4px; }
 .fitting-help__pointer--history { top: calc(16.667% + 186px); left: 118px; width: 50px; }
 .fitting-help__pointer--history::before { width: 50px; height: 1px; transform: scaleY(.5); transform-origin: left center; }
-.fitting-help__pointer--history::after { top: -4px; right: -1px; }
+.fitting-help__pointer--history::after { top: -4px; right: -3px; }
 .fitting-help__pointer--heart { top: calc(33.333% + 29px); left: 120px; width: 50px; }
 .fitting-help__pointer--heart::before { width: 50px; height: 1px; transform: scaleY(.5); transform-origin: left center; }
 .fitting-help__pointer--heart::after { top: -4px; right: -1px; }
@@ -242,9 +242,9 @@ button { cursor: pointer; }
 .fitting-page__history-hanger { position: absolute; top: 25px; right: 8px; width: 14px; height: 14px; object-fit: fill !important; filter: brightness(0) invert(1); }
 .fitting-page__history-product { align-self: flex-start; width: 66px; height: 58px; margin-top: 10px; object-fit: contain !important; filter: none !important; }
 .fitting-page__history-rule { position: absolute; z-index: 2; top: calc(33.333% + 324px); left: 27px; display: block; width: 96px; height: 1px; background: rgb(255 255 255 / .6); }
-.fitting-page__comment { position: absolute; z-index: 2; top: calc(16.667% + 74px); left: calc(40% + 134px); width: 336px; }
+.fitting-page__comment { position: absolute; z-index: 2; top: calc(16.667% + 74px); left: calc(40% + 134px); width: 336px; height: calc(16.667% - 76px); }
 .fitting-page__comment h2 { margin: 0; font-size: 21px; font-weight: 400; line-height: 1; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); }
-.fitting-page__comment p { position: absolute; top: 34px; left: 0; margin: 0; color: #fff; font-size: 16px; font-weight: 300; line-height: 1.3; white-space: normal; text-shadow: 0 0 6px rgb(255 255 255 / .63); }
+.fitting-page__comment p { position: absolute; right: 0; bottom: 16px; left: 0; max-width: 100%; margin: 0; color: #fff; font-size: 16px; font-weight: 300; line-height: 1.3; white-space: normal; word-break: keep-all; overflow-wrap: break-word; text-shadow: 0 0 6px rgb(255 255 255 / .63); }
 .fitting-page__comment-rule, .fitting-page__catalog-rule { display: block; height: 1px; box-shadow: 0 0 6px rgb(255 255 255 / .14); }
 .fitting-page__comment-rule { background: rgb(255 255 255 / .65); }
 .fitting-page__catalog-rule { background: rgb(255 255 255 / .65); }
