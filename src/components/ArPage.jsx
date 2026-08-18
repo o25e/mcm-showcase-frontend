@@ -117,13 +117,6 @@ export default function ArPage() {
 
         const data = await response.json();
         if (data.memberId !== null && data.memberId !== undefined) {
-          let linkedMember = null;
-          try {
-            linkedMember = JSON.parse(localStorage.getItem(`mcm.ar-member.${arSessionId}`));
-          } catch {
-            linkedMember = null;
-          }
-
           let storedMember = null;
           try {
             storedMember = JSON.parse(sessionStorage.getItem('mcm.member'));
@@ -135,7 +128,6 @@ export default function ArPage() {
             data.gender
               ?? data.memberGender
               ?? data.member?.gender
-              ?? linkedMember?.gender
               ?? storedMember?.gender,
           );
           const authenticatedMember = {

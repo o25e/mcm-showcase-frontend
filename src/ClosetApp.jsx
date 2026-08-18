@@ -37,10 +37,6 @@ export default function ClosetApp() {
         });
 
         if (!response.ok) throw new Error(`AR member link failed (${response.status})`);
-        localStorage.setItem(`mcm.ar-member.${arLoginSessionId}`, JSON.stringify({
-          memberId: existingMember.memberId,
-          ...(gender ? { gender } : {}),
-        }));
       } catch (error) {
         if (isActive) console.error('기존 회원 AR 세션 연결 오류:', error);
       }
@@ -96,10 +92,6 @@ export default function ClosetApp() {
       });
 
       if (!response.ok) throw new Error(`AR member link failed (${response.status})`);
-      localStorage.setItem(`mcm.ar-member.${arLoginSessionId}`, JSON.stringify({
-        memberId: authenticatedMember.memberId,
-        ...(gender ? { gender } : {}),
-      }));
     }
 
     setMember(authenticatedMember);
