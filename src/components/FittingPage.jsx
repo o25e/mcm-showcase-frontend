@@ -9,7 +9,10 @@ const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 const categories = ['Bags', 'Tops', 'Bottoms', 'Shoes', 'Accessories'];
 const categoryCodeMap = { Bags: 'bag', Tops: 'top', Bottoms: 'bottom', Shoes: 'shoes', Accessories: 'accessories' };
 const avatarByGender = { FEMALE: '/assets/figma-fitting/model_f.png', MALE: '/assets/figma-fitting/model_m.png' };
-const DEFAULT_COMMENT = '지금부터 당신만의 스타일을 찾아보세요.\n마음이 가는 제품을 자유롭게 피팅할 수 있어요.';
+const DEFAULT_COMMENTS = {
+  ko: '지금부터 당신만의 스타일을 찾아보세요.\n마음이 가는 제품을 자유롭게 피팅할 수 있어요.',
+  en: 'Discover your style.\nTry on the pieces that speak to you.',
+};
 const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
 
 function resolveAvatarImageUrl(image) {
@@ -32,7 +35,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
   const selectedAvatar = avatarByGender[gender] ?? avatarByGender.FEMALE;
   const [avatarImage, setAvatarImage] = useState(selectedAvatar);
   const [history, setHistory] = useState([]);
-  const [comment, setComment] = useState(DEFAULT_COMMENT);
+  const [comment, setComment] = useState(DEFAULT_COMMENTS[language] ?? DEFAULT_COMMENTS.ko);
   const [fittingProductIds, setFittingProductIds] = useState(() => new Set());
   const [fittingRecordedProductIds, setFittingRecordedProductIds] = useState(() => new Set());
   const [fittingPendingIds, setFittingPendingIds] = useState(() => new Set());
@@ -177,7 +180,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
         interactionType: AR_INTERACTION_TYPES.PRODUCT_SELECT,
       });
 
-      void evaluateArSessionMessage(arSessionId)
+      void evaluateArSessionMessage(arSessionId, language)
         .then((result) => {
           if (result?.triggered === true) {
             setComment(result.message ?? '');
