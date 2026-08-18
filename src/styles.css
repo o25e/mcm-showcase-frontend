@@ -532,3 +532,8 @@ button { cursor: pointer; }
   .closet-product-today small, .closet-history-card small { font-size: 8px; }
   .closet-history h3 { margin-top: 18px; }
 }
+
+/* On tablet-sized detail sheets, keep the avatar at the top of its left column. */
+@media (min-width: 701px) and (max-width: 1200px) {
+  .closet-detail-avatar { object-position: center top; }
+}
