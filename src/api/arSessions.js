@@ -1,13 +1,16 @@
 import { API_BASE_URL } from './config';
 
-export async function evaluateArSessionMessage(arSessionId) {
+export async function evaluateArSessionMessage(arSessionId, selectedLanguage = 'ko') {
   if (!Number.isFinite(arSessionId)) {
     return { skipped: true };
   }
 
   const response = await fetch(`${API_BASE_URL}/api/ar-sessions/${arSessionId}/messages/evaluate`, {
     method: 'POST',
-    headers: { Accept: 'application/json' },
+    headers: {
+      Accept: 'application/json',
+      'Accept-Language': selectedLanguage === 'en' ? 'en' : 'ko',
+    },
   });
 
   if (!response.ok) {

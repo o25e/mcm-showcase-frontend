@@ -145,8 +145,8 @@ button { cursor: pointer; }
 .fitting-help__track span { display: block; width: 572px; height: 100%; border-radius: inherit; background: #f8f8f8; }
 .fitting-help__note { position: absolute; z-index: 4; display: flex; align-items: center; justify-content: center; min-height: 37px; padding: 8px 12px 9px; border: 1px solid rgb(255 255 255 / .55); border-radius: 6.6px; background: rgb(255 255 255 / .1); color: #fff; font-size: 12px; font-weight: 300; line-height: 18.7px; text-align: center; white-space: nowrap; }
 .fitting-help__note--comment-top { top: calc(16.667% + 19px); left: calc(60% + 23.6px); width: 289px; }
-.fitting-help__note--comment-bottom { top: calc(16.667% + 136px); left: calc(40% + 143.4px); width: 255px; }
-.fitting-help__note--history { top: calc(16.667% + 144px); left: calc(20% + 9.2px); width: 244px; }
+.fitting-help__note--comment-bottom { top: calc(16.667% + 150px); left: calc(40% + 143.4px); width: 255px; }
+.fitting-help__note--history { top: calc(16.667% + 160px); left: calc(20% + 9.2px); width: 244px; }
 .fitting-help__note--heart { top: calc(33.333% + 4px); left: calc(20% + 9.2px); width: 244px; }
 .fitting-help__note--hanger { top: calc(33.333% + 48px); left: calc(20% + 9.2px); width: 244px; padding-inline: 13px; }
 .fitting-help__note--history,
@@ -160,16 +160,16 @@ button { cursor: pointer; }
 .fitting-help__pointer::after { width: 8px; height: 8px; box-shadow: 0 0 8px rgb(255 255 255 / .25); }
 .fitting-help__pointer--comment-top { top: calc(16.667% + 38.5px); left: calc(40% + 144.4px); width: 38px; height: 28px; border-top: 1px solid #fff; border-left: 1px solid #fff; }
 .fitting-help__pointer--comment-top::after { top: -5px; right: -4px; }
-.fitting-help__pointer--comment-bottom { top: calc(16.667% + 157px); left: calc(80% + 74.8px); width: 34px; height: 36px; border-top: 1px solid #fff; border-right: 1px solid #fff; }
+.fitting-help__pointer--comment-bottom { top: calc(16.667% + 170px); left: calc(80% + 74.8px); width: 34px; height: 36px; border-top: 1px solid #fff; border-right: 1px solid #fff; }
 .fitting-help__pointer--comment-bottom::after { top: -4px; left: -4px; }
-.fitting-help__pointer--history { top: calc(16.667% + 172px); left: 118px; width: 50px; }
-.fitting-help__pointer--history::before { width: 50px; height: 1px; }
+.fitting-help__pointer--history { top: calc(16.667% + 186px); left: 118px; width: 50px; }
+.fitting-help__pointer--history::before { width: 50px; height: 1px; transform: scaleY(.5); transform-origin: left center; }
 .fitting-help__pointer--history::after { top: -4px; right: -1px; }
-.fitting-help__pointer--heart { top: calc(33.333% + 29px); left: 120px; width: 45px; }
-.fitting-help__pointer--heart::before { width: 45px; height: 1px; }
-.fitting-help__pointer--heart::after { top: -4px; right: -4px; }
+.fitting-help__pointer--heart { top: calc(33.333% + 29px); left: 120px; width: 50px; }
+.fitting-help__pointer--heart::before { width: 50px; height: 1px; transform: scaleY(.5); transform-origin: left center; }
+.fitting-help__pointer--heart::after { top: -4px; right: -1px; }
 .fitting-help__pointer--hanger { top: calc(33.333% + 60px); left: 108px; width: 62px; height: 14px; border-left: 1px solid #fff; }
-.fitting-help__pointer--hanger::before { top: 13px; width: 60px; height: 1px; }
+.fitting-help__pointer--hanger::before { top: 13px; width: 50px; height: 1px; transform: scaleY(.5); transform-origin: left center; }
 .fitting-help__pointer--hanger::after { top: 9px; right: 0; }
 /* History 옆 선이랑 멘트 */
 .fitting-help__pointer--history,
