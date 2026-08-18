@@ -183,7 +183,9 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
       void evaluateArSessionMessage(arSessionId, language)
         .then((result) => {
           if (result?.triggered === true) {
-            setComment(result.message ?? '');
+            if (typeof result.message === 'string') {
+              setComment(result.message);
+            }
           }
         })
         .catch((evaluationError) => {
