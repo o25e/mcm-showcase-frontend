@@ -77,8 +77,9 @@ export default function FittingHelpOverlay({ onClose, language = 'ko' }) {
 
       <section className="fitting-help__comment" aria-labelledby="fitting-comment-title">
         <h1 id="fitting-comment-title">Comment</h1>
-        <div className="fitting-help__comment-rule" aria-hidden="true" />
       </section>
+
+      <span className="fitting-help__comment-rule" aria-hidden="true" />
 
       <button className="fitting-help__finish" type="button">{t.fittingFinish}</button>
 
