@@ -231,8 +231,11 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   const historyProducts = Array.isArray(selectedLook.fittingHistory)
     ? selectedLook.fittingHistory.map((product) => mapProduct(product, language))
     : [];
-  const wishlistCount = [...todayProducts, ...historyProducts]
-    .filter((product) => product.isWishlisted).length;
+  const wishlistCount = new Map(
+    [...todayProducts, ...historyProducts]
+      .filter((product) => product.isWishlisted)
+      .map((product) => [product.productId, product]),
+  ).size;
 
   return (
     <div className={`closet-page${member ? ' is-authenticated' : ''}`} id="top">
@@ -407,7 +410,6 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                   <span><img src="/assets/icon-place.svg" alt="" /> 청담 플래그십</span>
 
                   <div className="closet-detail-stats">
-                    <span><img src="/assets/icon-cloth.png" alt="" />{historyProducts.length}</span>
                     <span><img src="/assets/icon-heart-big.png" alt="" />{wishlistCount}</span>
                   </div>
                 </header>
