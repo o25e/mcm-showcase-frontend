@@ -54,18 +54,10 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   const [lookError, setLookError] = useState('');
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState('');
-  const sharedLookStorageKey = sharedStyleProfileId
-    ? `mcm.shared-look-viewed:${sharedStyleProfileId}`
-    : '';
-  const [isSharedLookVisible, setIsSharedLookVisible] = useState(() => {
-    if (!sharedStyleProfileId || member) return true;
-
-    try {
-      return localStorage.getItem(`mcm.shared-look-viewed:${sharedStyleProfileId}`) !== '1';
-    } catch {
-      return true;
-    }
-  });
+  // A shared QR result must be available on every scan, including on the
+  // same device after the guest has left the page. It is not a saved closet
+  // record until the guest logs in and the result is linked to the member.
+  const isSharedLookVisible = true;
   const historyRef = useRef(null);
   const historyDragRef = useRef(null);
   const isModalOpen = isLoginOpen || selectedRecord !== null;
@@ -81,21 +73,6 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
     });
     return () => { cancelled = true; };
   }, [sharedStyleProfileId, isSharedLookVisible]);
-
-  useEffect(() => {
-    if (!sharedStyleProfileId || member || !isSharedLookVisible) return undefined;
-
-    const markSharedLookAsViewed = () => {
-      try {
-        localStorage.setItem(sharedLookStorageKey, '1');
-      } catch {
-        // Storage may be unavailable in private browsing.
-      }
-    };
-
-    window.addEventListener('pagehide', markSharedLookAsViewed);
-    return () => window.removeEventListener('pagehide', markSharedLookAsViewed);
-  }, [member, sharedLookStorageKey, sharedStyleProfileId, isSharedLookVisible]);
 
   useEffect(() => {
     if (!sharedStyleProfileId || !member?.memberId) return undefined;

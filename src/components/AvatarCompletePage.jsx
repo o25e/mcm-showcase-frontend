@@ -107,18 +107,18 @@ export default function AvatarCompletePage({
 
         <div className="avatar-complete-page__preview-inner">
           <div className="avatar-complete-page__preview-avatar">
-            {qrImageUrl ? (
-              <img
-                className="avatar-complete-page__qr-code"
-                src={qrImageUrl}
-                alt="Today's fitting result QR code"
-              />
-            ) : shareUrl ? (
+            {shareUrl ? (
               <QRCodeSVG
                 className="avatar-complete-page__qr-code"
                 value={shareUrl}
                 size={180}
                 level="H"
+              />
+            ) : qrImageUrl ? (
+              <img
+                className="avatar-complete-page__qr-code"
+                src={qrImageUrl}
+                alt="Today's fitting result QR code"
               />
             ) : (
               <img src="/assets/avatar-complete/preview-avatar.png" alt="" />
