@@ -39,7 +39,7 @@
 
 /* Avatar completion finish confirmation */
 .avatar-complete-finish-modal { position: absolute; z-index: 10; inset: 0; display: grid; place-items: center; }
-.avatar-complete-finish-modal__backdrop { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: rgb(70 70 70 / .63); cursor: default; background: linear-gradient(180deg, rgb(136 136 136 / .76) 0%, rgb(27 27 27 / .76) .0.673%); }
+.avatar-complete-finish-modal__backdrop { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: rgb(70 70 70 / .63); cursor: default; background: linear-gradient(180deg, rgb(136 136 136 / .76) 0%, rgb(27 27 27 / .76) 0%); }
 .avatar-complete-finish-modal__card { position: relative; width: min(488px, calc(100% - 36px)); min-height: 278px; padding: 72px 24px 42px; border-radius: 11px; background: rgb(168 168 168 / .24); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); box-shadow: 0 0 6.3px rgb(255 255 255 / .25); color: #fff; text-align: center; }
 .avatar-complete-finish-modal__logo { position: absolute; top: 26px; left: 50%; width: 96px; height: 30px; object-fit: contain; transform: translateX(-50%); }
 .avatar-complete-finish-modal__rule { position: absolute; top: 110px; left: 50%; width: 205px; height: 1px; background: #fff; box-shadow: 0 0 3px rgb(255 255 255 / .63); transform: translateX(-50%); }
