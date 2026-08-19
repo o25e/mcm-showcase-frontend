@@ -202,10 +202,10 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
     const product = selectedProduct;
     const isDeselect = history.some((item) => item.productId === product.productId && item.active !== false);
-    // 가방은 한 번에 하나만 착용할 수 있으므로, 다른 가방을 선택하면
-    // 기존 가방을 먼저 해제해 API 세션과 화면의 착용 상태를 함께 갱신한다.
-    const previousBag = !isDeselect && category === 'Bags'
-      ? history.find((item) => item.category === 'Bags' && item.active !== false)
+    // 카테고리별로 한 상품만 착용할 수 있으므로, 같은 카테고리의 다른 상품을 선택하면
+    // 기존 상품을 먼저 해제해 API 세션과 화면의 착용 상태를 함께 갱신한다.
+    const previousFittingItem = !isDeselect
+      ? history.find((item) => item.category === category && item.active !== false)
       : null;
     const requestNo = interactionRequestNoRef.current + 1;
     interactionRequestNoRef.current = requestNo;
@@ -213,10 +213,10 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     setError('');
 
     try {
-      if (previousBag) {
+      if (previousFittingItem) {
         await postArInteraction({
           arSessionId,
-          productId: previousBag.productId,
+          productId: previousFittingItem.productId,
           interactionType: AR_INTERACTION_TYPES.PRODUCT_DESELECT,
         });
       }
@@ -268,14 +268,14 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
           ...items
             .filter((item) => item.productId !== product.productId)
             .map((item) => (
-              item.productId === previousBag?.productId ? { ...item, active: false } : item
+              item.productId === previousFittingItem?.productId ? { ...item, active: false } : item
             )),
         ]);
-      } else if (previousBag) {
-        // 새 가방의 아바타 이미지가 없더라도, 앞선 해제 요청은 성공했으므로
-        // 기존 가방을 히스토리에 남긴 채 착용 상태만 해제한다.
+      } else if (previousFittingItem) {
+        // 새 상품의 아바타 이미지가 없더라도, 앞선 해제 요청은 성공했으므로
+        // 기존 상품을 히스토리에 남긴 채 착용 상태만 해제한다.
         setHistory((items) => items.map((item) => (
-          item.productId === previousBag.productId ? { ...item, active: false } : item
+          item.productId === previousFittingItem.productId ? { ...item, active: false } : item
         )));
       }
 
