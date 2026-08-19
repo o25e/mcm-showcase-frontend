@@ -138,7 +138,7 @@ button { cursor: pointer; }
 /* AR fitting help overlay */
 .fitting-help { position: relative; width: min(100vw, 834px); height: min(100svh, 1194px); min-height: 720px; overflow: hidden; color: #fff; font-family: 'Noto Sans KR', Inter, Arial, sans-serif; transform-origin: top center; }
 .fitting-help__background { position: absolute; top: -8px; left: -857px; width: 2186px; height: 1230px; max-width: none; object-fit: cover; filter: blur(3.625px); }
-.fitting-help__veil { position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgb(136 136 136 / .76) 0%, rgb(27 27 27 / .76) .0.673%); }
+.fitting-help__veil { position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgb(136 136 136 / .76) 0%, rgb(27 27 27 / .76) 0%); }
 .fitting-help__steps { position: absolute; z-index: 2; top: 48px; left: 36px; right: 36px; display: flex; align-items: center; justify-content: space-between; color: rgb(255 255 255 / .5); font-size: 21px; font-weight: 400; line-height: 1; text-shadow: 0 0 6.6px rgb(255 255 255 / .63); white-space: nowrap; }
 .fitting-help__steps .active { color: #fff; }
 .fitting-help__track { position: absolute; z-index: 2; top: 92px; left: 36px; width: calc(100% - 72px); height: 10px; overflow: hidden; border-radius: 8.4px; background: rgb(217 217 217 / .47); box-shadow: 0 0 3.35px rgb(255 255 255 / .45); }
