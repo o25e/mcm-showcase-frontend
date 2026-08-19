@@ -118,7 +118,7 @@ button { cursor: pointer; }
 .ar-page__progress-track--scan span { width: 393px; }
 .ar-page__divider--scan { top: calc(16.667% + 118px) !important; }
 .ar-page__scan-title { position: absolute; top: calc(16.667% + 145px); left: 50%; margin: 0; color: #fff; font-size: 28px; font-weight: 300; line-height: 1; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }
-.ar-page__scan-guide { position: absolute; top: calc(33.333% + 30px); left: 50%; width: 140px; height: 249px; object-fit: contain; filter: drop-shadow(0 0 4px rgb(255 255 255 / .19)); transform: translateX(-50%); }
+.ar-page__scan-guide { position: absolute; top: calc(33.333% + 30px); left: 50%; width: auto; height: 249px; aspect-ratio: 939 / 1676; object-fit: contain; filter: drop-shadow(0 0 4px rgb(255 255 255 / .19)); transform: translateX(-50%); }
 .ar-page__scan-description { position: absolute; top: calc(50% + 108px); left: 50%; width: max-content; color: #fff; font-size: 19px; font-weight: 300; line-height: 28px; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); transform: translateX(-50%); }
 .ar-page__scan-description p { margin: 0; }
 .ar-page__scan-description p + p { margin-top: 3px; }
