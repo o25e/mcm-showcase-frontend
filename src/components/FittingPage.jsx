@@ -14,6 +14,7 @@ const DEFAULT_COMMENTS = {
   en: 'Discover your style.\nTry on the pieces that speak to you.',
 };
 const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
+const FITTING_ERROR_MESSAGE = '피팅 정보를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.';
 
 function resolveAvatarImageUrl(image) {
   if (typeof image !== 'string' || !image.trim()) return '';
@@ -40,8 +41,10 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
   const [fittingRecordedProductIds, setFittingRecordedProductIds] = useState(() => new Set());
   const [fittingPendingIds, setFittingPendingIds] = useState(() => new Set());
   const [error, setError] = useState('');
+  const [isInteractionPending, setIsInteractionPending] = useState(false);
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const historyRef = useRef(null);
+  const interactionRequestNoRef = useRef(0);
   const selectedProduct = recommendedProducts[selected] ?? null;
 
   const fetchRecommendations = useCallback(async (categoryName) => {
@@ -168,17 +171,50 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     setError('');
   }
 
+  function preloadAvatarImage(imageUrl) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(imageUrl);
+      image.onerror = () => reject(new Error('Avatar image failed to load'));
+      image.src = imageUrl;
+    });
+  }
+
+  async function applyAvatarImage(response, requestNo) {
+    if (!response?.avatarImageUrl || requestNo !== interactionRequestNoRef.current) return null;
+
+    const imageUrl = resolveAvatarImageUrl(response.avatarImageUrl);
+    if (!imageUrl) return null;
+
+    const version = response.sequenceNo ?? Date.now();
+    const separator = imageUrl.includes('?') ? '&' : '?';
+    const imageSrc = `${imageUrl}${separator}v=${encodeURIComponent(version)}`;
+    await preloadAvatarImage(imageSrc);
+
+    if (requestNo !== interactionRequestNoRef.current) return null;
+    setAvatarImage(imageSrc);
+    return imageSrc;
+  }
+
   async function fitSelectedProduct() {
     if (!selectedProduct || !Number.isFinite(arSessionId)) return;
 
+    const product = selectedProduct;
+    const isDeselect = history.some((item) => item.productId === product.productId);
+    const requestNo = interactionRequestNoRef.current + 1;
+    interactionRequestNoRef.current = requestNo;
+    setIsInteractionPending(true);
     setError('');
 
     try {
-      await postArInteraction({
+      const response = await postArInteraction({
         arSessionId,
-        productId: selectedProduct.productId,
-        interactionType: AR_INTERACTION_TYPES.PRODUCT_SELECT,
+        productId: product.productId,
+        interactionType: isDeselect ? AR_INTERACTION_TYPES.PRODUCT_DESELECT : AR_INTERACTION_TYPES.PRODUCT_SELECT,
       });
+
+      const nextAvatarImage = await applyAvatarImage(response, requestNo);
+      if (requestNo !== interactionRequestNoRef.current) return;
 
       void evaluateArSessionMessage(arSessionId, language)
         .then((result) => {
@@ -192,25 +228,29 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
           console.error('Comment evaluation 오류:', evaluationError);
         });
 
-      setAvatarImage(selectedAvatar);
-
-      setHistory((items) => [
-        {
-          id: `${selectedProduct.productId}-${Date.now()}`,
-          productId: selectedProduct.productId,
-          name: selectedProduct.name,
-          nameEn: selectedProduct.nameEn,
-          imageUrl: selectedProduct.imageUrl,
-          avatarImage: selectedAvatar,
-          wishlisted: false,
-        },
-        ...items.filter((item) => item.productId !== selectedProduct.productId),
-      ]);
+      setHistory((items) => isDeselect
+        ? items.filter((item) => item.productId !== product.productId)
+        : [
+          {
+            id: `${product.productId}-${Date.now()}`,
+            productId: product.productId,
+            name: product.name,
+            nameEn: product.nameEn,
+            imageUrl: product.imageUrl,
+            avatarImage: nextAvatarImage || avatarImage,
+            wishlisted: false,
+          },
+          ...items.filter((item) => item.productId !== product.productId),
+        ]);
 
       setOpen(false);
     } catch (fitError) {
-      console.error('PRODUCT_SELECT 오류:', fitError);
-      setError('피팅 정보를 저장하지 못했습니다.');
+      if (requestNo === interactionRequestNoRef.current) {
+        console.error('AR PRODUCT interaction 오류:', fitError);
+        setError(FITTING_ERROR_MESSAGE);
+      }
+    } finally {
+      if (requestNo === interactionRequestNoRef.current) setIsInteractionPending(false);
     }
   }
 
@@ -449,8 +489,10 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
             {error && <p role="alert" className="fitting-error">{error}</p>}
 
-            <button className="fitting-product-frame__fit" type="button" onClick={fitSelectedProduct}>
-              {language === 'en' ? 'Try on' : '피팅하기'}
+            <button className="fitting-product-frame__fit" type="button" onClick={fitSelectedProduct} disabled={isInteractionPending}>
+              {history.some((item) => item.productId === selectedProduct.productId)
+                ? (language === 'en' ? 'Remove' : '해제하기')
+                : (language === 'en' ? 'Try on' : '피팅하기')}
             </button>
           </article>
         </div>
