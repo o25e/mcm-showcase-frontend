@@ -201,13 +201,26 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     if (!selectedProduct || !Number.isFinite(arSessionId)) return;
 
     const product = selectedProduct;
-    const isDeselect = history.some((item) => item.productId === product.productId);
+    const isDeselect = history.some((item) => item.productId === product.productId && item.active !== false);
+    // 가방은 한 번에 하나만 착용할 수 있으므로, 다른 가방을 선택하면
+    // 기존 가방을 먼저 해제해 API 세션과 화면의 착용 상태를 함께 갱신한다.
+    const previousBag = !isDeselect && category === 'Bags'
+      ? history.find((item) => item.category === 'Bags' && item.active !== false)
+      : null;
     const requestNo = interactionRequestNoRef.current + 1;
     interactionRequestNoRef.current = requestNo;
     setIsInteractionPending(true);
     setError('');
 
     try {
+      if (previousBag) {
+        await postArInteraction({
+          arSessionId,
+          productId: previousBag.productId,
+          interactionType: AR_INTERACTION_TYPES.PRODUCT_DESELECT,
+        });
+      }
+
       const response = await postArInteraction({
         arSessionId,
         productId: product.productId,
@@ -234,12 +247,17 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
         });
 
       if (isDeselect) {
-        setHistory((items) => items.filter((item) => item.productId !== product.productId));
+        // 히스토리에는 남기고 현재 착용 상태만 해제한다.
+        setHistory((items) => items.map((item) => (
+          item.productId === product.productId ? { ...item, active: false } : item
+        )));
       } else if (response?.avatarImageUrl) {
         setHistory((items) => [
           {
             id: `${product.productId}-${Date.now()}`,
             productId: product.productId,
+            category,
+            active: true,
             name: product.name,
             nameEn: product.nameEn,
             imageUrl: product.imageUrl,
@@ -247,8 +265,18 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
             avatarImageUrl: response.avatarImageUrl,
             wishlisted: false,
           },
-          ...items.filter((item) => item.productId !== product.productId),
+          ...items
+            .filter((item) => item.productId !== product.productId)
+            .map((item) => (
+              item.productId === previousBag?.productId ? { ...item, active: false } : item
+            )),
         ]);
+      } else if (previousBag) {
+        // 새 가방의 아바타 이미지가 없더라도, 앞선 해제 요청은 성공했으므로
+        // 기존 가방을 히스토리에 남긴 채 착용 상태만 해제한다.
+        setHistory((items) => items.map((item) => (
+          item.productId === previousBag.productId ? { ...item, active: false } : item
+        )));
       }
 
       setOpen(false);
@@ -509,7 +537,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
             {error && <p role="alert" className="fitting-error">{error}</p>}
 
             <button className="fitting-product-frame__fit" type="button" onClick={fitSelectedProduct} disabled={isInteractionPending}>
-              {history.some((item) => item.productId === selectedProduct.productId)
+              {history.some((item) => item.productId === selectedProduct.productId && item.active !== false)
                 ? (language === 'en' ? 'Remove' : '해제하기')
                 : (language === 'en' ? 'Try on' : '피팅하기')}
             </button>
