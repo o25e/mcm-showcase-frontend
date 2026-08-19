@@ -167,7 +167,7 @@ export default function ArPage() {
   useEffect(() => {
     if (screen !== 'scanning') return undefined;
 
-    const timer = window.setTimeout(() => setScreen('fitting-help'), 3000);
+    const timer = window.setTimeout(() => setScreen('fitting-help'), 5000);
     return () => window.clearTimeout(timer);
   }, [screen]);
 
