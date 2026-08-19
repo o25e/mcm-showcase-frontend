@@ -290,15 +290,57 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     }
   }
 
-  function handleHistoryProductClick(item) {
+  async function handleHistoryProductClick(item) {
     if (!item) return;
 
-    if (!item.avatarImageUrl) {
-      setNoAvatarProduct(item);
+    const activeHistoryItem = history.find((historyItem) => historyItem.active !== false);
+
+    // 이미 현재 피팅 중인 상품이면 화면만 전환하고 PRODUCT_SELECT를 중복 전송하지 않는다.
+    if (activeHistoryItem?.productId === item.productId) {
+      if (!item.avatarImageUrl) {
+        setNoAvatarProduct(item);
+      } else {
+        setAvatarImage(item.avatarImage);
+      }
       return;
     }
 
-    setAvatarImage(item.avatarImage);
+    const requestNo = interactionRequestNoRef.current + 1;
+    interactionRequestNoRef.current = requestNo;
+    setIsInteractionPending(true);
+    setError('');
+
+    try {
+      const response = await postArInteraction({
+        arSessionId,
+        productId: item.productId,
+        interactionType: AR_INTERACTION_TYPES.PRODUCT_SELECT,
+      });
+
+      if (requestNo !== interactionRequestNoRef.current) return;
+
+      const nextAvatarImage = response?.avatarImageUrl
+        ? await applyAvatarImage(response, requestNo)
+        : item.avatarImage;
+
+      if (requestNo !== interactionRequestNoRef.current) return;
+
+      setAvatarImage(nextAvatarImage || item.avatarImage);
+      if (!nextAvatarImage && !item.avatarImageUrl) setNoAvatarProduct(item);
+      setHistory((items) => items.map((historyItem) => (
+        historyItem.productId === item.productId
+          ? { ...historyItem, active: true, avatarImage: nextAvatarImage || historyItem.avatarImage }
+          : { ...historyItem, active: false }
+      )));
+      setOpen(false);
+    } catch (interactionError) {
+      if (requestNo === interactionRequestNoRef.current) {
+        console.error('AR history PRODUCT_SELECT interaction error:', interactionError);
+        setError(FITTING_ERROR_MESSAGE);
+      }
+    } finally {
+      if (requestNo === interactionRequestNoRef.current) setIsInteractionPending(false);
+    }
   }
 
   async function toggleWishlist(item) {
