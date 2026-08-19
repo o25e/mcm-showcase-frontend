@@ -36,6 +36,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
   const selectedAvatar = avatarByGender[gender] ?? avatarByGender.FEMALE;
   const [avatarImage, setAvatarImage] = useState(selectedAvatar);
   const [history, setHistory] = useState([]);
+  const [noAvatarProduct, setNoAvatarProduct] = useState(null);
   const [comment, setComment] = useState(DEFAULT_COMMENTS[language] ?? DEFAULT_COMMENTS.ko);
   const [fittingProductIds, setFittingProductIds] = useState(() => new Set());
   const [fittingRecordedProductIds, setFittingRecordedProductIds] = useState(() => new Set());
@@ -216,6 +217,10 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
       const nextAvatarImage = await applyAvatarImage(response, requestNo);
       if (requestNo !== interactionRequestNoRef.current) return;
 
+      if (!isDeselect && response?.avatarImageUrl === null) {
+        setNoAvatarProduct(product);
+      }
+
       void evaluateArSessionMessage(arSessionId, language)
         .then((result) => {
           if (result?.triggered === true) {
@@ -238,6 +243,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
             nameEn: product.nameEn,
             imageUrl: product.imageUrl,
             avatarImage: nextAvatarImage || avatarImage,
+            avatarImageUrl: response?.avatarImageUrl ?? null,
             wishlisted: false,
           },
           ...items.filter((item) => item.productId !== product.productId),
@@ -252,6 +258,17 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     } finally {
       if (requestNo === interactionRequestNoRef.current) setIsInteractionPending(false);
     }
+  }
+
+  function handleHistoryProductClick(item) {
+    if (!item) return;
+
+    if (!item.avatarImageUrl) {
+      setNoAvatarProduct(item);
+      return;
+    }
+
+    setAvatarImage(item.avatarImage);
   }
 
   async function toggleWishlist(item) {
@@ -363,7 +380,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
             className={`fitting-page__history-card ${item ? 'active' : ''}`}
             type="button"
             key={item ? item.id : `history-empty-${index}`}
-            onClick={() => item && setAvatarImage(item.avatarImage)}
+            onClick={() => handleHistoryProductClick(item)}
             disabled={!item}
           >
             {item && (
@@ -495,6 +512,22 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
                 : (language === 'en' ? 'Try on' : '피팅하기')}
             </button>
           </article>
+        </div>
+      )}
+
+      {noAvatarProduct && (
+        <div className="fitting-no-avatar-modal" role="presentation" onClick={() => setNoAvatarProduct(null)}>
+          <div
+            className="fitting-no-avatar-modal__card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="fitting-no-avatar-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <img className="fitting-no-avatar-modal__logo" src="/assets/MCM-logo.png" alt="MCM" />
+            <p id="fitting-no-avatar-title">현재 가상 피팅 준비 중인 제품입니다.<br />데모 지원 제품을 선택해 주세요.</p>
+            <button type="button" onClick={() => setNoAvatarProduct(null)}>확인</button>
+          </div>
         </div>
       )}
     </section>
