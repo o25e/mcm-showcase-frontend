@@ -233,9 +233,10 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
           console.error('Comment evaluation 오류:', evaluationError);
         });
 
-      setHistory((items) => isDeselect
-        ? items.filter((item) => item.productId !== product.productId)
-        : [
+      if (isDeselect) {
+        setHistory((items) => items.filter((item) => item.productId !== product.productId));
+      } else if (response?.avatarImageUrl) {
+        setHistory((items) => [
           {
             id: `${product.productId}-${Date.now()}`,
             productId: product.productId,
@@ -243,11 +244,12 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
             nameEn: product.nameEn,
             imageUrl: product.imageUrl,
             avatarImage: nextAvatarImage || avatarImage,
-            avatarImageUrl: response?.avatarImageUrl ?? null,
+            avatarImageUrl: response.avatarImageUrl,
             wishlisted: false,
           },
           ...items.filter((item) => item.productId !== product.productId),
         ]);
+      }
 
       setOpen(false);
     } catch (fitError) {
