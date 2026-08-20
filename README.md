@@ -188,5 +188,5 @@ Closer는 AI를 고객에게 한 번 더 설명하는 기능으로 추가하지 
 | --- | --- |
 | Product Manager | 이영서, 김민주 |
 | Designer | 홍지영 |
-| Frontend | 박서연, 조연우 |
-| Backend | 강성욱 |
+| Frontend Developer | 박서연, 조연우 |
+| Backend Developer | 강성욱 |
