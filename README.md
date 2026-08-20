@@ -14,6 +14,10 @@ MCM HAUS 청담의 오프라인 쇼핑 경험을 온라인과 연결하는 Close
 - AR Fitting: https://www.mcm-showcase.com/ar
 - Digital Closet: https://www.mcm-showcase.com/my-closet
 
+![Closer](./assets/readme/closer2.png)
+![Closer](./assets/readme/closer3.png)
+![Closer](./assets/readme/closer4.png)
+
 ## 서비스 배경
 
 럭셔리 매장의 고객은 각자 다른 동선과 관심 상품을 가지고 매장을 탐색합니다. 하지만 기존의 AI 접점은 고객이 먼저 질문해야 하는 별도의 기능에 가까워 자연스러운 쇼핑 여정과 분리되는 한계가 있었습니다. 이에 새로운 AI 접점을 추가하는 대신, 고객이 이미 하고 있는 쇼핑 경험 자체를 개인화하는 방향에 집중했습니다.
