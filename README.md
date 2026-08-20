@@ -41,6 +41,8 @@ MCM AI Journey는 고객에게 새로운 행동을 요구하기보다, 쇼핑 �
 - 고객의 행동과 취향에 맞는 Personalized Comment 제공
 - 피팅 결과를 Personalized Avatar로 완성
 
+> 본 페이지는 iPad Pro 11인치(834 × 1194px) 환경을 기준으로 제작되었습니다.
+
 ### Personalized Avatar
 
 - AR Fitting 과정에서 축적된 상품 선택을 기반으로 Avatar Look 생성
