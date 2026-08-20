@@ -267,13 +267,13 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
         </button>
         <nav aria-label="주 메뉴">
           {navItems.map((item) => (
-            <a href={item === 'CLOSET' ? '/my-closet' : '#top'} className={item === 'CLOSET' ? 'active' : ''} key={item} onClick={() => setIsMobileMenuOpen(false)}>
+            <a href={item === 'CLOSET' ? '/my-closet' : '/'} className={item === 'CLOSET' ? 'active' : ''} key={item} onClick={() => setIsMobileMenuOpen(false)}>
               {item}
             </a>
           ))}
         </nav>
 
-        <a className="figma-logo" href="#top" aria-label="MCM 홈">
+        <a className="figma-logo" href="/" aria-label="MCM 홈">
           <img src="/assets/figma-logo.png" alt="MCM" />
         </a>
 
