@@ -1,6 +1,6 @@
 # Closer — Frontend
 
-> 고객보다 한발 먼저 취향을 이해하고, 다음 방문까지 기억하는 Interactive Retail Experience
+> 고객보다 한발 먼저 취향을 이해하고, 다음 방문까지 기억하는 Personalized Retail Experience
 
 ![Closer](./assets/readme/mcm-closer.png)
 
