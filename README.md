@@ -4,7 +4,7 @@
 
 ![Closer](./assets/readme/mcm-closer.png)
 
-MCM HAUS 청담의 오프라인 쇼핑 경험을 온라인과 연결하는 프론트엔드 프로토타입입니다. 
+MCM HAUS 청담의 오프라인 쇼핑 경험을 온라인과 연결하는 Closer의 프론트엔드입니다. 
 
 고객의 탐색과 AR 피팅 과정에서 발생하는 선택을 하나의 쇼핑 여정으로 연결하고, 그 결과를 Personalized Avatar와 Digital Closet으로 남겨 고객마다 다른 쇼핑 경험을 개인화합니다.
 
