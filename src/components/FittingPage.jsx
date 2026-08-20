@@ -520,7 +520,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
       <span className="fitting-page__comment-rule" aria-hidden="true" />
 
-      <img className="fitting-page__avatar" src={avatarImage} alt="fitting avatar" />
+      <img className={`fitting-page__avatar ${gender === 'MALE' ? 'fitting-page__avatar--male' : ''}`} src={avatarImage} alt="fitting avatar" />
 
       <button
         className={`fitting-page__finish ${language === 'en' ? 'fitting-page__finish--english' : ''}`}
