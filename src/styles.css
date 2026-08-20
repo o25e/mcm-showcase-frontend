@@ -231,6 +231,7 @@ button { cursor: pointer; }
 .fitting-page__track { position: absolute; z-index: 2; top: 92px; left: 36px; width: calc(100% - 72px); height: 10px; overflow: hidden; border-radius: 8px; background: rgb(217 217 217 / .47); box-shadow: 0 0 3.35px rgb(255 255 255 / .45); }
 .fitting-page__track span { display: block; width: 572px; height: 100%; border-radius: inherit; background: #f8f8f8; }
 .fitting-page__avatar { position: absolute; z-index: 1; top: calc(16.667% + 10px); left: calc(20% + 1.2px - 144px); width: 567px; height: 845px; max-width: none; object-fit: cover; object-position: bottom center; opacity: 1; }
+.fitting-page__avatar--male { left: calc(20% + 1.2px); width: 279px; }
 .fitting-page__history-title { position: absolute; z-index: 2; top: calc(33.333% - 19.84px); left: 40px; margin: 0; font-size: 21px; font-weight: 400; line-height: 1; text-shadow: 0 0 9.7px rgb(255 255 255 / .64); }
 .fitting-page__history { position: absolute; z-index: 2; top: calc(33.333% + 20px); left: 27px; display: grid; gap: 17px; width: 96px; height: 280px; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; scrollbar-color: rgb(255 255 255 / .55) transparent; }
 .fitting-page__history::-webkit-scrollbar { width: 4px; }
@@ -316,6 +317,7 @@ button { cursor: pointer; }
   .fitting-page__steps { left: 18px; right: 18px; font-size: clamp(12px, 2.6vw, 21px); }
   .fitting-page__track { left: 18px; width: calc(100% - 36px); }
   .fitting-page__avatar { left: calc(11% - 144px); width: 567px; height: 71%; }
+  .fitting-page__avatar--male { left: 11%; width: 279px; }
   .fitting-page__catalog { left: 48%; width: 43%; }
   .fitting-page__comment { left: 48%; width: 40%; }
   .fitting-page__comment-rule { left: 48%; width: 40%; }
