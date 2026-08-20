@@ -2,7 +2,7 @@
 
 > 고객보다 한발 먼저 취향을 이해하고, 다음 방문까지 기억하는 Interactive Retail Experience
 
-![MCM AI Journey](./assets/readme/mcm-ai-journey.png)
+![MCM AI Journey](./assets/readme/mcm-closer.png)
 
 MCM HAUS 청담의 오프라인 쇼핑 경험을 온라인과 연결하는 프론트엔드 프로토타입입니다. 
 
