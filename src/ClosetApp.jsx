@@ -49,30 +49,27 @@ export default function ClosetApp() {
   }, [arLoginSessionId, isArLogin]);
 
   useEffect(() => {
-    const syncPage = () => setShowCloset(window.location.hash === '#closet');
+    const isClosetRoute = () => /^\/my-closet(?:\/|$)/i.test(window.location.pathname);
+    const syncPage = () => setShowCloset(window.location.hash === '#closet' || isClosetRoute());
 
     const openCloset = (event) => {
       const link = event.target.closest('a');
 
       if (link?.textContent.trim() === 'CLOSET') {
         event.preventDefault();
-        // A detail view can leave `/my-closet/:styleProfileId` in the URL.
-        // Clear that detail route when returning through the CLOSET menu so
-        // the detail panel is opened only after an explicit record click.
-        if (/^\/my-closet\/[^/]+\/?$/i.test(window.location.pathname)) {
-          window.history.replaceState({}, '', '/my-closet#closet');
-          setShowCloset(true);
-        } else {
-          window.location.hash = 'closet';
-        }
+        // Return to the closet list route when navigating through the menu.
+        window.history.pushState({}, '', '/my-closet');
+        setShowCloset(true);
       }
     };
 
     window.addEventListener('hashchange', syncPage);
+    window.addEventListener('popstate', syncPage);
     document.addEventListener('click', openCloset);
 
     return () => {
       window.removeEventListener('hashchange', syncPage);
+      window.removeEventListener('popstate', syncPage);
       document.removeEventListener('click', openCloset);
     };
   }, []);

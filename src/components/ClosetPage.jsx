@@ -267,7 +267,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
         </button>
         <nav aria-label="주 메뉴">
           {navItems.map((item) => (
-            <a href={item === 'CLOSET' ? '#closet' : '#top'} className={item === 'CLOSET' ? 'active' : ''} key={item} onClick={() => setIsMobileMenuOpen(false)}>
+            <a href={item === 'CLOSET' ? '/my-closet' : '#top'} className={item === 'CLOSET' ? 'active' : ''} key={item} onClick={() => setIsMobileMenuOpen(false)}>
               {item}
             </a>
           ))}

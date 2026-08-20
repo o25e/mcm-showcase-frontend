@@ -1,8 +1,8 @@
-# MCM AI Journey — Frontend
+# Closer — Frontend
 
 > 고객보다 한발 먼저 취향을 이해하고, 다음 방문까지 기억하는 Interactive Retail Experience
 
-![MCM AI Journey](./assets/readme/mcm-closer.png)
+![Closer](./assets/readme/mcm-closer.png)
 
 MCM HAUS 청담의 오프라인 쇼핑 경험을 온라인과 연결하는 프론트엔드 프로토타입입니다. 
 
@@ -12,13 +12,13 @@ MCM HAUS 청담의 오프라인 쇼핑 경험을 온라인과 연결하는 프�
 
 - MCM Storefront: https://www.mcm-showcase.com
 - AR Fitting: https://www.mcm-showcase.com/ar
-- Digital Closet: https://www.mcm-showcase.com/#closet
+- Digital Closet: https://www.mcm-showcase.com/my-closet
 
 ## 서비스 배경
 
 럭셔리 매장의 고객은 각자 다른 동선과 관심 상품을 가지고 매장을 탐색합니다. 하지만 기존의 AI 접점은 고객이 먼저 질문해야 하는 별도의 기능에 가까워 자연스러운 쇼핑 여정과 분리되는 한계가 있었습니다. 이에 새로운 AI 접점을 추가하는 대신, 고객이 이미 하고 있는 쇼핑 경험 자체를 개인화하는 방향에 집중했습니다.
 
-MCM AI Journey는 고객에게 새로운 행동을 요구하기보다, 쇼핑 과정에서 이미 발생하는 선택을 연결합니다.
+Closer는 고객에게 새로운 행동을 요구하기보다, 쇼핑 과정에서 이미 발생하는 선택을 연결합니다.
 
 1. 고객이 AR 피팅을 시작합니다.
 2. 회원 여부와 성별을 확인하고, 카메라 사용 동의를 거쳐 피팅을 진행합니다.
@@ -90,7 +90,7 @@ MCM AI Journey는 고객에게 새로운 행동을 요구하기보다, 쇼핑 �
 
 - Node.js 18 이상
 - npm
-- 연결 가능한 MCM AI Journey 백엔드
+- 연결 가능한 Closer 백엔드
 
 ### 설치 및 실행
 
@@ -178,7 +178,7 @@ Vercel의 SPA rewrite를 적용해 새로고침이나 직접 접근 시에도 �
 
 ## 해커톤에서 제안하는 가치
 
-MCM AI Journey는 AI를 고객에게 한 번 더 설명하는 기능으로 추가하지 않습니다. 고객의 자연스러운 쇼핑 행동을 읽고, 그 행동을 현재의 추천과 반응, 그리고 다음 만남의 기억으로 연결합니다.
+Closer는 AI를 고객에게 한 번 더 설명하는 기능으로 추가하지 않습니다. 고객의 자연스러운 쇼핑 행동을 읽고, 그 행동을 현재의 추천과 반응, 그리고 다음 만남의 기억으로 연결합니다.
 
 고객에게는 “나를 이해하는 매장”을, 브랜드에는 고객의 취향과 관계가 축적되는 새로운 리테일 접점을 제공합니다.
 
