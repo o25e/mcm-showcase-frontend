@@ -197,25 +197,35 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     return imageSrc;
   }
 
+  function getItemsToDeselect(targetCategory, targetProductId) {
+    return history.filter((item) => {
+      if (item.active === false || item.productId === targetProductId) return false;
+
+      const isFemaleBagMode = gender === 'FEMALE' && targetCategory === 'Bags';
+      const isFemaleClothingMode = gender === 'FEMALE' && targetCategory !== 'Bags';
+
+      if (isFemaleBagMode) return item.category !== 'Bags';
+      if (isFemaleClothingMode) return item.category === 'Bags' || item.category === targetCategory;
+      return item.category === targetCategory;
+    });
+  }
+
   async function fitSelectedProduct() {
     if (!selectedProduct || !Number.isFinite(arSessionId)) return;
 
     const product = selectedProduct;
     const isDeselect = history.some((item) => item.productId === product.productId && item.active !== false);
     // 카테고리별로 한 상품만 착용할 수 있으므로, 같은 카테고리의 다른 상품을 선택하면
-    // 기존 상품을 먼저 해제해 API 세션과 화면의 착용 상태를 함께 갱신한다.
-    // 아바타는 한 번에 하나의 상품만 착용하므로, 다른 상품을 선택하면
-    // 현재 착용 중인 상품을 먼저 해제한다.
-    const previousFittingItem = !isDeselect
-      ? history.find((item) => item.active !== false && item.productId !== product.productId)
-      : null;
+    // Keep selections from different categories (for example, a male top and bottom).
+    // Only replace the currently fitted product(s) in the same category.
+    const previousFittingItems = !isDeselect ? getItemsToDeselect(category, product.productId) : [];
     const requestNo = interactionRequestNoRef.current + 1;
     interactionRequestNoRef.current = requestNo;
     setIsInteractionPending(true);
     setError('');
 
     try {
-      if (previousFittingItem) {
+      for (const previousFittingItem of previousFittingItems) {
         await postArInteraction({
           arSessionId,
           productId: previousFittingItem.productId,
@@ -237,9 +247,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
       // '피팅 취소' 상태로 남아 다시 피팅할 수 없게 된다.
       const deactivatedProductIds = isDeselect
         ? [product.productId]
-        : history
-            .filter((item) => item.active !== false && item.productId !== product.productId)
-            .map((item) => item.productId);
+        : previousFittingItems.map((item) => item.productId);
       if (deactivatedProductIds.length > 0) {
         setFittingProductIds((ids) => {
           const next = new Set(ids);
@@ -286,14 +294,18 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
           ...items
             .filter((item) => item.productId !== product.productId)
             .map((item) => (
-              item.productId === previousFittingItem?.productId ? { ...item, active: false } : item
+              previousFittingItems.some((previousItem) => previousItem.productId === item.productId)
+                ? { ...item, active: false }
+                : item
             )),
         ]);
-      } else if (previousFittingItem) {
+      } else if (previousFittingItems.length > 0) {
         // 새 상품의 아바타 이미지가 없더라도, 앞선 해제 요청은 성공했으므로
         // 기존 상품을 히스토리에 남긴 채 착용 상태만 해제한다.
         setHistory((items) => items.map((item) => (
-          item.productId === previousFittingItem.productId ? { ...item, active: false } : item
+          previousFittingItems.some((previousItem) => previousItem.productId === item.productId)
+            ? { ...item, active: false }
+            : item
         )));
       }
 
@@ -311,7 +323,9 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
   async function handleHistoryProductClick(item) {
     if (!item) return;
 
-    const activeHistoryItem = history.find((historyItem) => historyItem.active !== false);
+    const activeHistoryItem = history.find((historyItem) => (
+      historyItem.active !== false && historyItem.productId === item.productId
+    ));
 
     // 이미 현재 피팅 중인 상품이면 화면만 전환하고 PRODUCT_SELECT를 중복 전송하지 않는다.
     if (activeHistoryItem?.productId === item.productId) {
@@ -329,6 +343,16 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     setError('');
 
     try {
+      const itemsToDeselect = getItemsToDeselect(item.category, item.productId);
+
+      for (const itemToDeselect of itemsToDeselect) {
+        await postArInteraction({
+          arSessionId,
+          productId: itemToDeselect.productId,
+          interactionType: AR_INTERACTION_TYPES.PRODUCT_DESELECT,
+        });
+      }
+
       const response = await postArInteraction({
         arSessionId,
         productId: item.productId,
@@ -337,18 +361,23 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
       if (requestNo !== interactionRequestNoRef.current) return;
 
+      // A history selection can acknowledge successfully without returning a new
+      // image. In that case, keep the current composite avatar instead of
+      // restoring the stale snapshot stored on the history item.
       const nextAvatarImage = response?.avatarImageUrl
         ? await applyAvatarImage(response, requestNo)
-        : item.avatarImage;
+        : avatarImage;
 
       if (requestNo !== interactionRequestNoRef.current) return;
 
-      setAvatarImage(nextAvatarImage || item.avatarImage);
+      if (nextAvatarImage) setAvatarImage(nextAvatarImage);
       if (!nextAvatarImage && !item.avatarImageUrl) setNoAvatarProduct(item);
       setHistory((items) => items.map((historyItem) => (
         historyItem.productId === item.productId
           ? { ...historyItem, active: true, avatarImage: nextAvatarImage || historyItem.avatarImage }
-          : { ...historyItem, active: false }
+          : itemsToDeselect.some((itemToDeselect) => itemToDeselect.productId === historyItem.productId)
+            ? { ...historyItem, active: false }
+            : historyItem
       )));
       setOpen(false);
     } catch (interactionError) {
