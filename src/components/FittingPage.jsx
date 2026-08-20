@@ -204,8 +204,10 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     const isDeselect = history.some((item) => item.productId === product.productId && item.active !== false);
     // 카테고리별로 한 상품만 착용할 수 있으므로, 같은 카테고리의 다른 상품을 선택하면
     // 기존 상품을 먼저 해제해 API 세션과 화면의 착용 상태를 함께 갱신한다.
+    // 아바타는 한 번에 하나의 상품만 착용하므로, 다른 상품을 선택하면
+    // 현재 착용 중인 상품을 먼저 해제한다.
     const previousFittingItem = !isDeselect
-      ? history.find((item) => item.category === category && item.active !== false)
+      ? history.find((item) => item.active !== false && item.productId !== product.productId)
       : null;
     const requestNo = interactionRequestNoRef.current + 1;
     interactionRequestNoRef.current = requestNo;
@@ -229,6 +231,22 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
       const nextAvatarImage = await applyAvatarImage(response, requestNo);
       if (requestNo !== interactionRequestNoRef.current) return;
+
+      // 상품을 새로 피팅하면 기존 아바타 구성은 해제된다. 피팅 아이콘 상태도
+      // 아바타 상태와 함께 초기화하지 않으면 이전 카테고리 상품이 계속
+      // '피팅 취소' 상태로 남아 다시 피팅할 수 없게 된다.
+      const deactivatedProductIds = isDeselect
+        ? [product.productId]
+        : history
+            .filter((item) => item.active !== false && item.productId !== product.productId)
+            .map((item) => item.productId);
+      if (deactivatedProductIds.length > 0) {
+        setFittingProductIds((ids) => {
+          const next = new Set(ids);
+          deactivatedProductIds.forEach((productId) => next.delete(productId));
+          return next;
+        });
+      }
 
       if (!isDeselect && response?.avatarImageUrl === null) {
         setNoAvatarProduct(product);
