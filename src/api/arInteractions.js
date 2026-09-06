@@ -3,7 +3,8 @@ import { request } from './client';
 export const AR_INTERACTION_TYPES = Object.freeze({
   PRODUCT_SELECT: 'PRODUCT_SELECT',
   PRODUCT_DESELECT: 'PRODUCT_DESELECT',
-  FITTING: 'FITTING',
+  FITTING_ADD: 'FITTING_ADD',
+  FITTING_REMOVE: 'FITTING_REMOVE',
   WISHLIST_ADD: 'WISHLIST_ADD',
   WISHLIST_REMOVE: 'WISHLIST_REMOVE',
 });
@@ -12,7 +13,7 @@ export const AR_INTERACTION_TYPES = Object.freeze({
  * @property {number} arInteractionId
  * @property {number} arSessionId
  * @property {number} productId
- * @property {'PRODUCT_SELECT'|'PRODUCT_DESELECT'|'FITTING'|'WISHLIST_ADD'|'WISHLIST_REMOVE'} interactionType
+ * @property {'PRODUCT_SELECT'|'PRODUCT_DESELECT'|'FITTING_ADD'|'FITTING_REMOVE'|'WISHLIST_ADD'|'WISHLIST_REMOVE'} interactionType
  * @property {string|null} avatarImageUrl
  * @property {number} sequenceNo
  * @property {string} createdAt

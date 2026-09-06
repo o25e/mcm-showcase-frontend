@@ -40,7 +40,6 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
   const [noAvatarProduct, setNoAvatarProduct] = useState(null);
   const [comment, setComment] = useState(DEFAULT_COMMENTS[language] ?? DEFAULT_COMMENTS.ko);
   const [fittingProductIds, setFittingProductIds] = useState(() => new Set());
-  const [fittingRecordedProductIds, setFittingRecordedProductIds] = useState(() => new Set());
   const [fittingPendingIds, setFittingPendingIds] = useState(() => new Set());
   const [error, setError] = useState('');
   const [isInteractionPending, setIsInteractionPending] = useState(false);
@@ -397,17 +396,16 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
       return next;
     });
 
-    if (fittingRecordedProductIds.has(item.productId)) return;
-
     setFittingPendingIds((ids) => new Set(ids).add(item.productId));
 
     try {
       await postArInteraction({
         arSessionId,
         productId: item.productId,
-        interactionType: AR_INTERACTION_TYPES.FITTING,
+        interactionType: nextFitting
+          ? AR_INTERACTION_TYPES.FITTING_ADD
+          : AR_INTERACTION_TYPES.FITTING_REMOVE,
       });
-      setFittingRecordedProductIds((ids) => new Set(ids).add(item.productId));
     } catch (interactionError) {
       console.error('FITTING interaction 오류:', interactionError);
 
