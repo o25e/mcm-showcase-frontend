@@ -82,7 +82,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
     const controller = new AbortController();
 
-    async function createAvatarLook() {
+    async function generateAvatarLook() {
       try {
         const data = await createAvatarLook(arSessionId, controller.signal);
         const image = data.avatarImageUrl || data.avatarImage || data.imageUrl;
@@ -102,7 +102,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
       }
     }
 
-    createAvatarLook();
+    generateAvatarLook();
     return () => controller.abort();
   }, [arSessionId, isGeneratingAvatar, onFinish]);
 
