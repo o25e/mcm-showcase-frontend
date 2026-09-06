@@ -55,6 +55,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   const [lookError, setLookError] = useState('');
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState('');
+  const [historyPage, setHistoryPage] = useState(0);
   // A shared QR result must be available on every scan, including on the
   // same device after the guest has left the page. It is not a saved closet
   // record until the guest logs in and the result is linked to the member.
@@ -232,11 +233,67 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   const historyProducts = Array.isArray(selectedLook.fittingHistory)
     ? selectedLook.fittingHistory.map((product) => mapProduct(product, language))
     : [];
+  const historyPageCount = Math.max(1, Math.ceil(historyProducts.length / 5));
+  const historyEmptySlotCount = historyProducts.length > 0
+    ? (5 - (historyProducts.length % 5)) % 5
+    : 0;
   const wishlistCount = new Map(
     [...todayProducts, ...historyProducts]
       .filter((product) => product.isWishlisted)
       .map((product) => [product.productId, product]),
   ).size;
+
+  useEffect(() => {
+    setHistoryPage(0);
+    if (historyRef.current) historyRef.current.scrollLeft = 0;
+  }, [selectedRecord?.styleProfileId, historyProducts.length]);
+
+  const getClosestHistoryPage = () => {
+    const list = historyRef.current;
+    const cards = list ? Array.from(list.children) : [];
+    if (!list || cards.length === 0) return 0;
+
+    const firstOffset = cards[0].offsetLeft;
+    let closestPage = 0;
+    let closestDistance = Number.POSITIVE_INFINITY;
+
+    for (let page = 0; page < historyPageCount; page += 1) {
+      const pageStartCard = cards[page * 5];
+      if (!pageStartCard) break;
+
+      const distance = Math.abs(list.scrollLeft - (pageStartCard.offsetLeft - firstOffset));
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestPage = page;
+      }
+    }
+
+    return closestPage;
+  };
+
+  const syncHistoryPageFromScroll = () => {
+    const nextPage = getClosestHistoryPage();
+    setHistoryPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
+  };
+
+  const moveHistoryPage = (direction) => {
+    const list = historyRef.current;
+    const cards = list ? Array.from(list.children) : [];
+    if (!list || cards.length === 0) return;
+
+    const targetPage = Math.min(
+      historyPageCount - 1,
+      Math.max(0, getClosestHistoryPage() + direction),
+    );
+    const targetCard = cards[targetPage * 5];
+    if (!targetCard) return;
+
+    list.scrollTo({
+      left: targetCard.offsetLeft - cards[0].offsetLeft,
+      behavior: 'smooth',
+    });
+    setHistoryPage(targetPage);
+  };
 
   return (
     <div className={`closet-page${member ? ' is-authenticated' : ''}`} id="top">
@@ -308,8 +365,6 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
             <p>{ko.closet.heroDescription}</p>
           </div>
 
-          <button className="closet-arrow closet-arrow-left" type="button" aria-label={ko.common.previousAvatar}>‹</button>
-          <button className="closet-arrow closet-arrow-right" type="button" aria-label={ko.common.nextAvatar}>›</button>
         </section>
 
         {!member && <section className="closet-login" aria-label={ko.closet.loginLabel}>
@@ -445,7 +500,22 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                   <h3>HISTORY</h3>
 
                   <div className="closet-history-carousel">
-                    <div className="closet-history-list" ref={historyRef} onPointerDown={startHistoryDrag}>
+                    <button
+                      className="closet-history-nav closet-history-prev"
+                      type="button"
+                      aria-label={language === 'en' ? 'Previous history products' : '이전 히스토리 상품'}
+                      onClick={() => moveHistoryPage(-1)}
+                      disabled={historyPage === 0 || historyPageCount <= 1}
+                    >
+                      <img src="/assets/icon-next.png" alt="" />
+                    </button>
+
+                    <div
+                      className="closet-history-list"
+                      ref={historyRef}
+                      onPointerDown={startHistoryDrag}
+                      onScroll={syncHistoryPageFromScroll}
+                    >
                       {historyProducts.map((product) => (
                         <article className="closet-history-card" key={product.productId}>
                           <div>
@@ -467,13 +537,26 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                           <small>{product.price}</small>
                         </article>
                       ))}
+                      {Array.from({ length: historyEmptySlotCount }, (_, index) => (
+                        <article
+                          className="closet-history-card closet-history-card--empty"
+                          aria-hidden="true"
+                          key={`history-empty-${index}`}
+                        >
+                          <div />
+                        </article>
+                      ))}
                     </div>
 
-                    {historyProducts.length >= 5 && (
-                      <span className="closet-history-next" aria-hidden="true">
-                        <img src="/assets/icon-next.png" alt="" />
-                      </span>
-                    )}
+                    <button
+                      className="closet-history-nav closet-history-next"
+                      type="button"
+                      aria-label={language === 'en' ? 'Next history products' : '다음 히스토리 상품'}
+                      onClick={() => moveHistoryPage(1)}
+                      disabled={historyPage >= historyPageCount - 1 || historyPageCount <= 1}
+                    >
+                      <img src="/assets/icon-next.png" alt="" />
+                    </button>
                   </div>
                 </section>
               </div>
