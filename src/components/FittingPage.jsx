@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AR_INTERACTION_TYPES, postArInteraction } from '../api/arInteractions';
 import { evaluateArSessionMessage } from '../api/arSessions';
 import { API_BASE_URL } from '../api/config';
+import { createAvatarLook, getRecommendations, refreshRecommendations } from '../api/recommendations';
 import { getArCopy } from './arCopy';
 import { getProductName, getProductNameLines } from '../utils/productName';
 
@@ -55,14 +56,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     try {
       setError('');
 
-      const response = await fetch(`${API_BASE_URL}/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}`, {
-        method: 'GET',
-        headers: { Accept: 'application/json' },
-      });
-
-      if (!response.ok) throw new Error(`Recommendations request failed (${response.status})`);
-
-      const data = await response.json();
+      const data = await getRecommendations(arSessionId, categoryCode);
       setRecommendedProducts(Array.isArray(data.products) ? data.products : []);
       setSelected(0);
     } catch (recommendationError) {
@@ -91,26 +85,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
     async function createAvatarLook() {
       try {
-        // [테스트용] 미리 생성된 아바타 이미지를 조회합니다.
-        // const response = await fetch(`${API_BASE_URL}/api/test/avatar-images/latest`, {
-        //   method: 'GET',
-        //   headers: { Accept: 'application/json' },
-        //   signal: controller.signal,
-        // });
-
-        // [실제 생성용] 실제 아바타 생성 API
-        const response = await fetch(`${API_BASE_URL}/api/recommendations/avatar-look/${arSessionId}`, {
-          method: 'POST',
-          headers: {
-            Accept: '*/*',
-            Authorization: `Bearer ${import.meta.env.VITE_API_TOKEN}`,
-          },
-          signal: controller.signal,
-        });
-
-        if (!response.ok) throw new Error(`Avatar look request failed (${response.status})`);
-
-        const data = await response.json();
+        const data = await createAvatarLook(arSessionId, controller.signal);
         const image = data.avatarImageUrl || data.avatarImage || data.imageUrl;
         if (!image || !data.styleProfileId) throw new Error('Avatar look response is missing image or style profile');
 
@@ -147,14 +122,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
     try {
       setError('');
 
-      const response = await fetch(`${API_BASE_URL}/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}/refresh`, {
-        method: 'POST',
-        headers: { Accept: 'application/json' },
-      });
-
-      if (!response.ok) throw new Error(`Recommendations refresh failed (${response.status})`);
-
-      const data = await response.json();
+      const data = await refreshRecommendations(arSessionId, categoryCode);
       if (!Array.isArray(data.products)) throw new Error('Recommendations refresh returned an invalid products value');
 
       setRecommendedProducts([...data.products]);

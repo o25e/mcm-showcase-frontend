@@ -1,4 +1,4 @@
-import { API_BASE_URL } from './config';
+import { request } from './client';
 
 export const AR_INTERACTION_TYPES = Object.freeze({
   PRODUCT_SELECT: 'PRODUCT_SELECT',
@@ -23,17 +23,10 @@ export async function postArInteraction({ arSessionId, productId, interactionTyp
     return { skipped: true };
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/ar-interactions`, {
+  return request('/api/ar-interactions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ arSessionId, productId, interactionType }),
   });
 
-  if (!response.ok) {
-    throw new Error(`AR interaction failed (${response.status})`);
-  }
-
-  /** @type {ArInteractionCreateResponse|null} */
-  const data = response.status === 204 ? null : await response.json().catch(() => null);
-  return data;
 }

@@ -38,29 +38,8 @@ export default function AvatarCompletePage({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFinishModalOpen]);
 
-  /*
-    Avatar generation is completed in FittingPage before this screen mounts.
-    Keeping the generated look in props also prevents duplicate POST requests.
-  */
-  /* async function createAvatarLook() {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/recommendations/avatar-look/${arSessionId}`, {
-          method: 'POST',
-          headers: { Accept: '* / *' },
-        });
-
-        if (!response.ok) throw new Error(`Avatar look request failed (${response.status})`);
-
-        const data = await response.json();
-        console.log('아바타 룩 생성 응답:', data);
-        setAvatarLook(data);
-      } catch (error) {
-        console.error('아바타 룩 생성 오류:', error);
-      }
-    }
-
-    createAvatarLook();
-  } */
+  // Avatar generation is completed in FittingPage before this screen mounts.
+  // Keeping the generated look in props also prevents duplicate POST requests.
 
   const styleProfileId = avatarLook?.styleProfileId;
   const qrImageUrl = resolveQrImageUrl(

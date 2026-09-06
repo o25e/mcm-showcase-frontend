@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import ClosetPage from './components/ClosetPage';
 import ArPage from './components/ArPage';
 import App from './App';
-import { API_BASE_URL } from './api/config';
+import { linkMemberToArSession } from './api/arSessions';
 import { clearMember, getStoredMember } from './api/auth';
 
 export default function ClosetApp() {
@@ -27,16 +27,10 @@ export default function ClosetApp() {
         const gender = typeof existingMember.gender === 'string'
           ? existingMember.gender.trim().toUpperCase()
           : null;
-        const response = await fetch(`${API_BASE_URL}/api/ar-sessions/${arLoginSessionId}/member`, {
-          method: 'PATCH',
-          headers: { Accept: '*/*', 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            memberId: existingMember.memberId,
-            ...(gender ? { gender } : {}),
-          }),
+        await linkMemberToArSession(arLoginSessionId, {
+          memberId: existingMember.memberId,
+          gender,
         });
-
-        if (!response.ok) throw new Error(`AR member link failed (${response.status})`);
       } catch (error) {
         if (isActive) console.error('기존 회원 AR 세션 연결 오류:', error);
       }
@@ -79,16 +73,10 @@ export default function ClosetApp() {
       const gender = typeof authenticatedMember.gender === 'string'
         ? authenticatedMember.gender.trim().toUpperCase()
         : null;
-      const response = await fetch(`${API_BASE_URL}/api/ar-sessions/${arLoginSessionId}/member`, {
-        method: 'PATCH',
-        headers: { Accept: '*/*', 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          memberId: authenticatedMember.memberId,
-          ...(gender ? { gender } : {}),
-        }),
+      await linkMemberToArSession(arLoginSessionId, {
+        memberId: authenticatedMember.memberId,
+        gender,
       });
-
-      if (!response.ok) throw new Error(`AR member link failed (${response.status})`);
     }
 
     setMember(authenticatedMember);

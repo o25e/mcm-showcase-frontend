@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { API_BASE_URL } from '../api/config';
+import { createArSession, getArSession, updateArSessionGender } from '../api/arSessions';
 import FittingHelpOverlay from './FittingHelpOverlay';
 import FittingPage from './FittingPage';
 import AvatarCompletePage from './AvatarCompletePage';
@@ -48,15 +48,7 @@ export default function ArPage() {
         authenticatedMember = null;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/ar-sessions`, {
-        method: 'POST',
-        headers: { Accept: '*/*', 'Content-Type': 'application/json' },
-        body: JSON.stringify(authenticatedMember?.memberId ? { memberId: authenticatedMember.memberId } : {}),
-      });
-
-      if (!response.ok) throw new Error(`AR session creation failed (${response.status})`);
-
-      const data = await response.json();
+      const data = await createArSession(authenticatedMember?.memberId);
       setArSessionId(data.arSessionId);
       if (authenticatedMember?.memberId !== undefined && authenticatedMember?.memberId !== null) {
         setCompletedMemberId(authenticatedMember.memberId);
@@ -76,13 +68,7 @@ export default function ArPage() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/ar-sessions/${arSessionId}/gender`, {
-        method: 'PATCH',
-        headers: { Accept: '*/*', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gender: nextGender }),
-      });
-
-      if (!response.ok) throw new Error(`Gender update failed (${response.status})`);
+      await updateArSessionGender(arSessionId, nextGender);
 
       setGender(nextGender);
       setScreen('consent-form');
@@ -109,13 +95,7 @@ export default function ArPage() {
       isRequesting = true;
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/ar-sessions/${arSessionId}`, {
-          headers: { Accept: '*/*' },
-        });
-
-        if (!response.ok) throw new Error(`AR session lookup failed (${response.status})`);
-
-        const data = await response.json();
+        const data = await getArSession(arSessionId);
         if (data.memberId !== null && data.memberId !== undefined) {
           let storedMember = null;
           try {

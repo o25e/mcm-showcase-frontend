@@ -1,3 +1,4 @@
+import { unwrapApiResponse } from './client';
 import { API_BASE_URL } from './config';
 
 export class ApiError extends Error {
@@ -29,5 +30,5 @@ export async function loginMember({ loginId, password }) {
     throw new ApiError('로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.', response.status);
   }
 
-  return response.json();
+  return unwrapApiResponse(await response.json());
 }
