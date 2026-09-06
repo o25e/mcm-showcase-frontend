@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import ClosetPage from './components/ClosetPage';
+import { ko } from './i18n/ko';
 import ArPage from './components/ArPage';
 import App from './App';
 import { linkMemberToArSession } from './api/arSessions';
@@ -32,7 +33,7 @@ export default function ClosetApp() {
           gender,
         });
       } catch (error) {
-        if (isActive) console.error('기존 회원 AR 세션 연결 오류:', error);
+        if (isActive) console.error(ko.errors.memberSession, error);
       }
     }
 

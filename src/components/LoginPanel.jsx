@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { loginMember } from '../api/members';
 import { storeMember } from '../api/auth';
+import { ko } from '../i18n/ko';
 
 export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout }) {
   const [loginId, setLoginId] = useState('');
@@ -20,7 +21,7 @@ export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout }
       const member = await loginMember({ loginId, password });
 
       if (member?.memberId === undefined || member?.memberId === null) {
-        throw new Error('로그인 응답을 확인할 수 없습니다.');
+        throw new Error(ko.errors.invalidLoginResponse);
       }
 
       const authenticatedMember = {
@@ -37,7 +38,7 @@ export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout }
       setErrorMessage(
         error.status === 401
           ? error.message
-          : error.message || '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.'
+          : error.message || ko.errors.loginFailed
       );
     } finally {
       setIsLoading(false);
@@ -47,25 +48,25 @@ export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout }
   if (member) {
     return (
       <div className="login-modal" role="presentation">
-        <button className="login-modal-backdrop" type="button" aria-label="로그인 창 닫기" onClick={onClose} />
+        <button className="login-modal-backdrop" type="button" aria-label={ko.auth.close} onClick={onClose} />
 
         <aside className="login-drawer" role="dialog" aria-modal="true" aria-labelledby="login-title">
-          <button className="login-close" type="button" aria-label="로그인 창 닫기" onClick={onClose}>×</button>
+          <button className="login-close" type="button" aria-label={ko.auth.close} onClick={onClose}>×</button>
 
           <div className="login-drawer-content">
             <h2 id="login-title">{member.loginId || member.name || 'USER'}님</h2>
-            <div className="login-account-menu" aria-label="회원 메뉴">
-              <button type="button" aria-label="회원 정보" title="회원 정보">
+            <div className="login-account-menu" aria-label={ko.auth.memberMenu}>
+              <button type="button" aria-label={ko.auth.memberInfo} title={ko.auth.memberInfo}>
                 <img src="/assets/figma-user.svg" alt="" />
-                <span>회원 정보</span>
+                <span>{ko.auth.memberInfo}</span>
               </button>
-              <button type="button" aria-label="찜 목록" title="찜 목록">
+              <button type="button" aria-label={ko.auth.wishlist} title={ko.auth.wishlist}>
                 <img src="/assets/figma-heart.svg" alt="" />
-                <span>찜 목록</span>
+                <span>{ko.auth.wishlist}</span>
               </button>
-              <button type="button" aria-label="장바구니" title="장바구니">
+              <button type="button" aria-label={ko.auth.cart} title={ko.auth.cart}>
                 <img src="/assets/figma-bag.svg" alt="" />
-                <span>장바구니</span>
+                <span>{ko.auth.cart}</span>
               </button>
             </div>
             <button
@@ -76,7 +77,7 @@ export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout }
                 onClose();
               }}
             >
-              로그아웃
+              {ko.auth.logout}
             </button>
           </div>
         </aside>
@@ -86,25 +87,25 @@ export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout }
 
   return (
     <div className="login-modal" role="presentation">
-      <button className="login-modal-backdrop" type="button" aria-label="로그인 창 닫기" onClick={onClose} />
+      <button className="login-modal-backdrop" type="button" aria-label={ko.auth.close} onClick={onClose} />
 
       <aside className="login-drawer" role="dialog" aria-modal="true" aria-labelledby="login-title">
-        <button className="login-close" type="button" aria-label="로그인 창 닫기" onClick={onClose}>×</button>
+        <button className="login-close" type="button" aria-label={ko.auth.close} onClick={onClose}>×</button>
 
         <div className="login-drawer-content">
-          <h2 id="login-title">로그인</h2>
+          <h2 id="login-title">{ko.auth.login}</h2>
 
           <p className="login-intro">
-            <span>회원으로 가입하시면 빠르고 편리하게 이용하실 수 있습니다.</span>
-            <a href="#signup">회원가입</a>
+            <span>{ko.auth.welcome}</span>
+            <a href="#signup">{ko.auth.signup}</a>
           </p>
 
-          <p className="login-required">* 표시가 있는 모든 입력 항목은 필수입니다.</p>
+          <p className="login-required">{ko.auth.required}</p>
           {errorMessage && <p className="login-error" role="alert">{errorMessage}</p>}
 
           <form className="login-form" onSubmit={handleSubmit}>
             <label>
-              아이디*
+              {ko.auth.id}
               <input
                 type="text"
                 name="loginId"
@@ -116,15 +117,15 @@ export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout }
             </label>
 
             <label>
-              비밀번호*
+              {ko.auth.password}
               <button
                 className="password-label"
                 type="button"
-                aria-label={isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 표시'}
+                aria-label={isPasswordVisible ? ko.auth.passwordHide : ko.auth.passwordShow}
                 aria-pressed={isPasswordVisible}
                 onClick={() => setIsPasswordVisible((visible) => !visible)}
               >
-                {isPasswordVisible ? '숨기기' : '표시'}
+                {isPasswordVisible ? ko.auth.passwordHideShort : ko.auth.passwordShowShort}
               </button>
               <input
                 type={isPasswordVisible ? 'text' : 'password'}
@@ -136,22 +137,22 @@ export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout }
               />
             </label>
 
-            <a className="find-password" href="#find-password">비밀번호를 잊으셨나요?</a>
+            <a className="find-password" href="#find-password">{ko.auth.forgotPassword}</a>
 
             <button className="login-submit" type="submit" disabled={isLoading} aria-busy={isLoading}>
-              {isLoading ? '로그인 중...' : '로그인'}
+              {isLoading ? ko.auth.loading : ko.auth.login}
             </button>
           </form>
 
-          <div className="social-login" aria-label="간편 로그인">
+          <div className="social-login" aria-label={ko.auth.easyLogin}>
             <button type="button" className="naver-login">
               <img className="social-login-icon" src="/assets/icon-naver.png" alt="" />
-              <span>네이버 아이디로 로그인</span>
+              <span>{ko.auth.naver}</span>
             </button>
 
             <button type="button" className="kakao-login">
               <img className="social-login-icon" src="/assets/icon-kakaotalk.png" alt="" />
-              <span>카카오 로그인</span>
+              <span>{ko.auth.kakao}</span>
             </button>
           </div>
         </div>

@@ -45,6 +45,12 @@ export const arCopy = {
     productDetail: '상품 상세를 확인하고 피팅할 수 있어요.',
     refresh: '새로운 선택을 받고 싶다면 새로고침을 눌러주세요.',
     fittingFinish: '피팅 종료하기',
+    errors: {
+      sessionCreate: 'AR 세션 생성 오류:',
+      missingSession: 'AR Session ID가 없습니다.',
+      genderSave: '성별 저장 오류:',
+      memberStatus: 'AR 회원 로그인 상태 확인 오류:',
+    },
   },
 
   en: {
@@ -93,6 +99,12 @@ export const arCopy = {
     productDetail: 'View the product details and try it on.',
     refresh: 'Tap refresh to see a new selection.',
     fittingFinish: 'Finish Fitting',
+    errors: {
+      sessionCreate: 'Failed to create AR session:',
+      missingSession: 'AR Session ID is missing.',
+      genderSave: 'Failed to save gender:',
+      memberStatus: 'Failed to check AR member login status:',
+    },
   },
 };
 

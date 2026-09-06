@@ -19,16 +19,17 @@ export async function loginMember({ loginId, password }) {
       body: JSON.stringify({ loginId, password }),
     });
   } catch {
-    throw new ApiError('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    throw new ApiError(ko.errors.network);
   }
 
   if (response.status === 401) {
-    throw new ApiError('아이디 또는 비밀번호를 확인해 주세요.', 401);
+    throw new ApiError(ko.errors.invalidCredentials, 401);
   }
 
   if (!response.ok) {
-    throw new ApiError('로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.', response.status);
+    throw new ApiError(ko.errors.loginFailed, response.status);
   }
 
   return unwrapApiResponse(await response.json());
 }
+import { ko } from '../i18n/ko';

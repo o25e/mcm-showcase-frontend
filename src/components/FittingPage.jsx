@@ -5,17 +5,18 @@ import { API_BASE_URL } from '../api/config';
 import { createAvatarLook, getRecommendations, refreshRecommendations } from '../api/recommendations';
 import { getArCopy } from './arCopy';
 import { getProductName, getProductNameLines } from '../utils/productName';
+import { ko } from '../i18n/ko';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 const categories = ['Bags', 'Tops', 'Bottoms', 'Shoes', 'Accessories'];
 const categoryCodeMap = { Bags: 'bag', Tops: 'top', Bottoms: 'bottom', Shoes: 'shoes', Accessories: 'accessories' };
 const avatarByGender = { FEMALE: '/assets/figma-fitting/model_f.png', MALE: '/assets/figma-fitting/model_m.png' };
 const DEFAULT_COMMENTS = {
-  ko: '지금부터 당신만의 스타일을 찾아보세요.\n마음이 가는 제품을 자유롭게 피팅할 수 있어요.',
+  ko: ko.fitting.intro,
   en: 'Discover your style.\nTry on the pieces that speak to you.',
 };
 const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
-const FITTING_ERROR_MESSAGE = '피팅 정보를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.';
+const FITTING_ERROR_MESSAGE = ko.errors.fittingSave;
 
 function resolveAvatarImageUrl(image) {
   if (typeof image !== 'string' || !image.trim()) return '';
@@ -59,8 +60,8 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
       setRecommendedProducts(Array.isArray(data.products) ? data.products : []);
       setSelected(0);
     } catch (recommendationError) {
-      console.error('추천 상품 조회 오류:', recommendationError);
-      setError('추천 상품을 불러오지 못했습니다.');
+      console.error(ko.errors.recommendationLog, recommendationError);
+      setError(ko.errors.recommendation);
       setRecommendedProducts([]);
     }
   }, [arSessionId]);
@@ -95,8 +96,8 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
         });
       } catch (generationError) {
         if (generationError.name !== 'AbortError') {
-          console.error('아바타 룩 생성 오류:', generationError);
-          setError('아바타 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+          console.error(ko.errors.avatarGenerationLog, generationError);
+          setError(ko.errors.avatarGeneration);
           setIsGeneratingAvatar(false);
         }
       }
@@ -128,8 +129,8 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
       setSelected(0);
       setOpen(false);
     } catch (refreshError) {
-      console.error('추천 상품 새로고침 오류:', refreshError);
-      setError('추천 상품을 새로고침하지 못했습니다.');
+      console.error(ko.errors.recommendationRefreshLog, refreshError);
+      setError(ko.errors.recommendationRefresh);
     }
   }
 
@@ -236,7 +237,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
           }
         })
         .catch((evaluationError) => {
-          console.error('Comment evaluation 오류:', evaluationError);
+          console.error(ko.errors.commentEvaluationLog, evaluationError);
         });
 
       if (isDeselect) {
@@ -279,7 +280,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
       setOpen(false);
     } catch (fitError) {
       if (requestNo === interactionRequestNoRef.current) {
-        console.error('AR PRODUCT interaction 오류:', fitError);
+        console.error(ko.errors.productInteractionLog, fitError);
         setError(FITTING_ERROR_MESSAGE);
       }
     } finally {
@@ -373,7 +374,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
         interactionType: nextWishlisted ? AR_INTERACTION_TYPES.WISHLIST_ADD : AR_INTERACTION_TYPES.WISHLIST_REMOVE,
       });
     } catch (interactionError) {
-      console.error('WISHLIST interaction 오류:', interactionError);
+      console.error(ko.errors.wishlistInteractionLog, interactionError);
 
       setHistory((items) =>
         items.map((historyItem) =>
@@ -407,7 +408,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
           : AR_INTERACTION_TYPES.FITTING_REMOVE,
       });
     } catch (interactionError) {
-      console.error('FITTING interaction 오류:', interactionError);
+      console.error(ko.errors.fittingInteractionLog, interactionError);
 
       setFittingProductIds((ids) => {
         const next = new Set(ids);
@@ -459,7 +460,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
       <h1 id="fitting-page-title" className="fitting-page__history-title">History</h1>
 
-      <div className="fitting-page__history" ref={historyRef} aria-label="피팅 히스토리">
+      <div className="fitting-page__history" ref={historyRef} aria-label={ko.fitting.history}>
         {visibleHistory.map((item, index) => (
           <button
             className={`fitting-page__history-card ${item ? 'active' : ''}`}
@@ -492,7 +493,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
               />
             )}
 
-            {item && <img className="fitting-page__history-product" src={item.imageUrl} alt={`${getProductName(item, language)} 피팅 기록`} />}
+            {item && <img className="fitting-page__history-product" src={item.imageUrl} alt={`${getProductName(item, language)} ${ko.fitting.historyAlt}`} />}
           </button>
         ))}
       </div>
@@ -525,7 +526,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
         {t.fittingFinish}
       </button>
 
-      <section className="fitting-page__catalog" aria-label="추천 상품">
+      <section className="fitting-page__catalog" aria-label={ko.fitting.catalog}>
         <div className="fitting-page__tabs" role="tablist">
           {categories.map((item) => (
             <button
@@ -560,7 +561,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
         <span className="fitting-page__product-bottom-rule" />
 
         <button className="fitting-page__refresh" type="button" onClick={handleRefresh}>
-          <img src="/assets/figma-fitting-refresh.svg" alt="새로고침" />
+          <img src="/assets/figma-fitting-refresh.svg" alt={ko.fitting.refresh} />
         </button>
       </section>
 
@@ -572,7 +573,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
             aria-modal="true"
             onClick={(event) => event.stopPropagation()}
           >
-            <button className="fitting-product-frame__close" type="button" onClick={() => setOpen(false)} aria-label="닫기">×</button>
+            <button className="fitting-product-frame__close" type="button" onClick={() => setOpen(false)} aria-label={ko.fitting.close}>×</button>
             <img className="fitting-product-frame__image" src={selectedProduct.imageUrl} alt={getProductName(selectedProduct, language)} />
             <h2>
               {getProductNameLines(selectedProduct, language).map((line, index) => (
@@ -593,8 +594,8 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
             <button className="fitting-product-frame__fit" type="button" onClick={fitSelectedProduct} disabled={isInteractionPending}>
               {history.some((item) => item.productId === selectedProduct.productId && item.active !== false)
-                ? (language === 'en' ? 'Remove' : '해제하기')
-                : (language === 'en' ? 'Try on' : '피팅하기')}
+                ? (language === 'en' ? 'Remove' : ko.fitting.remove)
+                : (language === 'en' ? 'Try on' : ko.fitting.tryOn)}
             </button>
           </article>
         </div>
@@ -610,8 +611,8 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
             onClick={(event) => event.stopPropagation()}
           >
             <img className="fitting-no-avatar-modal__logo" src="/assets/MCM-logo.png" alt="MCM" />
-            <p id="fitting-no-avatar-title">현재 가상 피팅 준비 중인 제품입니다.<br />데모 지원 제품을 선택해 주세요.</p>
-            <button type="button" onClick={() => setNoAvatarProduct(null)}>확인</button>
+            <p id="fitting-no-avatar-title">{ko.fitting.noAvatar}<br />{ko.fitting.noAvatarHelp}</p>
+            <button type="button" onClick={() => setNoAvatarProduct(null)}>{ko.fitting.confirm}</button>
           </div>
         </div>
       )}

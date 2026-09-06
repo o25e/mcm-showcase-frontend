@@ -1,4 +1,5 @@
 import { getArCopy } from './arCopy';
+import { ko } from '../i18n/ko';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 const categories = ['Bags', 'Tops', 'Bottoms', 'Shoes', 'Accessories'];
@@ -52,7 +53,7 @@ export default function FittingHelpOverlay({ onClose, language = 'ko' }) {
       <Pointer className="fitting-help__pointer--product" />
 
       <Note className="fitting-help__note--refresh">
-        {language === 'ko' ? <>새로운 선택을 받고 싶다면 새로고침을 눌러주세요.</> : t.refresh}
+        {language === 'ko' ? ko.fitting.refresh : t.refresh}
       </Note>
       <Pointer className="fitting-help__pointer--refresh" />
 

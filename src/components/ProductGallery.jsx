@@ -5,10 +5,10 @@ export default function ProductGallery({ images, selectedImage, onSelect }) {
     <div className="gallery">
       <div className="main-image-wrap">
         <img src={selectedImage.src} alt={selectedImage.alt} />
-        <span className="tag">가방</span>
+        <span className="tag">{ko.product.category}</span>
       </div>
 
-      <div className="thumbnails" aria-label="상품 이미지 선택">
+      <div className="thumbnails" aria-label={ko.product.images}>
         {thumbnails.map((image) => (
           <button
             className={`thumbnail ${image.src === selectedImage.src ? 'selected' : ''}`}
@@ -24,3 +24,4 @@ export default function ProductGallery({ images, selectedImage, onSelect }) {
     </div>
   );
 }
+import { ko } from '../i18n/ko';

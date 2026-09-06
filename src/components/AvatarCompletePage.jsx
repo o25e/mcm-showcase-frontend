@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { API_BASE_URL } from '../api/config';
 import { getArCopy } from './arCopy';
+import { ko } from '../i18n/ko';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
@@ -120,8 +121,8 @@ export default function AvatarCompletePage({
           </p>
         ) : (
           <p>
-            <span className="qr-line">QR을 스캔하면 온라인과 다음 MCM 방문에서</span>
-            <span className="qr-line">오늘의 스타일을 다시 확인할 수 있어요.</span>
+            <span className="qr-line">{ko.avatar.qrLine1}</span>
+            <span className="qr-line">{ko.avatar.qrLine2}</span>
           </p>
         )}
       </section>
@@ -150,8 +151,8 @@ export default function AvatarCompletePage({
                 <span>{t.showcase}</span>
               ) : (
                 <>
-                  <span className="finish-line">기다리는 동안 3F 전광판에서</span>
-                  <strong className="finish-line finish-line--bold">MCM의 새로운 쇼케이스를 만나보세요.</strong>
+                  <span className="finish-line">{ko.avatar.waiting}</span>
+                  <strong className="finish-line finish-line--bold">{ko.avatar.showcase}</strong>
                 </>
               )}
             </p>

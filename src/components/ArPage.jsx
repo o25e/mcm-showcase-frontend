@@ -5,6 +5,7 @@ import FittingHelpOverlay from './FittingHelpOverlay';
 import FittingPage from './FittingPage';
 import AvatarCompletePage from './AvatarCompletePage';
 import { getArCopy } from './arCopy';
+import { ko } from '../i18n/ko';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
 
@@ -57,13 +58,13 @@ export default function ArPage() {
       }
       setScreen('member-check');
     } catch (error) {
-      console.error('AR 세션 생성 오류:', error);
+      console.error(t.errors.sessionCreate, error);
     }
   }
 
   async function handleGenderSelect(nextGender) {
     if (!Number.isFinite(arSessionId)) {
-      console.error('AR Session ID가 없습니다.');
+      console.error(t.errors.missingSession);
       return;
     }
 
@@ -73,7 +74,7 @@ export default function ArPage() {
       setGender(nextGender);
       setScreen('consent-form');
     } catch (error) {
-      console.error('성별 저장 오류:', error);
+      console.error(t.errors.genderSave, error);
     }
   }
 
@@ -122,7 +123,7 @@ export default function ArPage() {
           if (isActive) setScreen('member-loading');
         }
       } catch (error) {
-        console.error('AR 회원 로그인 상태 확인 오류:', error);
+        console.error(t.errors.memberStatus, error);
       } finally {
         isRequesting = false;
       }
@@ -184,7 +185,7 @@ export default function ArPage() {
 
   return (
     <main className={`ar-page ${isIntro ? 'ar-page--intro' : 'ar-page--flow'} ${isScanning ? 'ar-page--scanning' : ''} ${language === 'en' ? 'ar-page--en' : ''}`}>
-      <img className="ar-page__background" src="/assets/ar-background.png" alt="MCM 매장 내부" />
+      <img className="ar-page__background" src="/assets/ar-background.png" alt={ko.common.storeInterior} />
       <div className="ar-page__shade" aria-hidden="true" />
 
       {isIntro ? (
@@ -200,9 +201,9 @@ export default function ArPage() {
             <button className="ar-page__start" type="button" onClick={handleStart}>START</button>
           </section>
 
-          <div className="ar-page__language" role="group" aria-label="언어 선택">
+          <div className="ar-page__language" role="group" aria-label={ko.common.languageSelect}>
             <button type="button" className={language === 'en' ? 'active' : ''} onClick={() => setLanguage('en')}>English</button>
-            <button type="button" className={language === 'ko' ? 'active' : ''} onClick={() => setLanguage('ko')}>한국어</button>
+            <button type="button" className={language === 'ko' ? 'active' : ''} onClick={() => setLanguage('ko')}>{ko.common.korean}</button>
           </div>
         </>
       ) : screen === 'member-check' ? (

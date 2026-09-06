@@ -5,6 +5,7 @@ import { API_BASE_URL } from '../api/config';
 const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
 import { getMyClosetList, getMyClosetLook, saveLookToMember } from '../api/myCloset';
 import { getProductNameLines } from '../utils/productName';
+import { ko } from '../i18n/ko';
 
 function resolveLookImage(look) {
   const image = look?.avatarImageUrl || look?.avatarImage || look?.avatarUrl || look?.imageUrl || look?.image;
@@ -17,7 +18,7 @@ function extractLookList(data) {
   return [data?.content, data?.items, data?.data, data?.results].find(Array.isArray) || [];
 }
 
-const navItems = ['신상품', '가방', '여성', '남성', '트래블', '라이프스타일', 'MCM ICONS', '선물 제안', 'MCM 소개', 'CLOSET'];
+const { navigation: navItems } = ko;
 
 function resolveProductImage(product) {
   const image = product?.imageUrl || product?.image;
@@ -68,8 +69,8 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
     getMyClosetLook(sharedStyleProfileId).then((look) => {
       if (!cancelled) setLooks([look]);
     }).catch((error) => {
-      console.error('공유 아바타 조회 오류:', error);
-      if (!cancelled) setLookError('아바타 정보를 불러오지 못했습니다. QR 코드를 다시 스캔해 주세요.');
+      console.error(ko.errors.sharedLookLog, error);
+      if (!cancelled) setLookError(ko.errors.sharedLook);
     });
     return () => { cancelled = true; };
   }, [sharedStyleProfileId, isSharedLookVisible]);
@@ -83,8 +84,8 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
         if (!cancelled) window.location.replace('/my-closet');
       })
       .catch((error) => {
-        console.error('QR 아바타 회원 연결 오류:', error);
-        if (!cancelled) setLookError('아바타를 회원 클로젯에 저장하지 못했습니다.');
+        console.error(ko.errors.saveLookLog, error);
+        if (!cancelled) setLookError(ko.errors.saveLook);
       });
 
     return () => { cancelled = true; };
@@ -101,16 +102,16 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
         setSelectedRecord({
           styleProfileId: look.styleProfileId,
           image: resolveLookImage(look),
-          date: look.createdAt ? new Date(look.createdAt).toLocaleDateString('ko-KR') : '오늘',
-          title: look.styleIdentityTitle || '오늘의 스타일',
+          date: look.createdAt ? new Date(look.createdAt).toLocaleDateString('ko-KR') : ko.common.today,
+          title: look.styleIdentityTitle || ko.closet.defaultTitle,
           raw: look,
         });
         setDetailLoading(false);
       }
     }).catch((error) => {
-      console.error('클로젯 상세 조회 오류:', error);
+      console.error(ko.errors.detailLog, error);
       if (!cancelled) {
-        setDetailError('상세 정보를 불러오지 못했습니다.');
+        setDetailError(ko.errors.detail);
         setDetailLoading(false);
       }
     });
@@ -125,8 +126,8 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
     getMyClosetList(closetMemberId).then((data) => {
       if (!cancelled) setLooks(extractLookList(data));
     }).catch((error) => {
-      console.error('클로젯 목록 조회 오류:', error);
-      if (!cancelled) setLookError('저장된 스타일을 불러오지 못했습니다.');
+      console.error(ko.errors.listLog, error);
+      if (!cancelled) setLookError(ko.errors.list);
     });
     return () => { cancelled = true; };
   }, [member?.memberId, sharedStyleProfileId, detailStyleProfileId]);
@@ -134,8 +135,8 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   const toRecord = (look) => ({
     styleProfileId: look.styleProfileId,
     image: resolveLookImage(look),
-    date: look.createdAt ? new Date(look.createdAt).toLocaleDateString('ko-KR') : '오늘',
-    title: look.styleIdentityTitle || '오늘의 스타일',
+    date: look.createdAt ? new Date(look.createdAt).toLocaleDateString('ko-KR') : ko.common.today,
+    title: look.styleIdentityTitle || ko.closet.defaultTitle,
     raw: look,
   });
   const visibleRecords = sharedStyleProfileId
@@ -159,7 +160,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
       setSelectedRecord(toRecord(look));
     } catch (error) {
       console.error('Closet detail request failed:', error);
-      setDetailError('상세 정보를 불러오지 못했습니다.');
+      setDetailError(ko.errors.detail);
     } finally {
       setDetailLoading(false);
     }
@@ -241,14 +242,14 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
     <div className={`closet-page${member ? ' is-authenticated' : ''}`} id="top">
       <div className="figma-announcement closet-announcement">
         <img className="announcement-mark" src="/assets/figma-announcement.svg" alt="" />
-        <span>MCM 아이콘 |</span>
-        <a href="#closet-records">Aren 이스트 웨스트 숄더백을 만나보세요</a>
+        <span>{ko.announcement.icon}</span>
+        <a href="#closet-records">{ko.announcement.closet}</a>
 
         <div className="announcement-links">
-          <a href="#closet-records">배송조회</a>
-          <a href="#closet-records">1:1 고객 문의</a>
-          <a href="#closet-records">KR(₩)/KO</a>
-          <a href="#closet-records">매장</a>
+          <a href="#closet-records">{ko.announcement.shipping}</a>
+          <a href="#closet-records">{ko.announcement.contact}</a>
+          <a href="#closet-records">{ko.announcement.locale}</a>
+          <a href="#closet-records">{ko.announcement.store}</a>
         </div>
       </div>
 
@@ -256,16 +257,16 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
         <button
           className="mobile-menu-button"
           type="button"
-          aria-label="메뉴 열기"
+          aria-label={ko.common.menuOpen}
           aria-expanded={isMobileMenuOpen}
           onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
         >
           <img src="/assets/icon-menu.svg" alt="" />
         </button>
-        <button className="mobile-search-button" type="button" aria-label="검색">
+        <button className="mobile-search-button" type="button" aria-label={ko.common.search}>
           <img src="/assets/figma-search.svg" alt="" />
         </button>
-        <nav aria-label="주 메뉴">
+        <nav aria-label={ko.common.mainNav}>
           {navItems.map((item) => (
             <a href={item === 'CLOSET' ? '/my-closet' : '/'} className={item === 'CLOSET' ? 'active' : ''} key={item} onClick={() => setIsMobileMenuOpen(false)}>
               {item}
@@ -273,64 +274,64 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
           ))}
         </nav>
 
-        <a className="figma-logo" href="/" aria-label="MCM 홈">
+        <a className="figma-logo" href="/" aria-label={ko.common.home}>
           <img src="/assets/figma-logo.png" alt="MCM" />
         </a>
 
         <div className="figma-tools">
           {[
-            ['검색', 'figma-search.svg'],
-            ['마이 페이지', 'figma-user.svg'],
-            ['위시리스트', 'figma-heart.svg'],
-            ['쇼핑백', 'figma-bag.svg'],
+            [ko.utilities.search, 'figma-search.svg'],
+            [ko.utilities.myPage, 'figma-user.svg'],
+            [ko.utilities.wishlist, 'figma-heart.svg'],
+            [ko.utilities.shoppingBag, 'figma-bag.svg'],
           ].map(([label, icon]) => (
             <button
               type="button"
               aria-label={label}
               key={label}
-              onClick={label === '마이 페이지' ? () => setIsLoginOpen(true) : undefined}
+              onClick={label === ko.utilities.myPage ? () => setIsLoginOpen(true) : undefined}
             >
               <img src={`/assets/${icon}`} alt="" />
             </button>
           ))}
         </div>
-        {isMobileMenuOpen && <button className="mobile-menu-backdrop" type="button" aria-label="메뉴 닫기" onClick={() => setIsMobileMenuOpen(false)} />}
+        {isMobileMenuOpen && <button className="mobile-menu-backdrop" type="button" aria-label={ko.common.menuClose} onClick={() => setIsMobileMenuOpen(false)} />}
       </header>
 
       <main>
         {detailError && !selectedRecord && <p role="alert">{detailError}</p>}
         <section className="closet-hero" aria-labelledby="closet-title">
-          <img className="closet-hero-overlay" src="/assets/closet-hero-overlay.png" alt="MCM Closet 아바타" />
+          <img className="closet-hero-overlay" src="/assets/closet-hero-overlay.png" alt={ko.closet.heroAlt} />
 
           <div className="closet-hero-copy">
             <h1 id="closet-title">CLOSET</h1>
-            <p>내 스타일에 맞는 MCM 아바타를 저장해보세요</p>
+            <p>{ko.closet.heroDescription}</p>
           </div>
 
-          <button className="closet-arrow closet-arrow-left" type="button" aria-label="이전 아바타">‹</button>
-          <button className="closet-arrow closet-arrow-right" type="button" aria-label="다음 아바타">›</button>
+          <button className="closet-arrow closet-arrow-left" type="button" aria-label={ko.common.previousAvatar}>‹</button>
+          <button className="closet-arrow closet-arrow-right" type="button" aria-label={ko.common.nextAvatar}>›</button>
         </section>
 
-        {!member && <section className="closet-login" aria-label="로그인 안내">
+        {!member && <section className="closet-login" aria-label={ko.closet.loginLabel}>
           <p>
-            오늘의 스타일을 이어가세요.<br />
-            로그인하면 이 Avatar를 저장하고 다음 쇼핑에서도 나만의 MCM Closet을 이어갈 수 있어요.
+            {ko.closet.loginMessage}<br />
+            {ko.closet.loginMessageContinue}
           </p>
-          <button type="button" onClick={() => setIsLoginOpen(true)}>로그인 하기</button>
+          <button type="button" onClick={() => setIsLoginOpen(true)}>{ko.closet.login}</button>
         </section>}
 
         {sharedStyleProfileId && isSharedLookVisible && (
           <section className="closet-shared-result" aria-live="polite">
             {lookError ? <p>{lookError}</p> : visibleRecords[0] ? (
               <button type="button" onClick={() => handleRecordSelect(visibleRecords[0])}>
-                <img src={visibleRecords[0].image} alt="QR로 불러온 나의 아바타" />
+                <img src={visibleRecords[0].image} alt={ko.closet.qrAvatarAlt} />
                 <span>{visibleRecords[0].title}</span>
               </button>
-            ) : <p>나의 아바타를 불러오는 중입니다...</p>}
+            ) : <p>{ko.closet.loadingAvatar}</p>}
           </section>
         )}
 
-        <section className="closet-records" id="closet-records" aria-label="스타일 기록">
+        <section className="closet-records" id="closet-records" aria-label={ko.closet.records}>
           <div className="closet-record-grid">
             {visibleRecords.map((record, index) => (
               <article
@@ -347,13 +348,13 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                 }}
               >
                 <div className="closet-record-image">
-                  <img src={record.image} alt="스타일 기록" />
+                  <img src={record.image} alt={ko.common.styleRecord} />
                 </div>
 
                 <div className="closet-record-copy">
                   <p>{record.date}</p>
                   <h2>{record.title}</h2>
-                  <span><img src="/assets/icon-place.svg" alt="" /> 청담 플래그십</span>
+                  <span><img src="/assets/icon-place.svg" alt="" /> {ko.common.location}</span>
                 </div>
               </article>
             ))}
@@ -375,7 +376,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
           <button
             className="closet-detail-backdrop"
             type="button"
-            aria-label="스타일 상세 닫기"
+            aria-label={ko.closet.detailClose}
             onClick={closeSelectedRecord}
           />
 
@@ -383,7 +384,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
             <button
               className="closet-detail-handle"
               type="button"
-              aria-label="스타일 상세 닫기"
+              aria-label={ko.closet.detailClose}
               onClick={closeSelectedRecord}
             >
               <span />
@@ -392,22 +393,22 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
             <button
               className="closet-detail-close"
               type="button"
-              aria-label="스타일 상세 닫기"
+              aria-label={ko.closet.detailClose}
               onClick={closeSelectedRecord}
             >
               ×
             </button>
 
             <div className="closet-detail-content">
-              {detailLoading && <p role="status">상세 정보를 불러오는 중입니다...</p>}
+              {detailLoading && <p role="status">{ko.closet.loadingDetail}</p>}
               {detailError && <p role="alert">{detailError}</p>}
-              <img className="closet-detail-avatar" src={selectedRecord.image} alt="선택한 스타일 아바타" />
+              <img className="closet-detail-avatar" src={selectedRecord.image} alt={ko.closet.selectedAvatarAlt} />
 
               <div className="closet-detail-main">
                 <header className="closet-detail-header">
                   <p>{selectedRecord.date}</p>
                   <h2 id="closet-detail-title">{selectedRecord.title}</h2>
-                  <span><img src="/assets/icon-place.svg" alt="" /> 청담 플래그십</span>
+                  <span><img src="/assets/icon-place.svg" alt="" /> {ko.common.location}</span>
 
                   <div className="closet-detail-stats">
                     <span><img src="/assets/icon-heart-big.png" alt="" />{wishlistCount}</span>
@@ -415,7 +416,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                 </header>
 
                 <section className="closet-outfit">
-                  <h3>오늘의 룩</h3>
+                  <h3>{ko.closet.todayLook}</h3>
 
                   <div className="closet-outfit-list">
                     {todayProducts.map((product) => (
@@ -423,7 +424,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                         <a className="closet-product-link" href={product.url} target="_blank" rel="noreferrer">
                           <img src={product.image} alt={product.name} />
                         </a>
-                        <button type="button" aria-label="상품 찜하기">
+                        <button type="button" aria-label={ko.common.productWishlist}>
                           <img src={product.isWishlisted ? '/assets/icon-heart-small-click.svg' : '/assets/icon-heart-small.svg'} alt="" />
                         </button>
                         <p>
@@ -451,7 +452,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                             <a className="closet-product-link" href={product.url} target="_blank" rel="noreferrer">
                               <img src={product.image} alt={product.name} draggable="false" />
                             </a>
-                            <button type="button" aria-label="상품 찜하기">
+                            <button type="button" aria-label={ko.common.productWishlist}>
                               <img src={product.isWishlisted ? '/assets/icon-heart-small-click.svg' : '/assets/icon-heart-small.svg'} alt="" />
                             </button>
                           </div>
