@@ -162,6 +162,7 @@ export default function ArPage() {
         language={language}
         arSessionId={arSessionId}
         gender={gender}
+        memberId={completedMemberId}
         onFinish={(avatarLook) => {
           setCompletedAvatar(avatarLook.avatarImageUrl);
           setCompletedAvatarLook(avatarLook);

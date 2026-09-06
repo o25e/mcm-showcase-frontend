@@ -30,7 +30,7 @@ function resolveAvatarImageUrl(image) {
   return trimmedImage;
 }
 
-export default function FittingPage({ onFinish, arSessionId, gender, language = 'ko' }) {
+export default function FittingPage({ onFinish, arSessionId, gender, memberId = null, language = 'ko' }) {
   const t = getArCopy(language);
   const [category, setCategory] = useState('Bags');
   const [recommendedProducts, setRecommendedProducts] = useState([]);
@@ -386,8 +386,8 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
         productId: item.productId,
         interactionType: nextWishlisted ? AR_INTERACTION_TYPES.WISHLIST_ADD : AR_INTERACTION_TYPES.WISHLIST_REMOVE,
       });
-      if (nextWishlisted) saveWishlistItem(wishlistItem);
-      else removeWishlistItem(wishlistItem.productId);
+      if (nextWishlisted) saveWishlistItem(wishlistItem, memberId);
+      else removeWishlistItem(wishlistItem.productId, memberId);
     } catch (interactionError) {
       console.error(ko.errors.wishlistInteractionLog, interactionError);
 
