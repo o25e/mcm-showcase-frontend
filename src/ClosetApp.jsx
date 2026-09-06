@@ -14,6 +14,7 @@ export default function ClosetApp() {
   const detailProfileMatch = window.location.pathname.match(/^\/my-closet\/([^/]+)\/?$/i);
   const isMyCloset = window.location.pathname.toLowerCase() === '/my-closet';
   const [showCloset, setShowCloset] = useState(() => window.location.hash === '#closet' || Boolean(sharedProfileMatch) || Boolean(detailProfileMatch) || isMyCloset);
+  const [openWishlistPage, setOpenWishlistPage] = useState(false);
   const [member, setMember] = useState(getStoredMember);
   const initialArMember = useRef(member);
 
@@ -90,6 +91,12 @@ export default function ClosetApp() {
     setShowCloset(false);
   }
 
+  function handleWishlistOpen() {
+    window.history.pushState({}, '', '/');
+    setOpenWishlistPage(true);
+    setShowCloset(false);
+  }
+
   if (isArPage) return <ArPage />;
 
   return showCloset
@@ -99,10 +106,12 @@ export default function ClosetApp() {
         detailStyleProfileId={detailProfileMatch?.[1]}
         onLoginSuccess={setMember}
         onLogout={handleLogout}
+        onWishlistOpen={handleWishlistOpen}
       />
     : <App
         member={member}
         autoOpenLogin={isArLogin && !member}
+        autoOpenWishlist={openWishlistPage}
         onLoginSuccess={handleLoginSuccess}
         onLogout={handleLogout}
       />;

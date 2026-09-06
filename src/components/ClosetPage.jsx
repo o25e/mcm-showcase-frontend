@@ -5,6 +5,7 @@ import { API_BASE_URL } from '../api/config';
 const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
 import { getMyClosetList, getMyClosetLook, saveLookToMember } from '../api/myCloset';
 import { getProductNameLines } from '../utils/productName';
+import { useWishlist } from '../utils/wishlist';
 import { ko } from '../i18n/ko';
 
 function resolveLookImage(look) {
@@ -47,7 +48,7 @@ function mapProduct(product, language) {
   };
 }
 
-export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess, onLogout, language = 'ko' }) {
+export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess, onLogout, onWishlistOpen, language = 'ko' }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -56,6 +57,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState('');
   const [historyPage, setHistoryPage] = useState(0);
+  const [wishlist, toggleWishlist] = useWishlist();
   // A shared QR result must be available on every scan, including on the
   // same device after the guest has left the page. It is not a saved closet
   // record until the guest logs in and the result is linked to the member.
@@ -228,10 +230,16 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
 
   const selectedLook = selectedRecord?.raw || {};
   const todayProducts = Array.isArray(selectedLook.todayLook?.products)
-    ? selectedLook.todayLook.products.map((product) => mapProduct(product, language))
+    ? selectedLook.todayLook.products.map((product) => mapProduct(product, language)).map((product) => ({
+        ...product,
+        isWishlisted: product.isWishlisted || wishlist.some((item) => item.wishlistId === `closet-${product.productId}`),
+      }))
     : [];
   const historyProducts = Array.isArray(selectedLook.fittingHistory)
-    ? selectedLook.fittingHistory.map((product) => mapProduct(product, language))
+    ? selectedLook.fittingHistory.map((product) => mapProduct(product, language)).map((product) => ({
+        ...product,
+        isWishlisted: product.isWishlisted || wishlist.some((item) => item.wishlistId === `closet-${product.productId}`),
+      }))
     : [];
   const historyPageCount = Math.max(1, Math.ceil(historyProducts.length / 5));
   const historyEmptySlotCount = historyProducts.length > 0
@@ -242,6 +250,17 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
       .filter((product) => product.isWishlisted)
       .map((product) => [product.productId, product]),
   ).size;
+
+  function toggleClosetWishlist(product) {
+    toggleWishlist({
+      wishlistId: `closet-${product.productId}`,
+      source: 'closet-avatar',
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      detailUrl: product.url !== '#' ? product.url : undefined,
+    });
+  }
 
   useEffect(() => {
     setHistoryPage(0);
@@ -346,7 +365,9 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
               type="button"
               aria-label={label}
               key={label}
-              onClick={label === ko.utilities.myPage ? () => setIsLoginOpen(true) : undefined}
+              onClick={label === ko.utilities.myPage
+                ? () => setIsLoginOpen(true)
+                : label === ko.utilities.wishlist ? onWishlistOpen : undefined}
             >
               <img src={`/assets/${icon}`} alt="" />
             </button>
@@ -423,6 +444,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
           onClose={() => setIsLoginOpen(false)}
           onLoginSuccess={onLoginSuccess}
           onLogout={onLogout}
+          onWishlistOpen={onWishlistOpen}
         />
       )}
 
@@ -479,7 +501,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                         <a className="closet-product-link" href={product.url} target="_blank" rel="noreferrer">
                           <img src={product.image} alt={product.name} />
                         </a>
-                        <button type="button" aria-label={ko.common.productWishlist}>
+                        <button type="button" aria-label={ko.common.productWishlist} aria-pressed={product.isWishlisted} onClick={() => toggleClosetWishlist(product)}>
                           <img src={product.isWishlisted ? '/assets/icon-heart-small-click.svg' : '/assets/icon-heart-small.svg'} alt="" />
                         </button>
                         <p>
@@ -522,7 +544,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                             <a className="closet-product-link" href={product.url} target="_blank" rel="noreferrer">
                               <img src={product.image} alt={product.name} draggable="false" />
                             </a>
-                            <button type="button" aria-label={ko.common.productWishlist}>
+                            <button type="button" aria-label={ko.common.productWishlist} aria-pressed={product.isWishlisted} onClick={() => toggleClosetWishlist(product)}>
                               <img src={product.isWishlisted ? '/assets/icon-heart-small-click.svg' : '/assets/icon-heart-small.svg'} alt="" />
                             </button>
                           </div>

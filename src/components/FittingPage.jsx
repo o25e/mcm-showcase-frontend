@@ -5,6 +5,7 @@ import { API_BASE_URL } from '../api/config';
 import { createAvatarLook, getRecommendations, refreshRecommendations } from '../api/recommendations';
 import { getArCopy } from './arCopy';
 import { getProductName, getProductNameLines } from '../utils/productName';
+import { isWishlisted, removeWishlistItem, saveWishlistItem } from '../utils/wishlist';
 import { ko } from '../i18n/ko';
 
 const steps = ['LOGIN', 'CONSENT', 'SCAN', 'FITTING', 'AVATAR'];
@@ -257,7 +258,8 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
             imageUrl: product.imageUrl,
             avatarImage: nextAvatarImage || avatarImage,
             avatarImageUrl: response.avatarImageUrl,
-            wishlisted: false,
+            wishlisted: isWishlisted(`ar-${product.productId}`),
+            wishlistId: `ar-${product.productId}`,
           },
           ...items
             .filter((item) => item.productId !== product.productId)
@@ -360,6 +362,14 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
 
   async function toggleWishlist(item) {
     const nextWishlisted = !item.wishlisted;
+    const wishlistItem = {
+      wishlistId: item.wishlistId || `ar-${item.productId}`,
+      source: 'ar-fitting',
+      name: item.name || item.nameEn,
+      nameEn: item.nameEn,
+      price: item.price,
+      image: item.imageUrl,
+    };
 
     setHistory((items) =>
       items.map((historyItem) =>
@@ -373,6 +383,8 @@ export default function FittingPage({ onFinish, arSessionId, gender, language = 
         productId: item.productId,
         interactionType: nextWishlisted ? AR_INTERACTION_TYPES.WISHLIST_ADD : AR_INTERACTION_TYPES.WISHLIST_REMOVE,
       });
+      if (nextWishlisted) saveWishlistItem(wishlistItem);
+      else removeWishlistItem(wishlistItem.wishlistId);
     } catch (interactionError) {
       console.error(ko.errors.wishlistInteractionLog, interactionError);
 
