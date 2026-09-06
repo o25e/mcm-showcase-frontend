@@ -5,6 +5,7 @@ import { storeMember } from '../api/auth';
 export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout }) {
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -116,9 +117,17 @@ export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout }
 
             <label>
               비밀번호*
-              <span className="password-label">표시</span>
+              <button
+                className="password-label"
+                type="button"
+                aria-label={isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 표시'}
+                aria-pressed={isPasswordVisible}
+                onClick={() => setIsPasswordVisible((visible) => !visible)}
+              >
+                {isPasswordVisible ? '숨기기' : '표시'}
+              </button>
               <input
-                type="password"
+                type={isPasswordVisible ? 'text' : 'password'}
                 name="password"
                 autoComplete="current-password"
                 value={password}
