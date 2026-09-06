@@ -48,20 +48,36 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const historyRef = useRef(null);
   const interactionRequestNoRef = useRef(0);
+  const recommendationCacheRef = useRef(new Map());
+  const recommendationRequestNoRef = useRef(0);
+  const categoryRef = useRef('Bags');
+  const recommendationSessionRef = useRef(arSessionId);
   const selectedProduct = recommendedProducts[selected] ?? null;
 
   const fetchRecommendations = useCallback(async (categoryName) => {
     const categoryCode = categoryCodeMap[categoryName];
     if (!Number.isFinite(arSessionId) || !categoryCode) return;
 
+    const requestNo = ++recommendationRequestNoRef.current;
+
     try {
       setError('');
 
       const data = await getRecommendations(arSessionId, categoryCode);
-      setRecommendedProducts(Array.isArray(data.products) ? data.products : []);
+      if (recommendationSessionRef.current !== arSessionId) return;
+
+      const products = Array.isArray(data.products) ? data.products : [];
+      recommendationCacheRef.current.set(categoryName, products);
+
+      // Ignore responses from an old category/session request.
+      if (requestNo !== recommendationRequestNoRef.current || categoryRef.current !== categoryName) return;
+
+      setRecommendedProducts(products);
       setSelected(0);
     } catch (recommendationError) {
       console.error(ko.errors.recommendationLog, recommendationError);
+      if (requestNo !== recommendationRequestNoRef.current || categoryRef.current !== categoryName) return;
+
       setError(ko.errors.recommendation);
       setRecommendedProducts([]);
     }
@@ -70,6 +86,16 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
   useEffect(() => {
     setAvatarImage(selectedAvatar);
   }, [selectedAvatar]);
+
+  useEffect(() => {
+    recommendationSessionRef.current = arSessionId;
+    recommendationCacheRef.current = new Map();
+    recommendationRequestNoRef.current += 1;
+    categoryRef.current = 'Bags';
+    setCategory('Bags');
+    setRecommendedProducts([]);
+    setSelected(0);
+  }, [arSessionId]);
 
   useEffect(() => {
     if (Number.isFinite(arSessionId)) fetchRecommendations('Bags');
@@ -109,10 +135,19 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
   }, [arSessionId, isGeneratingAvatar, onFinish]);
 
   function handleCategoryClick(categoryName) {
+    categoryRef.current = categoryName;
     setCategory(categoryName);
     setSelected(0);
     setOpen(false);
     setError('');
+
+    if (recommendationCacheRef.current.has(categoryName)) {
+      setRecommendedProducts(recommendationCacheRef.current.get(categoryName));
+      recommendationRequestNoRef.current += 1;
+      return;
+    }
+
+    setRecommendedProducts([]);
     fetchRecommendations(categoryName);
   }
 
@@ -120,18 +155,31 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
     const categoryCode = categoryCodeMap[category];
     if (!Number.isFinite(arSessionId) || !categoryCode) return;
 
+    const refreshCategory = category;
+    const requestNo = ++recommendationRequestNoRef.current;
+
     try {
       setError('');
 
       const data = await refreshRecommendations(arSessionId, categoryCode);
       if (!Array.isArray(data.products)) throw new Error('Recommendations refresh returned an invalid products value');
+      if (recommendationSessionRef.current !== arSessionId) return;
 
-      setRecommendedProducts([...data.products]);
+      const products = [...data.products];
+      recommendationCacheRef.current.set(refreshCategory, products);
+
+      // Keep the refreshed list cached even if the user changed categories while waiting,
+      // but do not replace the currently visible category's list.
+      if (requestNo !== recommendationRequestNoRef.current || categoryRef.current !== refreshCategory) return;
+
+      setRecommendedProducts(products);
       setSelected(0);
       setOpen(false);
     } catch (refreshError) {
       console.error(ko.errors.recommendationRefreshLog, refreshError);
-      setError(ko.errors.recommendationRefresh);
+      if (requestNo === recommendationRequestNoRef.current && categoryRef.current === refreshCategory) {
+        setError(ko.errors.recommendationRefresh);
+      }
     }
   }
 
