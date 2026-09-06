@@ -365,8 +365,6 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
             <p>{ko.closet.heroDescription}</p>
           </div>
 
-          <button className="closet-arrow closet-arrow-left" type="button" aria-label={ko.common.previousAvatar}>‹</button>
-          <button className="closet-arrow closet-arrow-right" type="button" aria-label={ko.common.nextAvatar}>›</button>
         </section>
 
         {!member && <section className="closet-login" aria-label={ko.closet.loginLabel}>
