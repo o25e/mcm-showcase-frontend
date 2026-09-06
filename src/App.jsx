@@ -17,7 +17,7 @@ export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = 
   const [isLoginOpen, setIsLoginOpen] = useState(autoOpenLogin);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isWishlistPage, setIsWishlistPage] = useState(autoOpenWishlist);
-  const [wishlist, toggleWishlist] = useWishlist();
+  const [wishlist, toggleWishlist] = useWishlist(member?.memberId);
 
   return (
     <div className="figma-home" id="top">
@@ -79,6 +79,7 @@ export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = 
 
       {isWishlistPage ? (
         <WishlistPage
+          memberId={member?.memberId}
           member={member}
           onBack={() => setIsWishlistPage(false)}
           onLoginOpen={() => setIsLoginOpen(true)}

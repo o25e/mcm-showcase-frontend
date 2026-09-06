@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-const STORAGE_KEY = 'mcm.wishlist';
+const LEGACY_STORAGE_KEY = 'mcm.wishlist';
+const GUEST_STORAGE_KEY = 'mcm.wishlist.guest';
 const EVENT_NAME = 'mcm:wishlist-changed';
 
 // A wishlist is owned by the user, so its identity must not depend on the
@@ -26,39 +27,63 @@ function normalizeWishlist(items) {
   }, []);
 }
 
-function readWishlist() {
+function getStorageKey(memberId) {
+  const hasMemberId = memberId !== undefined && memberId !== null && String(memberId) !== '';
+  return hasMemberId ? `mcm.wishlist.member.${String(memberId)}` : GUEST_STORAGE_KEY;
+}
+
+function readWishlist(storageKey) {
   try {
-    const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY));
+    let serialized = window.localStorage.getItem(storageKey);
+
+    // Data created before wishlist scoping was introduced has no ownership
+    // information. Discard it rather than exposing a former member's items
+    // after logout as guest wishlist data.
+    if (storageKey === GUEST_STORAGE_KEY) {
+      window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+    }
+
+    const saved = JSON.parse(serialized);
     return Array.isArray(saved) ? normalizeWishlist(saved) : [];
   } catch {
     return [];
   }
 }
 
-function writeWishlist(items) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: items }));
+function writeWishlist(storageKey, items) {
+  window.localStorage.setItem(storageKey, JSON.stringify(items));
+  window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { storageKey, items } }));
 }
 
-export function isWishlisted(wishlistId) {
+export function isWishlisted(wishlistId, memberId) {
   const productId = productIdFromWishlistItem({ wishlistId });
-  return readWishlist().some((item) => item.productId === productId);
+  return readWishlist(getStorageKey(memberId)).some((item) => item.productId === productId);
 }
 
-export function saveWishlistItem(item) {
+export function saveWishlistItem(item, memberId) {
   const productId = productIdFromWishlistItem(item);
   const wishlistItem = { ...item, productId, wishlistId: wishlistIdForProduct(productId) };
-  writeWishlist([wishlistItem, ...readWishlist().filter((saved) => saved.productId !== productId)]);
+  const storageKey = getStorageKey(memberId);
+  writeWishlist(storageKey, [wishlistItem, ...readWishlist(storageKey).filter((saved) => saved.productId !== productId)]);
 }
 
-export function removeWishlistItem(wishlistId) {
+export function removeWishlistItem(wishlistId, memberId) {
   const productId = productIdFromWishlistItem({ wishlistId });
-  writeWishlist(readWishlist().filter((item) => item.productId !== productId));
+  const storageKey = getStorageKey(memberId);
+  writeWishlist(storageKey, readWishlist(storageKey).filter((item) => item.productId !== productId));
 }
 
-export function useWishlist() {
-  const [wishlist, setWishlist] = useState(readWishlist);
-  const sync = useCallback((event) => setWishlist(Array.isArray(event?.detail) ? event.detail : readWishlist()), []);
+export function useWishlist(memberId) {
+  const storageKey = useMemo(() => getStorageKey(memberId), [memberId]);
+  const [wishlist, setWishlist] = useState(() => readWishlist(storageKey));
+  const sync = useCallback((event) => {
+    if (event?.detail?.storageKey && event.detail.storageKey !== storageKey) return;
+    setWishlist(readWishlist(storageKey));
+  }, [storageKey]);
+
+  useEffect(() => {
+    setWishlist(readWishlist(storageKey));
+  }, [storageKey]);
 
   useEffect(() => {
     window.addEventListener(EVENT_NAME, sync);
@@ -67,10 +92,10 @@ export function useWishlist() {
       window.removeEventListener(EVENT_NAME, sync);
       window.removeEventListener('storage', sync);
     };
-  }, [sync]);
+  }, [storageKey, sync]);
 
   return [wishlist, (item) => {
-    if (isWishlisted(item.productId ?? item.wishlistId)) removeWishlistItem(item.productId ?? item.wishlistId);
-    else saveWishlistItem(item);
+    if (isWishlisted(item.productId ?? item.wishlistId, memberId)) removeWishlistItem(item.productId ?? item.wishlistId, memberId);
+    else saveWishlistItem(item, memberId);
   }];
 }

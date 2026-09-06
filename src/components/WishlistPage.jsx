@@ -1,7 +1,7 @@
 import { useWishlist } from '../utils/wishlist';
 
-export default function WishlistPage({ onBack, member, onLoginOpen }) {
-  const [wishlist, toggleWishlist] = useWishlist();
+export default function WishlistPage({ onBack, member, memberId, onLoginOpen }) {
+  const [wishlist, toggleWishlist] = useWishlist(memberId);
 
   return (
     <main className="wishlist-page" aria-labelledby="wishlist-title">
