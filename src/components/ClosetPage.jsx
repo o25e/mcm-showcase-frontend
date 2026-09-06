@@ -5,7 +5,6 @@ import { API_BASE_URL } from '../api/config';
 const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
 import { getMyClosetList, getMyClosetLook, saveLookToMember } from '../api/myCloset';
 import { getProductNameLines } from '../utils/productName';
-import { useWishlist } from '../utils/wishlist';
 import { ko } from '../i18n/ko';
 
 function resolveLookImage(look) {
@@ -43,7 +42,9 @@ function mapProduct(product, language) {
     price: formatProductPrice(product?.price),
     image: resolveProductImage(product),
     url: product?.productUrl || '#',
-    isWishlisted: product?.isWishlisted === true,
+    // This is the immutable snapshot from the AR fitting that created the
+    // avatar. It is intentionally separate from the current wishlist.
+    historicalWishlisted: product?.isWishlisted === true,
     raw: product,
   };
 }
@@ -57,7 +58,6 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState('');
   const [historyPage, setHistoryPage] = useState(0);
-  const [wishlist, toggleWishlist] = useWishlist();
   // A shared QR result must be available on every scan, including on the
   // same device after the guest has left the page. It is not a saved closet
   // record until the guest logs in and the result is linked to the member.
@@ -232,35 +232,24 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   const todayProducts = Array.isArray(selectedLook.todayLook?.products)
     ? selectedLook.todayLook.products.map((product) => mapProduct(product, language)).map((product) => ({
         ...product,
-        isWishlisted: product.isWishlisted || wishlist.some((item) => item.wishlistId === `closet-${product.productId}`),
+        isWishlisted: product.historicalWishlisted,
       }))
     : [];
   const historyProducts = Array.isArray(selectedLook.fittingHistory)
     ? selectedLook.fittingHistory.map((product) => mapProduct(product, language)).map((product) => ({
         ...product,
-        isWishlisted: product.isWishlisted || wishlist.some((item) => item.wishlistId === `closet-${product.productId}`),
+        isWishlisted: product.historicalWishlisted,
       }))
     : [];
   const historyPageCount = Math.max(1, Math.ceil(historyProducts.length / 5));
   const historyEmptySlotCount = historyProducts.length > 0
     ? (5 - (historyProducts.length % 5)) % 5
     : 0;
-  const wishlistCount = new Map(
+  const wishlistCount = new Set(
     [...todayProducts, ...historyProducts]
-      .filter((product) => product.isWishlisted)
-      .map((product) => [product.productId, product]),
+      .filter((product) => product.historicalWishlisted)
+      .map((product) => String(product.productId)),
   ).size;
-
-  function toggleClosetWishlist(product) {
-    toggleWishlist({
-      wishlistId: `closet-${product.productId}`,
-      source: 'closet-avatar',
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      detailUrl: product.url !== '#' ? product.url : undefined,
-    });
-  }
 
   useEffect(() => {
     setHistoryPage(0);
@@ -501,7 +490,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                         <a className="closet-product-link" href={product.url} target="_blank" rel="noreferrer">
                           <img src={product.image} alt={product.name} />
                         </a>
-                        <button type="button" aria-label={ko.common.productWishlist} aria-pressed={product.isWishlisted} onClick={() => toggleClosetWishlist(product)}>
+                        <button type="button" aria-label={ko.common.productWishlist} aria-pressed={product.isWishlisted} disabled>
                           <img src={product.isWishlisted ? '/assets/icon-heart-small-click.svg' : '/assets/icon-heart-small.svg'} alt="" />
                         </button>
                         <p>
@@ -544,7 +533,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
                             <a className="closet-product-link" href={product.url} target="_blank" rel="noreferrer">
                               <img src={product.image} alt={product.name} draggable="false" />
                             </a>
-                            <button type="button" aria-label={ko.common.productWishlist} aria-pressed={product.isWishlisted} onClick={() => toggleClosetWishlist(product)}>
+                            <button type="button" aria-label={ko.common.productWishlist} aria-pressed={product.isWishlisted} disabled>
                               <img src={product.isWishlisted ? '/assets/icon-heart-small-click.svg' : '/assets/icon-heart-small.svg'} alt="" />
                             </button>
                           </div>
