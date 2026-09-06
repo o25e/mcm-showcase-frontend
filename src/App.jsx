@@ -2,7 +2,7 @@ import { useState } from 'react';
 import LoginPanel from './components/LoginPanel';
 import WishlistPage from './components/WishlistPage';
 import { ko } from './i18n/ko';
-import { useWishlist } from './utils/wishlist';
+import { useWishlist, wishlistIdForProduct } from './utils/wishlist';
 
 const { navigation, products } = ko;
 
@@ -103,9 +103,10 @@ export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = 
                   <button
                     type="button"
                     aria-label={`${product.name} ${ko.common.addWishlist}`}
-                    aria-pressed={wishlist.some((item) => item.wishlistId === `main-${product.id}`)}
+                    aria-pressed={wishlist.some((item) => item.productId === String(product.id))}
                     onClick={() => toggleWishlist({
-                      wishlistId: `main-${product.id}`,
+                      productId: product.id,
+                      wishlistId: wishlistIdForProduct(product.id),
                       source: 'collection',
                       name: product.name,
                       price: product.price,
@@ -113,7 +114,7 @@ export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = 
                       detailUrl: product.detailUrl,
                     })}
                   >
-                    <img src={wishlist.some((item) => item.wishlistId === `main-${product.id}`) ? '/assets/icon-heart-small-click.svg' : '/assets/figma-heart-small.svg'} alt="" />
+                    <img src={wishlist.some((item) => item.productId === String(product.id)) ? '/assets/icon-heart-small-click.svg' : '/assets/figma-heart-small.svg'} alt="" />
                   </button>
                 </div>
 
