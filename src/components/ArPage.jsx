@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { createArSession, getArSession, updateArSessionGender } from '../api/arSessions';
+import { toUserMessage } from '../api/client';
 import FittingHelpOverlay from './FittingHelpOverlay';
 import FittingPage from './FittingPage';
 import AvatarCompletePage from './AvatarCompletePage';
@@ -26,6 +27,7 @@ export default function ArPage() {
   const [completedAvatar, setCompletedAvatar] = useState('/assets/avatar-complete/avatar_f.png');
   const [completedAvatarLook, setCompletedAvatarLook] = useState(null);
   const [completedMemberId, setCompletedMemberId] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
   const t = getArCopy(language);
   const memberLoginBaseUrl = import.meta.env.VITE_MEMBER_LOGIN_URL || import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin;
   const memberLoginUrl = Number.isFinite(arSessionId)
@@ -41,6 +43,7 @@ export default function ArPage() {
   const isScanning = screen === 'scanning';
 
   async function handleStart() {
+    setErrorMessage('');
     try {
       let authenticatedMember = null;
       try {
@@ -59,12 +62,15 @@ export default function ArPage() {
       setScreen('member-check');
     } catch (error) {
       console.error(t.errors.sessionCreate, error);
+      setErrorMessage(toUserMessage(error));
     }
   }
 
   async function handleGenderSelect(nextGender) {
+    setErrorMessage('');
     if (!Number.isFinite(arSessionId)) {
       console.error(t.errors.missingSession);
+      setErrorMessage(t.errors.missingSession);
       return;
     }
 
@@ -75,6 +81,7 @@ export default function ArPage() {
       setScreen('consent-form');
     } catch (error) {
       console.error(t.errors.genderSave, error);
+      setErrorMessage(toUserMessage(error));
     }
   }
 
@@ -124,6 +131,7 @@ export default function ArPage() {
         }
       } catch (error) {
         console.error(t.errors.memberStatus, error);
+        if (isActive && error?.name !== 'AbortError') setErrorMessage(toUserMessage(error));
       } finally {
         isRequesting = false;
       }
@@ -188,6 +196,7 @@ export default function ArPage() {
     <main className={`ar-page ${isIntro ? 'ar-page--intro' : 'ar-page--flow'} ${isScanning ? 'ar-page--scanning' : ''} ${language === 'en' ? 'ar-page--en' : ''}`}>
       <img className="ar-page__background" src="/assets/ar-background.png" alt={ko.common.storeInterior} />
       <div className="ar-page__shade" aria-hidden="true" />
+      {errorMessage && <p className="ar-page__error" role="alert">{errorMessage}</p>}
 
       {isIntro ? (
         <>

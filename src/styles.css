@@ -80,6 +80,7 @@ button { cursor: pointer; }
 .ar-page__language button.active { background: rgb(215 215 215 / .2); }
 .ar-page__language button:focus-visible { outline: 1px solid #fff; outline-offset: 2px; }
 .ar-page__choice, .ar-page__flow-content { position: relative; width: 100%; min-height: 100svh; }
+.ar-page__error { position: absolute; z-index: 5; top: 18px; right: 18px; left: 18px; margin: 0; padding: 10px 14px; border: 1px solid rgb(255 208 208 / .65); border-radius: 8px; background: rgb(70 15 15 / .78); color: #fff; font-size: 12px; line-height: 1.5; text-align: center; }
 .ar-page__divider { position: absolute; top: calc(33.333% - 7px); left: 50%; width: 105px; height: 1px; background: #fff; box-shadow: 0 0 5px rgb(255 255 255 / .63); transform: translateX(-50%); }
 .ar-page__question { position: absolute; top: calc(33.333% + 18px); left: 50%; margin: 0; color: #fff; font-size: 28px; font-weight: 300; line-height: 1; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }
 .ar-page__choices { position: absolute; top: calc(33.333% + 145px); left: 50%; display: flex; gap: 67px; transform: translateX(-50%); }
