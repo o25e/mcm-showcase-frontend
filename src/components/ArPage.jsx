@@ -28,6 +28,7 @@ export default function ArPage() {
   const [completedAvatarLook, setCompletedAvatarLook] = useState(null);
   const [completedMemberId, setCompletedMemberId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [memberLoginStatus, setMemberLoginStatus] = useState('waiting');
   const t = getArCopy(language);
   const memberLoginBaseUrl = import.meta.env.VITE_MEMBER_LOGIN_URL || import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin;
   const memberLoginUrl = Number.isFinite(arSessionId)
@@ -97,8 +98,41 @@ export default function ArPage() {
 
     let isActive = true;
     let isRequesting = false;
+    let retryTimerId;
+    let timeoutTimerId;
+    let retryDelay = 1000;
+    const pollingStartedAt = Date.now();
+    const maxPollingDuration = 3 * 60 * 1000;
 
     const controller = new AbortController();
+
+    const stopPolling = () => {
+      isActive = false;
+      controller.abort();
+      window.clearTimeout(retryTimerId);
+      window.clearTimeout(timeoutTimerId);
+    };
+
+    const expirePolling = () => {
+      if (!isActive) return;
+      setMemberLoginStatus('timeout');
+      setErrorMessage(t.errors.memberTimeout);
+      stopPolling();
+    };
+
+    const scheduleNextCheck = () => {
+      if (!isActive) return;
+
+      const elapsed = Date.now() - pollingStartedAt;
+      const remaining = maxPollingDuration - elapsed;
+      if (remaining <= 0) {
+        expirePolling();
+        return;
+      }
+
+      retryTimerId = window.setTimeout(checkMemberLogin, Math.min(retryDelay, remaining));
+      retryDelay = Math.min(retryDelay * 2, 16000);
+    };
 
     const checkMemberLogin = async () => {
       if (!isActive || isRequesting) return;
@@ -129,23 +163,28 @@ export default function ArPage() {
           sessionStorage.setItem('mcm.member', JSON.stringify(authenticatedMember));
           setCompletedMemberId(data.memberId);
           if (memberGender && isActive) setGender(memberGender);
-          if (isActive) setScreen('member-loading');
+          if (isActive) {
+            setMemberLoginStatus('success');
+            setScreen('member-loading');
+          }
         }
       } catch (error) {
         console.error(t.errors.memberStatus, error);
-        if (isActive && error?.name !== 'AbortError') setErrorMessage(toUserMessage(error));
+        // A temporary network/API failure should not stop the polling loop.
+        // It is retried with an exponential backoff below.
       } finally {
         isRequesting = false;
+        if (isActive) scheduleNextCheck();
       }
     };
 
+    setMemberLoginStatus('waiting');
+    setErrorMessage('');
+    timeoutTimerId = window.setTimeout(expirePolling, maxPollingDuration);
     checkMemberLogin();
-    const intervalId = window.setInterval(checkMemberLogin, 1000);
 
     return () => {
-      isActive = false;
-      controller.abort();
-      window.clearInterval(intervalId);
+      stopPolling();
     };
   }, [arSessionId, screen]);
 
@@ -315,6 +354,9 @@ export default function ArPage() {
                 <>
                   <QRCodeSVG className="ar-page__qr" value={memberLoginUrl} size={159} level="H" aria-label="MCM member login QR code" />
                   <p className="ar-page__qr-copy">{t.qrLine1}<br />{t.qrLine2}</p>
+                  <p className={`ar-page__member-login-status ar-page__member-login-status--${memberLoginStatus}`} role="status">
+                    {memberLoginStatus === 'timeout' ? t.memberLoginTimeout : t.memberLoginWaiting}
+                  </p>
                 </>
               ) : (
                 <div className="ar-page__choices">

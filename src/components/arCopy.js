@@ -3,6 +3,8 @@ export const arCopy = {
     intro: '나만의 MCM 스타일을 만나보세요.',
     memberQuestion: 'MCM 회원이신가요?', yes: '네', no: '아니요',
     memberLogin: 'MCM 회원 로그인을 진행해주세요.',
+    memberLoginWaiting: '로그인 확인을 기다리고 있어요...',
+    memberLoginTimeout: '로그인이 확인되지 않았어요. QR 코드를 다시 스캔해주세요.',
     qrLine1: 'QR을 스캔하면', qrLine2: '나의 쇼핑 여정을 불러올 수 있어요.',
     loginDone: '로그인 완료',
     loadingJourney: '지난번 MCM에서의 쇼핑 여정을 불러오고 있어요...',
@@ -50,6 +52,7 @@ export const arCopy = {
       missingSession: 'AR Session ID가 없습니다.',
       genderSave: '성별 저장 오류:',
       memberStatus: 'AR 회원 로그인 상태 확인 오류:',
+      memberTimeout: '로그인이 확인되지 않았어요. QR 코드를 다시 스캔해주세요.',
     },
   },
 
@@ -57,6 +60,8 @@ export const arCopy = {
     intro: 'Discover your own MCM style.',
     memberQuestion: 'Are you an MCM member?', yes: 'Yes', no: 'No',
     memberLogin: 'Please log in to your MCM account.',
+    memberLoginWaiting: 'Waiting for login confirmation...',
+    memberLoginTimeout: 'We could not confirm your login. Please scan the QR code again.',
     qrLine1: 'Scan the QR code', qrLine2: 'to load your shopping journey.',
     loginDone: 'Login complete',
     loadingJourney: 'Loading your previous MCM shopping journey...',
@@ -104,6 +109,7 @@ export const arCopy = {
       missingSession: 'AR Session ID is missing.',
       genderSave: 'Failed to save gender:',
       memberStatus: 'Failed to check AR member login status:',
+      memberTimeout: 'We could not confirm your login. Please scan the QR code again.',
     },
   },
 };
