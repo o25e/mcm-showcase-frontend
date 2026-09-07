@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import CartPage from './components/CartPage';
 import LoginPanel from './components/LoginPanel';
 import WishlistPage from './components/WishlistPage';
 import { ko } from './i18n/ko';
@@ -13,11 +14,66 @@ const utilities = [
   [ko.utilities.shoppingBag, '/assets/figma-bag.svg'],
 ];
 
-export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = false, autoOpenWishlist = false }) {
+export default function App({ member, onLoginSuccess, onLogout, onCartOpen, autoOpenLogin = false, autoOpenWishlist = false }) {
   const [isLoginOpen, setIsLoginOpen] = useState(autoOpenLogin);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isWishlistPage, setIsWishlistPage] = useState(autoOpenWishlist);
+  const [isCartPage, setIsCartPage] = useState(() => window.location.pathname.toLowerCase() === '/cart');
   const [wishlist, toggleWishlist] = useWishlist(member?.memberId);
+
+  useEffect(() => {
+    const syncPageWithLocation = () => {
+      setIsCartPage(window.location.pathname.toLowerCase() === '/cart');
+      setIsWishlistPage(false);
+      setIsMobileMenuOpen(false);
+    };
+
+    window.addEventListener('popstate', syncPageWithLocation);
+    return () => window.removeEventListener('popstate', syncPageWithLocation);
+  }, []);
+
+  function showStorefront(event, sectionId) {
+    event?.preventDefault();
+    window.history.pushState({}, '', sectionId ? `/#${sectionId}` : '/');
+    setIsCartPage(false);
+    setIsWishlistPage(false);
+    setIsMobileMenuOpen(false);
+
+    window.requestAnimationFrame(() => {
+      if (sectionId) document.getElementById(sectionId)?.scrollIntoView();
+      else window.scrollTo({ top: 0 });
+    });
+  }
+
+  function showWishlist() {
+    if (isCartPage) window.history.pushState({}, '', '/');
+    setIsCartPage(false);
+    setIsWishlistPage(true);
+  }
+
+  function showCart() {
+    if (onCartOpen) {
+      onCartOpen();
+    } else if (window.location.pathname.toLowerCase() !== '/cart') {
+      window.history.pushState({}, '', '/cart');
+    }
+    setIsWishlistPage(false);
+    setIsCartPage(true);
+    setIsMobileMenuOpen(false);
+    window.scrollTo({ top: 0 });
+  }
+
+  function handleProductWishlist(product) {
+    toggleWishlist({
+      productId: product.id,
+      wishlistId: wishlistIdForProduct(product.id),
+      source: 'collection',
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      detailUrl: product.detailUrl,
+    });
+  }
 
   return (
     <div className="figma-home" id="top">
@@ -49,14 +105,14 @@ export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = 
         </button>
         <nav aria-label={ko.common.mainNav}>
           {navigation.map((item) => (
-            <a href="#collection" key={item} onClick={() => {
-              setIsWishlistPage(false);
+            <a href={item === 'CLOSET' ? '/my-closet' : '/#collection'} key={item} onClick={(event) => {
+              if (item !== 'CLOSET') showStorefront(event, 'collection');
               setIsMobileMenuOpen(false);
             }}>{item}</a>
           ))}
         </nav>
 
-        <a className="figma-logo" href="#top" aria-label={ko.common.home} onClick={() => setIsWishlistPage(false)}>
+        <a className="figma-logo" href="/" aria-label={ko.common.home} onClick={(event) => showStorefront(event)}>
           <img src="/assets/figma-logo.png" alt="MCM" />
         </a>
 
@@ -68,7 +124,9 @@ export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = 
               key={label}
               onClick={label === ko.utilities.myPage
                 ? () => setIsLoginOpen(true)
-                : label === ko.utilities.wishlist ? () => setIsWishlistPage(true) : undefined}
+                : label === ko.utilities.wishlist
+                  ? showWishlist
+                  : label === ko.utilities.shoppingBag ? showCart : undefined}
             >
               <img src={src} alt="" />
             </button>
@@ -77,7 +135,16 @@ export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = 
         {isMobileMenuOpen && <button className="mobile-menu-backdrop" type="button" aria-label={ko.common.menuClose} onClick={() => setIsMobileMenuOpen(false)} />}
       </header>
 
-      {isWishlistPage ? (
+      {isCartPage ? (
+        <CartPage
+          member={member}
+          products={products}
+          wishlist={wishlist}
+          onLoginOpen={() => setIsLoginOpen(true)}
+          onContinueShopping={(event) => showStorefront(event, 'collection')}
+          onToggleWishlist={handleProductWishlist}
+        />
+      ) : isWishlistPage ? (
         <WishlistPage
           memberId={member?.memberId}
           member={member}
@@ -105,15 +172,7 @@ export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = 
                     type="button"
                     aria-label={`${product.name} ${ko.common.addWishlist}`}
                     aria-pressed={wishlist.some((item) => item.productId === String(product.id))}
-                    onClick={() => toggleWishlist({
-                      productId: product.id,
-                      wishlistId: wishlistIdForProduct(product.id),
-                      source: 'collection',
-                      name: product.name,
-                      price: product.price,
-                      image: product.image,
-                      detailUrl: product.detailUrl,
-                    })}
+                    onClick={() => handleProductWishlist(product)}
                   >
                     <img src={wishlist.some((item) => item.productId === String(product.id)) ? '/assets/icon-heart-small-click.svg' : '/assets/figma-heart-small.svg'} alt="" />
                   </button>
@@ -135,7 +194,7 @@ export default function App({ member, onLoginSuccess, onLogout, autoOpenLogin = 
           onLogout={onLogout}
           wishlist={wishlist}
           onWishlistOpen={() => {
-            setIsWishlistPage(true);
+            showWishlist();
             setIsLoginOpen(false);
           }}
         />

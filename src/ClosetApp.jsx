@@ -97,6 +97,12 @@ export default function ClosetApp() {
     setShowCloset(false);
   }
 
+  function handleCartOpen() {
+    window.history.pushState({}, '', '/cart');
+    setOpenWishlistPage(false);
+    setShowCloset(false);
+  }
+
   if (isArPage) return <ArPage />;
 
   return showCloset
@@ -107,6 +113,7 @@ export default function ClosetApp() {
         onLoginSuccess={setMember}
         onLogout={handleLogout}
         onWishlistOpen={handleWishlistOpen}
+        onCartOpen={handleCartOpen}
       />
     : <App
         member={member}
@@ -114,5 +121,6 @@ export default function ClosetApp() {
         autoOpenWishlist={openWishlistPage}
         onLoginSuccess={handleLoginSuccess}
         onLogout={handleLogout}
+        onCartOpen={handleCartOpen}
       />;
 }
