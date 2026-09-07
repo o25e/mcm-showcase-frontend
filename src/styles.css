@@ -95,6 +95,8 @@ button { cursor: pointer; }
 .ar-page__flow-content .ar-page__question { top: calc(16.667% + 165px); }
 .ar-page__qr { position: absolute; top: calc(33.333% + 73px); left: 50%; width: 159px; height: 153px; object-fit: contain; filter: drop-shadow(0 0 1.77px rgb(255 255 255 / .56)); transform: translateX(-50%); }
 .ar-page__qr-copy { position: absolute; top: calc(50% + 67px); left: 50%; margin: 0; color: #fff; font-size: 19px; font-weight: 300; line-height: 28px; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); transform: translateX(-50%); white-space: nowrap; }
+.ar-page__member-login-status { position: absolute; top: calc(50% + 132px); left: 50%; width: min(90%, 520px); margin: 0; color: rgb(255 255 255 / .78); font-size: 14px; line-height: 1.5; text-align: center; text-shadow: 0 0 5px rgb(255 255 255 / .45); transform: translateX(-50%); }
+.ar-page__member-login-status--timeout { color: #ffd3d3; }
 .ar-page__loading-message { position: absolute; top: calc(33.333% + 18px); left: 50%; margin: 0; color: #fff; font-size: 28px; font-weight: 300; line-height: 1; text-align: center; text-shadow: 0 0 6.15px rgb(255 255 255 / .63); white-space: nowrap; transform: translateX(-50%); }
 .ar-page__loading-spinner { position: absolute; top: calc(33.333% + 79px); left: 50%; width: 232px; height: 223px; object-fit: contain; animation: ar-loading-spin 2s ease-in-out infinite; transform-origin: center; }
 @keyframes ar-loading-spin {
