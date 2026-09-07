@@ -160,7 +160,6 @@ src/
 │  ├─ FittingPage.jsx      # 추천·피팅·상호작용
 │  ├─ AvatarCompletePage.jsx
 │  ├─ ClosetPage.jsx       # Digital Closet 목록·상세·공유
-│  ├─ ProductDetail.jsx
 │  └─ LoginPanel.jsx
 ├─ data/                   # 상품 및 추천 기본 데이터
 ├─ App.jsx                 # MCM Storefront
