@@ -436,6 +436,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
           onLoginSuccess={onLoginSuccess}
           onLogout={onLogout}
           onWishlistOpen={onWishlistOpen}
+          onCartOpen={onCartOpen}
         />
       )}
 

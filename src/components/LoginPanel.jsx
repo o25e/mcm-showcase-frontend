@@ -3,7 +3,7 @@ import { loginMember } from '../api/members';
 import { storeMember } from '../api/auth';
 import { ko } from '../i18n/ko';
 
-export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout, onWishlistOpen }) {
+export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout, onWishlistOpen, onCartOpen }) {
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -64,7 +64,7 @@ export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout, 
                 <img src="/assets/figma-heart.svg" alt="" />
                 <span>{ko.auth.wishlist}</span>
               </button>
-              <button type="button" aria-label={ko.auth.cart} title={ko.auth.cart}>
+              <button type="button" aria-label={ko.auth.cart} title={ko.auth.cart} onClick={onCartOpen}>
                 <img src="/assets/figma-bag.svg" alt="" />
                 <span>{ko.auth.cart}</span>
               </button>
