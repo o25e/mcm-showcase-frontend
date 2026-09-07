@@ -52,18 +52,38 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
   const recommendationRequestNoRef = useRef(0);
   const categoryRef = useRef('Bags');
   const recommendationSessionRef = useRef(arSessionId);
+  const recommendationControllerRef = useRef(null);
+  const interactionControllerRef = useRef(null);
+  const fittingControllersRef = useRef(new Map());
+  const wishlistRequestsRef = useRef(new Map());
+  const wishlistStateRef = useRef(new Map());
   const selectedProduct = recommendedProducts[selected] ?? null;
+
+  function abortRecommendationRequest() {
+    recommendationControllerRef.current?.abort();
+    recommendationControllerRef.current = null;
+  }
+
+  function startInteractionRequest() {
+    interactionControllerRef.current?.abort();
+    const controller = new AbortController();
+    interactionControllerRef.current = controller;
+    return controller;
+  }
 
   const fetchRecommendations = useCallback(async (categoryName) => {
     const categoryCode = categoryCodeMap[categoryName];
     if (!Number.isFinite(arSessionId) || !categoryCode) return;
 
     const requestNo = ++recommendationRequestNoRef.current;
+    abortRecommendationRequest();
+    const controller = new AbortController();
+    recommendationControllerRef.current = controller;
 
     try {
       setError('');
 
-      const data = await getRecommendations(arSessionId, categoryCode);
+      const data = await getRecommendations(arSessionId, categoryCode, controller.signal);
       if (recommendationSessionRef.current !== arSessionId) return;
 
       const products = Array.isArray(data.products) ? data.products : [];
@@ -75,6 +95,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
       setRecommendedProducts(products);
       setSelected(0);
     } catch (recommendationError) {
+      if (recommendationError?.name === 'AbortError') return;
       console.error(ko.errors.recommendationLog, recommendationError);
       if (requestNo !== recommendationRequestNoRef.current || categoryRef.current !== categoryName) return;
 
@@ -135,6 +156,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
   }, [arSessionId, isGeneratingAvatar, onFinish]);
 
   function handleCategoryClick(categoryName) {
+    abortRecommendationRequest();
     categoryRef.current = categoryName;
     setCategory(categoryName);
     setSelected(0);
@@ -157,11 +179,14 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
 
     const refreshCategory = category;
     const requestNo = ++recommendationRequestNoRef.current;
+    abortRecommendationRequest();
+    const controller = new AbortController();
+    recommendationControllerRef.current = controller;
 
     try {
       setError('');
 
-      const data = await refreshRecommendations(arSessionId, categoryCode);
+      const data = await refreshRecommendations(arSessionId, categoryCode, controller.signal);
       if (!Array.isArray(data.products)) throw new Error('Recommendations refresh returned an invalid products value');
       if (recommendationSessionRef.current !== arSessionId) return;
 
@@ -176,12 +201,20 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
       setSelected(0);
       setOpen(false);
     } catch (refreshError) {
+      if (refreshError?.name === 'AbortError') return;
       console.error(ko.errors.recommendationRefreshLog, refreshError);
       if (requestNo === recommendationRequestNoRef.current && categoryRef.current === refreshCategory) {
         setError(ko.errors.recommendationRefresh);
       }
     }
   }
+
+  useEffect(() => () => {
+    abortRecommendationRequest();
+    interactionControllerRef.current?.abort();
+    fittingControllersRef.current.forEach((controller) => controller.abort());
+    wishlistRequestsRef.current.forEach(({ controller }) => controller.abort());
+  }, []);
 
   function selectProduct(product, index) {
     setSelected(index);
@@ -238,6 +271,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
     const previousFittingItems = !isDeselect ? getItemsToDeselect(category, product.productId) : [];
     const requestNo = interactionRequestNoRef.current + 1;
     interactionRequestNoRef.current = requestNo;
+    const controller = startInteractionRequest();
     setIsInteractionPending(true);
     setError('');
 
@@ -247,6 +281,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
           arSessionId,
           productId: previousFittingItem.productId,
           interactionType: AR_INTERACTION_TYPES.PRODUCT_DESELECT,
+          signal: controller.signal,
         });
       }
 
@@ -254,6 +289,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
         arSessionId,
         productId: product.productId,
         interactionType: isDeselect ? AR_INTERACTION_TYPES.PRODUCT_DESELECT : AR_INTERACTION_TYPES.PRODUCT_SELECT,
+        signal: controller.signal,
       });
 
       const nextAvatarImage = await applyAvatarImage(response, requestNo);
@@ -277,7 +313,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
         setNoAvatarProduct(product);
       }
 
-      void evaluateArSessionMessage(arSessionId, language)
+      void evaluateArSessionMessage(arSessionId, language, controller.signal)
         .then((result) => {
           if (result?.triggered === true) {
             if (typeof result.message === 'string') {
@@ -286,6 +322,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
           }
         })
         .catch((evaluationError) => {
+          if (evaluationError?.name === 'AbortError') return;
           console.error(ko.errors.commentEvaluationLog, evaluationError);
         });
 
@@ -331,6 +368,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
 
       setOpen(false);
     } catch (fitError) {
+      if (fitError?.name === 'AbortError') return;
       if (requestNo === interactionRequestNoRef.current) {
         console.error(ko.errors.productInteractionLog, fitError);
         setError(FITTING_ERROR_MESSAGE);
@@ -359,6 +397,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
 
     const requestNo = interactionRequestNoRef.current + 1;
     interactionRequestNoRef.current = requestNo;
+    const controller = startInteractionRequest();
     setIsInteractionPending(true);
     setError('');
 
@@ -370,6 +409,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
           arSessionId,
           productId: itemToDeselect.productId,
           interactionType: AR_INTERACTION_TYPES.PRODUCT_DESELECT,
+          signal: controller.signal,
         });
       }
 
@@ -377,6 +417,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
         arSessionId,
         productId: item.productId,
         interactionType: AR_INTERACTION_TYPES.PRODUCT_SELECT,
+        signal: controller.signal,
       });
 
       if (requestNo !== interactionRequestNoRef.current) return;
@@ -401,6 +442,7 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
       )));
       setOpen(false);
     } catch (interactionError) {
+      if (interactionError?.name === 'AbortError') return;
       if (requestNo === interactionRequestNoRef.current) {
         console.error('AR history PRODUCT_SELECT interaction error:', interactionError);
         setError(FITTING_ERROR_MESSAGE);
@@ -411,7 +453,17 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
   }
 
   async function toggleWishlist(item) {
-    const nextWishlisted = !item.wishlisted;
+    const requestKey = item.id;
+    const previousRequest = wishlistRequestsRef.current.get(requestKey);
+    previousRequest?.controller.abort();
+    const previousWishlisted = wishlistStateRef.current.has(requestKey)
+      ? wishlistStateRef.current.get(requestKey)
+      : item.wishlisted;
+    const nextWishlisted = !previousWishlisted;
+    const requestNo = (previousRequest?.requestNo ?? 0) + 1;
+    const controller = new AbortController();
+    wishlistRequestsRef.current.set(requestKey, { requestNo, controller });
+    wishlistStateRef.current.set(requestKey, nextWishlisted);
     const wishlistItem = {
       productId: item.productId,
       wishlistId: wishlistIdForProduct(item.productId),
@@ -433,11 +485,19 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
         arSessionId,
         productId: item.productId,
         interactionType: nextWishlisted ? AR_INTERACTION_TYPES.WISHLIST_ADD : AR_INTERACTION_TYPES.WISHLIST_REMOVE,
+        signal: controller.signal,
       });
+      const latestRequest = wishlistRequestsRef.current.get(requestKey);
+      if (latestRequest?.requestNo !== requestNo) return;
       if (nextWishlisted) saveWishlistItem(wishlistItem, memberId);
       else removeWishlistItem(wishlistItem.productId, memberId);
     } catch (interactionError) {
+      const latestRequest = wishlistRequestsRef.current.get(requestKey);
+      if (latestRequest?.requestNo !== requestNo) return;
+      if (interactionError?.name === 'AbortError') return;
       console.error(ko.errors.wishlistInteractionLog, interactionError);
+
+      wishlistStateRef.current.set(requestKey, previousWishlisted);
 
       setHistory((items) =>
         items.map((historyItem) =>
@@ -461,6 +521,10 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
     });
 
     setFittingPendingIds((ids) => new Set(ids).add(item.productId));
+    const previousController = fittingControllersRef.current.get(item.productId);
+    previousController?.abort();
+    const controller = new AbortController();
+    fittingControllersRef.current.set(item.productId, controller);
 
     try {
       await postArInteraction({
@@ -469,8 +533,10 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
         interactionType: nextFitting
           ? AR_INTERACTION_TYPES.FITTING_ADD
           : AR_INTERACTION_TYPES.FITTING_REMOVE,
+        signal: controller.signal,
       });
     } catch (interactionError) {
+      if (interactionError?.name === 'AbortError') return;
       console.error(ko.errors.fittingInteractionLog, interactionError);
 
       setFittingProductIds((ids) => {
@@ -480,6 +546,9 @@ export default function FittingPage({ onFinish, arSessionId, gender, memberId = 
         return next;
       });
     } finally {
+      if (fittingControllersRef.current.get(item.productId) === controller) {
+        fittingControllersRef.current.delete(item.productId);
+      }
       setFittingPendingIds((ids) => {
         const next = new Set(ids);
         next.delete(item.productId);

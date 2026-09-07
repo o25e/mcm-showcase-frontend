@@ -19,7 +19,7 @@ export const AR_INTERACTION_TYPES = Object.freeze({
  * @property {string} createdAt
  */
 
-export async function postArInteraction({ arSessionId, productId, interactionType }) {
+export async function postArInteraction({ arSessionId, productId, interactionType, signal }) {
   if (!Number.isFinite(arSessionId) || !Number.isFinite(productId)) {
     return { skipped: true };
   }
@@ -28,6 +28,7 @@ export async function postArInteraction({ arSessionId, productId, interactionTyp
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ arSessionId, productId, interactionType }),
+    signal,
   });
 
 }
