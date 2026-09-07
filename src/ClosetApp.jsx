@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import ClosetPage from './components/ClosetPage';
 import { ko } from './i18n/ko';
 import ArPage from './components/ArPage';
@@ -6,15 +7,28 @@ import App from './App';
 import { linkMemberToArSession } from './api/arSessions';
 import { clearMember, getStoredMember } from './api/auth';
 
+function ClosetRoute({ member, onLoginSuccess, onLogout, onWishlistOpen, onCartOpen, shared = false }) {
+  const { profileId } = useParams();
+
+  return (
+    <ClosetPage
+      member={member}
+      sharedStyleProfileId={shared ? profileId : undefined}
+      detailStyleProfileId={shared ? undefined : profileId}
+      onLoginSuccess={onLoginSuccess}
+      onLogout={onLogout}
+      onWishlistOpen={onWishlistOpen}
+      onCartOpen={onCartOpen}
+    />
+  );
+}
+
 export default function ClosetApp() {
-  const isArPage = window.location.pathname.toLowerCase() === '/ar';
-  const arLoginSessionId = Number(new URLSearchParams(window.location.search).get('arSessionId'));
-  const isArLogin = Number.isFinite(arLoginSessionId) && new URLSearchParams(window.location.search).get('arLogin') === '1';
-  const sharedProfileMatch = window.location.pathname.match(/^\/my-closet\/share\/([^/]+)\/?$/i);
-  const detailProfileMatch = window.location.pathname.match(/^\/my-closet\/([^/]+)\/?$/i);
-  const isMyCloset = window.location.pathname.toLowerCase() === '/my-closet';
-  const [showCloset, setShowCloset] = useState(() => window.location.hash === '#closet' || Boolean(sharedProfileMatch) || Boolean(detailProfileMatch) || isMyCloset);
-  const [openWishlistPage, setOpenWishlistPage] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
+  const arLoginSessionId = Number(searchParams.get('arSessionId'));
+  const isArLogin = Number.isFinite(arLoginSessionId) && searchParams.get('arLogin') === '1';
   const [member, setMember] = useState(getStoredMember);
   const initialArMember = useRef(member);
 
@@ -44,32 +58,6 @@ export default function ClosetApp() {
     };
   }, [arLoginSessionId, isArLogin]);
 
-  useEffect(() => {
-    const isClosetRoute = () => /^\/my-closet(?:\/|$)/i.test(window.location.pathname);
-    const syncPage = () => setShowCloset(window.location.hash === '#closet' || isClosetRoute());
-
-    const openCloset = (event) => {
-      const link = event.target.closest('a');
-
-      if (link?.textContent.trim() === 'CLOSET') {
-        event.preventDefault();
-        // Return to the closet list route when navigating through the menu.
-        window.history.pushState({}, '', '/my-closet');
-        setShowCloset(true);
-      }
-    };
-
-    window.addEventListener('hashchange', syncPage);
-    window.addEventListener('popstate', syncPage);
-    document.addEventListener('click', openCloset);
-
-    return () => {
-      window.removeEventListener('hashchange', syncPage);
-      window.removeEventListener('popstate', syncPage);
-      document.removeEventListener('click', openCloset);
-    };
-  }, []);
-
   async function handleLoginSuccess(authenticatedMember) {
     if (isArLogin) {
       const gender = typeof authenticatedMember.gender === 'string'
@@ -87,40 +75,34 @@ export default function ClosetApp() {
   function handleLogout() {
     clearMember();
     setMember(null);
-    window.history.replaceState({}, '', '/');
-    setShowCloset(false);
+    navigate('/', { replace: true });
   }
 
   function handleWishlistOpen() {
-    window.history.pushState({}, '', '/');
-    setOpenWishlistPage(true);
-    setShowCloset(false);
+    navigate('/wishlist');
   }
 
   function handleCartOpen() {
-    window.history.pushState({}, '', '/cart');
-    setOpenWishlistPage(false);
-    setShowCloset(false);
+    navigate('/cart');
   }
 
-  if (isArPage) return <ArPage />;
+  const appProps = {
+    member,
+    onLoginSuccess: handleLoginSuccess,
+    onLogout: handleLogout,
+    autoOpenLogin: isArLogin && !member,
+  };
 
-  return showCloset
-    ? <ClosetPage
-        member={member}
-        sharedStyleProfileId={sharedProfileMatch?.[1]}
-        detailStyleProfileId={detailProfileMatch?.[1]}
-        onLoginSuccess={setMember}
-        onLogout={handleLogout}
-        onWishlistOpen={handleWishlistOpen}
-        onCartOpen={handleCartOpen}
-      />
-    : <App
-        member={member}
-        autoOpenLogin={isArLogin && !member}
-        autoOpenWishlist={openWishlistPage}
-        onLoginSuccess={handleLoginSuccess}
-        onLogout={handleLogout}
-        onCartOpen={handleCartOpen}
-      />;
+  return (
+    <Routes>
+      <Route path="/ar" element={<ArPage />} />
+      <Route path="/my-closet" element={<ClosetRoute member={member} onLoginSuccess={setMember} onLogout={handleLogout} onWishlistOpen={handleWishlistOpen} onCartOpen={handleCartOpen} />} />
+      <Route path="/my-closet/share/:profileId" element={<ClosetRoute shared member={member} onLoginSuccess={setMember} onLogout={handleLogout} onWishlistOpen={handleWishlistOpen} onCartOpen={handleCartOpen} />} />
+      <Route path="/my-closet/:profileId" element={<ClosetRoute member={member} onLoginSuccess={setMember} onLogout={handleLogout} onWishlistOpen={handleWishlistOpen} onCartOpen={handleCartOpen} />} />
+      <Route path="/cart" element={<App {...appProps} page="cart" />} />
+      <Route path="/wishlist" element={<App {...appProps} page="wishlist" />} />
+      <Route path="/" element={<App {...appProps} page="home" />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 }

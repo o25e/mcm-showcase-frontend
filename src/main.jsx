@@ -1,8 +1,13 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import ClosetApp from './ClosetApp';
 import './styles.css';
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode><ClosetApp /></StrictMode>,
+  <StrictMode>
+    <BrowserRouter>
+      <ClosetApp />
+    </BrowserRouter>
+  </StrictMode>,
 );

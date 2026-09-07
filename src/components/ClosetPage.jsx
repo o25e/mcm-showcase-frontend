@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import LoginPanel from './LoginPanel';
 import { API_BASE_URL } from '../api/config';
 
@@ -333,15 +334,15 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
         </button>
         <nav aria-label={ko.common.mainNav}>
           {navItems.map((item) => (
-            <a href={item === 'CLOSET' ? '/my-closet' : '/'} className={item === 'CLOSET' ? 'active' : ''} key={item} onClick={() => setIsMobileMenuOpen(false)}>
+            <Link to={item === 'CLOSET' ? '/my-closet' : '/'} className={item === 'CLOSET' ? 'active' : ''} key={item} onClick={() => setIsMobileMenuOpen(false)}>
               {item}
-            </a>
+            </Link>
           ))}
         </nav>
 
-        <a className="figma-logo" href="/" aria-label={ko.common.home}>
+        <Link className="figma-logo" to="/" aria-label={ko.common.home}>
           <img src="/assets/figma-logo.png" alt="MCM" />
-        </a>
+        </Link>
 
         <div className="figma-tools">
           {[
