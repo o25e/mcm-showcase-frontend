@@ -1,6 +1,6 @@
 import { request } from './client';
 
-export async function evaluateArSessionMessage(arSessionId, selectedLanguage = 'ko') {
+export async function evaluateArSessionMessage(arSessionId, selectedLanguage = 'ko', signal) {
   if (!Number.isFinite(arSessionId)) {
     return { skipped: true };
   }
@@ -11,6 +11,7 @@ export async function evaluateArSessionMessage(arSessionId, selectedLanguage = '
       Accept: 'application/json',
       'Accept-Language': selectedLanguage === 'en' ? 'en' : 'ko',
     },
+    signal,
   });
 
 }
@@ -31,9 +32,10 @@ export function updateArSessionGender(arSessionId, gender) {
   });
 }
 
-export function getArSession(arSessionId) {
+export function getArSession(arSessionId, signal) {
   return request(`/api/ar-sessions/${arSessionId}`, {
     headers: { Accept: '*/*' },
+    signal,
   });
 }
 

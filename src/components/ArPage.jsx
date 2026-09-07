@@ -98,12 +98,14 @@ export default function ArPage() {
     let isActive = true;
     let isRequesting = false;
 
+    const controller = new AbortController();
+
     const checkMemberLogin = async () => {
       if (!isActive || isRequesting) return;
       isRequesting = true;
 
       try {
-        const data = await getArSession(arSessionId);
+        const data = await getArSession(arSessionId, controller.signal);
         if (data.memberId !== null && data.memberId !== undefined) {
           let storedMember = null;
           try {
@@ -142,6 +144,7 @@ export default function ArPage() {
 
     return () => {
       isActive = false;
+      controller.abort();
       window.clearInterval(intervalId);
     };
   }, [arSessionId, screen]);

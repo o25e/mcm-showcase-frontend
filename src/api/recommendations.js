@@ -1,15 +1,17 @@
 import { request } from './client';
 
-export function getRecommendations(arSessionId, categoryCode) {
+export function getRecommendations(arSessionId, categoryCode, signal) {
   return request(`/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}`, {
     headers: { Accept: 'application/json' },
+    signal,
   });
 }
 
-export function refreshRecommendations(arSessionId, categoryCode) {
+export function refreshRecommendations(arSessionId, categoryCode, signal) {
   return request(`/api/recommendations/ar-sessions/${arSessionId}/categories/${categoryCode}/refresh`, {
     method: 'POST',
     headers: { Accept: 'application/json' },
+    signal,
   });
 }
 
