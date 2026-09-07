@@ -49,7 +49,7 @@ function mapProduct(product, language) {
   };
 }
 
-export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess, onLogout, onWishlistOpen, language = 'ko' }) {
+export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess, onLogout, onWishlistOpen, onCartOpen, language = 'ko' }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -356,7 +356,9 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
               key={label}
               onClick={label === ko.utilities.myPage
                 ? () => setIsLoginOpen(true)
-                : label === ko.utilities.wishlist ? onWishlistOpen : undefined}
+                : label === ko.utilities.wishlist
+                  ? onWishlistOpen
+                  : label === ko.utilities.shoppingBag ? onCartOpen : undefined}
             >
               <img src={`/assets/${icon}`} alt="" />
             </button>
