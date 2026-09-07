@@ -3,22 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import CartPage from './components/CartPage';
 import LoginPanel from './components/LoginPanel';
 import WishlistPage from './components/WishlistPage';
+import StoreHeader from './components/StoreHeader';
 import { ko } from './i18n/ko';
 import { useWishlist, wishlistIdForProduct } from './utils/wishlist';
 
-const { navigation, products } = ko;
-
-const utilities = [
-  [ko.utilities.search, '/assets/figma-search.svg'],
-  [ko.utilities.myPage, '/assets/figma-user.svg'],
-  [ko.utilities.wishlist, '/assets/figma-heart.svg'],
-  [ko.utilities.shoppingBag, '/assets/figma-bag.svg'],
-];
+const { products } = ko;
 
 export default function App({ member, onLoginSuccess, onLogout, page = 'home', autoOpenLogin = false }) {
   const navigate = useNavigate();
   const [isLoginOpen, setIsLoginOpen] = useState(autoOpenLogin);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [wishlist, toggleWishlist] = useWishlist(member?.memberId);
 
   const isCartPage = page === 'cart';
@@ -27,8 +20,6 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
   function showStorefront(event, sectionId) {
     event?.preventDefault();
     navigate(sectionId ? `/#${sectionId}` : '/');
-    setIsMobileMenuOpen(false);
-
     window.requestAnimationFrame(() => {
       if (sectionId) document.getElementById(sectionId)?.scrollIntoView();
       else window.scrollTo({ top: 0 });
@@ -41,7 +32,6 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
 
   function showCart() {
     navigate('/cart');
-    setIsMobileMenuOpen(false);
     window.scrollTo({ top: 0 });
   }
 
@@ -59,68 +49,13 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
 
   return (
     <div className="figma-home" id="top">
-      <div className="figma-announcement">
-        <img className="announcement-mark" src="/assets/figma-announcement.svg" alt="" />
-        <span>{ko.announcement.icon}</span>
-        <a href="#collection">{ko.announcement.home}</a>
-
-        <div className="announcement-links">
-          <a href="#collection">{ko.announcement.shipping}</a>
-          <a href="#collection">{ko.announcement.contact}</a>
-          <a href="#collection">{ko.announcement.locale}</a>
-          <a href="#collection">{ko.announcement.store}</a>
-        </div>
-      </div>
-
-      <header className={`figma-nav${isMobileMenuOpen ? ' is-mobile-menu-open' : ''}`}>
-        <button
-          className="mobile-menu-button"
-          type="button"
-          aria-label={ko.common.menuOpen}
-          aria-expanded={isMobileMenuOpen}
-          onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
-        >
-          <img src="/assets/icon-menu.svg" alt="" />
-        </button>
-        <button className="mobile-search-button" type="button" aria-label={ko.common.search}>
-          <img src="/assets/figma-search.svg" alt="" />
-        </button>
-        <nav aria-label={ko.common.mainNav}>
-          {navigation.map((item) => (
-            <a href={item === 'CLOSET' ? '/my-closet' : '/#collection'} key={item} onClick={(event) => {
-              if (item === 'CLOSET') {
-                event.preventDefault();
-                navigate('/my-closet');
-              } else {
-                showStorefront(event, 'collection');
-              }
-              setIsMobileMenuOpen(false);
-            }}>{item}</a>
-          ))}
-        </nav>
-
-        <a className="figma-logo" href="/" aria-label={ko.common.home} onClick={(event) => showStorefront(event)}>
-          <img src="/assets/figma-logo.png" alt="MCM" />
-        </a>
-
-        <div className="figma-tools">
-          {utilities.map(([label, src]) => (
-            <button
-              type="button"
-              aria-label={label}
-              key={label}
-              onClick={label === ko.utilities.myPage
-                ? () => setIsLoginOpen(true)
-                : label === ko.utilities.wishlist
-                  ? showWishlist
-                  : label === ko.utilities.shoppingBag ? showCart : undefined}
-            >
-              <img src={src} alt="" />
-            </button>
-          ))}
-        </div>
-        {isMobileMenuOpen && <button className="mobile-menu-backdrop" type="button" aria-label={ko.common.menuClose} onClick={() => setIsMobileMenuOpen(false)} />}
-      </header>
+      <StoreHeader
+        activePage="home"
+        onLoginOpen={() => setIsLoginOpen(true)}
+        onWishlistOpen={showWishlist}
+        onCartOpen={showCart}
+        onCollectionNavigate={(event) => showStorefront(event, 'collection')}
+      />
 
       {isCartPage ? (
         <CartPage

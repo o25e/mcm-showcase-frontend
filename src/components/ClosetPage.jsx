@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import LoginPanel from './LoginPanel';
+import StoreHeader from './StoreHeader';
 import { API_BASE_URL } from '../api/config';
 
 const API_ASSET_BASE_URL = API_BASE_URL || 'https://api.mcm-showcase.com';
@@ -18,8 +18,6 @@ function extractLookList(data) {
   if (Array.isArray(data)) return data;
   return [data?.content, data?.items, data?.data, data?.results].find(Array.isArray) || [];
 }
-
-const { navigation: navItems } = ko;
 
 function resolveProductImage(product) {
   const image = product?.imageUrl || product?.image;
@@ -52,7 +50,6 @@ function mapProduct(product, language) {
 
 export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess, onLogout, onWishlistOpen, onCartOpen, language = 'ko' }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [looks, setLooks] = useState([]);
   const [lookError, setLookError] = useState('');
@@ -306,67 +303,12 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
 
   return (
     <div className={`closet-page${member ? ' is-authenticated' : ''}`} id="top">
-      <div className="figma-announcement closet-announcement">
-        <img className="announcement-mark" src="/assets/figma-announcement.svg" alt="" />
-        <span>{ko.announcement.icon}</span>
-        <a href="#closet-records">{ko.announcement.closet}</a>
-
-        <div className="announcement-links">
-          <a href="#closet-records">{ko.announcement.shipping}</a>
-          <a href="#closet-records">{ko.announcement.contact}</a>
-          <a href="#closet-records">{ko.announcement.locale}</a>
-          <a href="#closet-records">{ko.announcement.store}</a>
-        </div>
-      </div>
-
-      <header className={`figma-nav closet-nav${isMobileMenuOpen ? ' is-mobile-menu-open' : ''}`}>
-        <button
-          className="mobile-menu-button"
-          type="button"
-          aria-label={ko.common.menuOpen}
-          aria-expanded={isMobileMenuOpen}
-          onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
-        >
-          <img src="/assets/icon-menu.svg" alt="" />
-        </button>
-        <button className="mobile-search-button" type="button" aria-label={ko.common.search}>
-          <img src="/assets/figma-search.svg" alt="" />
-        </button>
-        <nav aria-label={ko.common.mainNav}>
-          {navItems.map((item) => (
-            <Link to={item === 'CLOSET' ? '/my-closet' : '/'} className={item === 'CLOSET' ? 'active' : ''} key={item} onClick={() => setIsMobileMenuOpen(false)}>
-              {item}
-            </Link>
-          ))}
-        </nav>
-
-        <Link className="figma-logo" to="/" aria-label={ko.common.home}>
-          <img src="/assets/figma-logo.png" alt="MCM" />
-        </Link>
-
-        <div className="figma-tools">
-          {[
-            [ko.utilities.search, 'figma-search.svg'],
-            [ko.utilities.myPage, 'figma-user.svg'],
-            [ko.utilities.wishlist, 'figma-heart.svg'],
-            [ko.utilities.shoppingBag, 'figma-bag.svg'],
-          ].map(([label, icon]) => (
-            <button
-              type="button"
-              aria-label={label}
-              key={label}
-              onClick={label === ko.utilities.myPage
-                ? () => setIsLoginOpen(true)
-                : label === ko.utilities.wishlist
-                  ? onWishlistOpen
-                  : label === ko.utilities.shoppingBag ? onCartOpen : undefined}
-            >
-              <img src={`/assets/${icon}`} alt="" />
-            </button>
-          ))}
-        </div>
-        {isMobileMenuOpen && <button className="mobile-menu-backdrop" type="button" aria-label={ko.common.menuClose} onClick={() => setIsMobileMenuOpen(false)} />}
-      </header>
+      <StoreHeader
+        activePage="closet"
+        onLoginOpen={() => setIsLoginOpen(true)}
+        onWishlistOpen={onWishlistOpen}
+        onCartOpen={onCartOpen}
+      />
 
       <main>
         {detailError && !selectedRecord && <p role="alert">{detailError}</p>}
