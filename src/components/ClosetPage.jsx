@@ -56,6 +56,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState('');
   const [historyPage, setHistoryPage] = useState(0);
+  const savedSharedMemberIdRef = useRef(null);
   // A shared QR result must be available on every scan, including on the
   // same device after the guest has left the page. It is not a saved closet
   // record until the guest logs in and the result is linked to the member.
@@ -77,20 +78,50 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   }, [sharedStyleProfileId, isSharedLookVisible]);
 
   useEffect(() => {
-    if (!sharedStyleProfileId || !member?.memberId) return undefined;
+    const hasMemberId = member?.memberId !== undefined
+      && member?.memberId !== null
+      && member?.memberId !== '';
+    if (!sharedStyleProfileId || !hasMemberId) return undefined;
+    if (savedSharedMemberIdRef.current === String(member.memberId)) return undefined;
 
     let cancelled = false;
+    savedSharedMemberIdRef.current = String(member.memberId);
     saveLookToMember(sharedStyleProfileId, member.memberId)
       .then(() => {
         if (!cancelled) window.location.replace('/my-closet');
       })
       .catch((error) => {
+        savedSharedMemberIdRef.current = null;
         console.error(ko.errors.saveLookLog, error);
         if (!cancelled) setLookError(ko.errors.saveLook);
       });
 
     return () => { cancelled = true; };
   }, [member?.memberId, sharedStyleProfileId]);
+
+  async function handleSharedPageLogin(authenticatedMember) {
+    const memberId = authenticatedMember?.memberId;
+    const hasMemberId = memberId !== undefined && memberId !== null && memberId !== '';
+
+    if (sharedStyleProfileId && hasMemberId) {
+      try {
+        // Complete the link before changing the route. This avoids losing the
+        // shared profile when login and redirect happen in the same render.
+        await saveLookToMember(sharedStyleProfileId, memberId);
+        savedSharedMemberIdRef.current = String(memberId);
+      } catch (error) {
+        savedSharedMemberIdRef.current = null;
+        setLookError(ko.errors.saveLook);
+        throw error;
+      }
+    }
+
+    await onLoginSuccess?.(authenticatedMember);
+
+    if (sharedStyleProfileId) {
+      window.location.replace('/my-closet');
+    }
+  }
 
   useEffect(() => {
     if (!detailStyleProfileId) return undefined;
@@ -376,7 +407,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
         <LoginPanel
           member={member}
           onClose={() => setIsLoginOpen(false)}
-          onLoginSuccess={onLoginSuccess}
+          onLoginSuccess={handleSharedPageLogin}
           onLogout={onLogout}
           onWishlistOpen={onWishlistOpen}
           onCartOpen={onCartOpen}

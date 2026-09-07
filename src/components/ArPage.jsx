@@ -228,7 +228,6 @@ export default function ArPage() {
         language={language}
         avatarImage={completedAvatar}
         avatarLook={completedAvatarLook}
-        memberId={completedMemberId}
         onFinish={() => setScreen('intro')}
       />
     );

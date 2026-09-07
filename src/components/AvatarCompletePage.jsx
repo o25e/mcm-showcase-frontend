@@ -21,7 +21,6 @@ function resolveQrImageUrl(image) {
 export default function AvatarCompletePage({
   avatarImage = '/assets/avatar-complete/avatar_f.png',
   avatarLook = null,
-  memberId = null,
   onFinish,
   language = 'ko',
 }) {
@@ -52,11 +51,14 @@ export default function AvatarCompletePage({
   );
 
   const publicAppUrl = import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin;
-  const shareUrl = memberId !== null && memberId !== undefined
-    ? `${publicAppUrl.replace(/\/$/, '')}/my-closet?memberId=${encodeURIComponent(memberId)}`
-    : styleProfileId
-      ? `${publicAppUrl.replace(/\/$/, '')}/my-closet/share/${styleProfileId}`
-      : '';
+  // The QR code must always point to the generated style profile. A memberId
+  // query parameter cannot restore a member session on another device, while
+  // the share route works for both guests and authenticated members. Guests
+  // can view the shared look temporarily; it is linked to their closet only
+  // after they explicitly log in from the shared page.
+  const shareUrl = styleProfileId
+    ? `${publicAppUrl.replace(/\/$/, '')}/my-closet/share/${encodeURIComponent(styleProfileId)}`
+    : '';
 
   return (
     <main
