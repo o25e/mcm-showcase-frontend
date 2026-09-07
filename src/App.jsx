@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CartPage from './components/CartPage';
 import LoginPanel from './components/LoginPanel';
 import WishlistPage from './components/WishlistPage';
@@ -14,29 +15,18 @@ const utilities = [
   [ko.utilities.shoppingBag, '/assets/figma-bag.svg'],
 ];
 
-export default function App({ member, onLoginSuccess, onLogout, onCartOpen, autoOpenLogin = false, autoOpenWishlist = false }) {
+export default function App({ member, onLoginSuccess, onLogout, page = 'home', autoOpenLogin = false }) {
+  const navigate = useNavigate();
   const [isLoginOpen, setIsLoginOpen] = useState(autoOpenLogin);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isWishlistPage, setIsWishlistPage] = useState(autoOpenWishlist);
-  const [isCartPage, setIsCartPage] = useState(() => window.location.pathname.toLowerCase() === '/cart');
   const [wishlist, toggleWishlist] = useWishlist(member?.memberId);
 
-  useEffect(() => {
-    const syncPageWithLocation = () => {
-      setIsCartPage(window.location.pathname.toLowerCase() === '/cart');
-      setIsWishlistPage(false);
-      setIsMobileMenuOpen(false);
-    };
-
-    window.addEventListener('popstate', syncPageWithLocation);
-    return () => window.removeEventListener('popstate', syncPageWithLocation);
-  }, []);
+  const isCartPage = page === 'cart';
+  const isWishlistPage = page === 'wishlist';
 
   function showStorefront(event, sectionId) {
     event?.preventDefault();
-    window.history.pushState({}, '', sectionId ? `/#${sectionId}` : '/');
-    setIsCartPage(false);
-    setIsWishlistPage(false);
+    navigate(sectionId ? `/#${sectionId}` : '/');
     setIsMobileMenuOpen(false);
 
     window.requestAnimationFrame(() => {
@@ -46,19 +36,11 @@ export default function App({ member, onLoginSuccess, onLogout, onCartOpen, auto
   }
 
   function showWishlist() {
-    if (isCartPage) window.history.pushState({}, '', '/');
-    setIsCartPage(false);
-    setIsWishlistPage(true);
+    navigate('/wishlist');
   }
 
   function showCart() {
-    if (onCartOpen) {
-      onCartOpen();
-    } else if (window.location.pathname.toLowerCase() !== '/cart') {
-      window.history.pushState({}, '', '/cart');
-    }
-    setIsWishlistPage(false);
-    setIsCartPage(true);
+    navigate('/cart');
     setIsMobileMenuOpen(false);
     window.scrollTo({ top: 0 });
   }
@@ -106,7 +88,12 @@ export default function App({ member, onLoginSuccess, onLogout, onCartOpen, auto
         <nav aria-label={ko.common.mainNav}>
           {navigation.map((item) => (
             <a href={item === 'CLOSET' ? '/my-closet' : '/#collection'} key={item} onClick={(event) => {
-              if (item !== 'CLOSET') showStorefront(event, 'collection');
+              if (item === 'CLOSET') {
+                event.preventDefault();
+                navigate('/my-closet');
+              } else {
+                showStorefront(event, 'collection');
+              }
               setIsMobileMenuOpen(false);
             }}>{item}</a>
           ))}
@@ -148,7 +135,7 @@ export default function App({ member, onLoginSuccess, onLogout, onCartOpen, auto
         <WishlistPage
           memberId={member?.memberId}
           member={member}
-          onBack={() => setIsWishlistPage(false)}
+          onBack={() => navigate('/')}
           onLoginOpen={() => setIsLoginOpen(true)}
         />
       ) : <main>
