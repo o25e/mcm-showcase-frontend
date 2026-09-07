@@ -134,7 +134,7 @@ export const ko = {
     easyLogin: '간편 로그인',
     naver: '네이버 아이디로 로그인',
     kakao: '카카오 로그인',
-    cart: '장바구니',
+    cart: '쇼핑백',
     wishlist: '찜 목록',
   },
   fitting: {

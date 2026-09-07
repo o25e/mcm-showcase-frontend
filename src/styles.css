@@ -413,9 +413,9 @@ button { cursor: pointer; }
 .cart-page__empty-message { font-weight: 500 !important; }
 .cart-page__empty p { margin-top: 28px; }
 .cart-page__login-prompt { margin-top: 5px !important; font-weight: 500 !important; }
-.cart-page__login-prompt button { padding: 0 0 2px; border: 0; border-bottom: 1px solid currentColor; background: transparent; font: inherit; line-height: inherit; }
+.cart-page__login-prompt button { padding: 0; border: 0; background: transparent; font: inherit; line-height: inherit; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
 .cart-page__continue { display: flex; height: 120px; align-items: center; flex-direction: column; padding: 28px 20px 20px; background: #f7f7f7; text-align: center; }
-.cart-page__continue a { margin-top: 18px; font-size: 14px; font-weight: 500; line-height: 1.3; text-underline-offset: 2px; }
+.cart-page__continue a { margin-top: 22px; font-size: 14px; font-weight: 300; line-height: 1.3; text-underline-offset: 2px; }
 .cart-page__recommendations { padding: 60px 4vw 50px; }
 .cart-page__recommendations > h2 { margin: 0 0 32px; font-size: 13px; font-weight: 600; line-height: 1.4; text-align: center; }
 .cart-page__recommendations .figma-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px; }
@@ -428,7 +428,7 @@ button { cursor: pointer; }
   .cart-page__empty h1, .cart-page__empty p, .cart-page__continue h2 { font-size: 13px; }
   .cart-page__empty p { margin-top: 26px; }
   .cart-page__continue { height: 120px; padding-top: 28px; }
-  .cart-page__continue a { margin-top: 18px; font-size: 14px; }
+  .cart-page__continue a { margin-top: 22px; font-size: 14px; }
   .cart-page__recommendations { padding: 48px 14px 42px; }
   .cart-page__recommendations .figma-product-grid { gap: 22px 12px; }
   .cart-page__recommendations > h2 { margin-bottom: 28px; font-size: 13px; }

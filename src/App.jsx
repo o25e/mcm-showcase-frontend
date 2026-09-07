@@ -197,6 +197,10 @@ export default function App({ member, onLoginSuccess, onLogout, onCartOpen, auto
             showWishlist();
             setIsLoginOpen(false);
           }}
+          onCartOpen={() => {
+            showCart();
+            setIsLoginOpen(false);
+          }}
         />
       )}
     </div>
