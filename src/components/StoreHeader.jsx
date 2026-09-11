@@ -23,6 +23,9 @@ export default function StoreHeader({
   onCartOpen,
   onSearchOpen,
   onCollectionNavigate,
+  onBagNavigate,
+  onFemaleNavigate,
+  onMaleNavigate,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,9 +39,24 @@ export default function StoreHeader({
     setIsMobileMenuOpen(false);
   }
 
-  function handleCollectionNavigate(event) {
+  function handleCollectionNavigate(event, item) {
     event.preventDefault();
     closeMobileMenu();
+
+    if (item === '가방' && onBagNavigate) {
+      onBagNavigate(event);
+      return;
+    }
+
+    if (item === '여성' && onFemaleNavigate) {
+      onFemaleNavigate(event);
+      return;
+    }
+
+    if (item === '남성' && onMaleNavigate) {
+      onMaleNavigate(event);
+      return;
+    }
 
     if (onCollectionNavigate) {
       onCollectionNavigate(event);
@@ -128,7 +146,7 @@ export default function StoreHeader({
                 {item}
               </a>
             ) : (
-              <a href="/#collection" key={item} onClick={handleCollectionNavigate}>
+              <a href={item === '가방' ? '/#bag-collection' : item === '여성' ? '/#female-collection' : item === '남성' ? '/#male-collection' : '/#collection'} key={item} onClick={(event) => handleCollectionNavigate(event, item)}>
                 {item}
               </a>
             );
