@@ -144,17 +144,6 @@ export default function LoginPanel({ member, onClose, onLoginSuccess, onLogout, 
             </button>
           </form>
 
-          <div className="social-login" aria-label={ko.auth.easyLogin}>
-            <button type="button" className="naver-login">
-              <img className="social-login-icon" src="/assets/icon-naver.png" alt="" />
-              <span>{ko.auth.naver}</span>
-            </button>
-
-            <button type="button" className="kakao-login">
-              <img className="social-login-icon" src="/assets/icon-kakaotalk.png" alt="" />
-              <span>{ko.auth.kakao}</span>
-            </button>
-          </div>
         </div>
       </aside>
     </div>
