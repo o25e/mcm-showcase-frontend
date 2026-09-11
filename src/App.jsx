@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProduct, getProducts } from './api/products';
+import { getProducts } from './api/products';
 import CartPage from './components/CartPage';
 import LoginPanel from './components/LoginPanel';
 import WishlistPage from './components/WishlistPage';
 import StoreHeader from './components/StoreHeader';
 import { ko } from './i18n/ko';
 import { useWishlist, wishlistIdForProduct } from './utils/wishlist';
-
-const NEW_COLLECTION_PRODUCT_IDS = [1, 2, 3, 7];
 
 function formatPrice(price) {
   if (typeof price !== 'number') return price || '';
@@ -19,6 +17,8 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
   const navigate = useNavigate();
   const [isLoginOpen, setIsLoginOpen] = useState(autoOpenLogin);
   const [products, setProducts] = useState([]);
+  const [isProductsLoading, setIsProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState('');
   const [bagProducts, setBagProducts] = useState([]);
   const [isBagPage, setIsBagPage] = useState(false);
   const [isBagLoading, setIsBagLoading] = useState(false);
@@ -36,23 +36,23 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
   useEffect(() => {
     let isActive = true;
 
-    Promise.all(NEW_COLLECTION_PRODUCT_IDS.map((productId) => getProduct(productId)))
+    getProducts()
       .then((productResponses) => {
         if (!isActive) return;
-        setProducts(productResponses.map((product) => ({
-          id: product.productId,
-          name: product.name,
-          nameEn: product.nameEn,
-          price: formatPrice(product.price),
-          image: product.imageUrl,
-          productId: product.productId,
-        })));
+        setProducts(productResponses.map(mapProduct));
       })
       .catch((error) => {
-        if (isActive) console.error('신규 컬렉션 상품을 불러오지 못했습니다.', error);
+        if (isActive && error?.name !== 'AbortError') {
+          setProductsError('신상품을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+        }
+      })
+      .finally(() => {
+        if (isActive) setIsProductsLoading(false);
       });
 
-    return () => { isActive = false; };
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   function mapProduct(product) {
@@ -238,6 +238,9 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
           </section>
         ) : <section className="figma-collection" id="collection" aria-labelledby="collection-title">
           <h1 id="collection-title">{ko.home.collectionTitle}</h1>
+          {isProductsLoading && <p className="product-list-status">신상품을 불러오는 중입니다.</p>}
+          {!isProductsLoading && productsError && <p className="product-list-status product-list-status--error">{productsError}</p>}
+          {!isProductsLoading && !productsError && products.length === 0 && <p className="product-list-status">등록된 신상품이 없습니다.</p>}
 
           <div className="figma-product-grid">
             {products.map((product) => (
