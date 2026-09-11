@@ -36,7 +36,7 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
   useEffect(() => {
     let isActive = true;
 
-    getProducts()
+    getProducts({ zone: 'NEW' })
       .then((productResponses) => {
         if (!isActive) return;
         setProducts(productResponses.map(mapProduct));
@@ -126,19 +126,20 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
       .finally(() => setIsMaleLoading(false));
   }
 
-  function showHomeCollection(event) {
+  function showHomeCollection(event, item) {
     setIsBagPage(false);
     setIsFemalePage(false);
     setIsMalePage(false);
-    showStorefront(event, 'collection');
+    showStorefront(event, 'collection', item === '신상품');
   }
 
   const isCartPage = page === 'cart';
   const isWishlistPage = page === 'wishlist';
 
-  function showStorefront(event, sectionId) {
+  function showStorefront(event, sectionId, isNewProducts = false) {
     event?.preventDefault();
-    navigate(sectionId ? `/#${sectionId}` : '/');
+    const query = isNewProducts ? '?zone=NEW' : '';
+    navigate(sectionId ? `/${query}#${sectionId}` : `/${query}`);
     window.requestAnimationFrame(() => {
       if (sectionId) document.getElementById(sectionId)?.scrollIntoView();
       else window.scrollTo({ top: 0 });
