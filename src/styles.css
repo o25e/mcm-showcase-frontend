@@ -349,13 +349,15 @@ button { cursor: pointer; }
 .figma-tools img { display: block; width: 100%; height: 100%; }
 .figma-hero { position: relative; height: 810px; overflow: hidden; }
 .hero-image { display: block; width: 100%; height: 100%; object-fit: cover; }
+.figma-hero--bag { height: auto; aspect-ratio: 4 / 1; }
+.figma-hero--bag .hero-image { object-fit: contain; }
 .hero-detail { position: absolute; top: 0; left: calc(40% + 253px); width: 512px; height: 215px; overflow: hidden; }
 .hero-detail img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .collection-link { position: absolute; bottom: 21px; left: 30px; color: #fff; font-size: 16px; text-decoration: none; }
 .collection-link strong, .membership-callout strong { font-size: 17px; }
 .figma-collection { padding: 40px 21px 70px; }
 .figma-collection h1 { margin: 0 0 23px; font-size: 18px; font-weight: 500; }
-.figma-product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px; }
+.figma-product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 26px; row-gap: 64px; }
 .figma-product-image { position: relative; aspect-ratio: 1; overflow: hidden; background: #f7f5f1; }
 .figma-product-image > a { display: block; width: 100%; height: 100%; }
 .figma-product-image > a > img { display: block; width: 100%; height: 100%; object-fit: contain; transform: scale(1.08); }
@@ -364,6 +366,8 @@ button { cursor: pointer; }
 .figma-product h2, .figma-product p { margin: 0; font-weight: 300; }
 .figma-product h2 { margin-top: 20px; font-size: 15px; font-weight: 600; }
 .figma-product p { margin-top: 9px; font-size: 13px; }
+.product-list-status { margin: 0 0 24px; color: #555; font-size: 14px; }
+.product-list-status--error { color: #9b2c2c; }
 
 @media (max-width: 1000px) {
   .figma-nav nav { gap: 10px; }.figma-nav nav a { font-size: 10px; }.figma-logo { left: 69%; }
@@ -373,7 +377,7 @@ button { cursor: pointer; }
   .figma-announcement { padding: 0 14px; }.figma-announcement > span:not(.announcement-mark), .figma-announcement > a, .announcement-links a:not(:last-child) { display: none; }
   .figma-nav { display: grid; grid-template-columns: 22px 22px 1fr auto; column-gap: 10px; height: 56px; padding: 0 16px; }.mobile-menu-button, .mobile-search-button { z-index: 4; display: grid; width: 22px; height: 22px; place-items: center; padding: 0; border: 0; background: transparent; }.mobile-menu-button img, .mobile-search-button img { width: 18px; height: 18px; }.mobile-menu-button img { width: 22px; height: 22px; }.figma-nav nav { position: absolute; z-index: 3; top: 56px; right: 0; left: 0; display: none; flex-direction: column; align-items: stretch; gap: 0; padding: 8px 20px 16px; border: 0; outline: 0; background: #fff; box-shadow: none; white-space: normal; }.figma-nav.is-mobile-menu-open nav { display: flex; }.figma-nav nav a { display: flex; min-height: 40px; align-items: center; font-size: 14px; }.figma-logo { position: static; justify-self: center; width: 60px; height: 24px; transform: none; }.figma-tools { position: static; gap: 10px; margin: 0; transform: none; }.figma-tools button:nth-child(1), .figma-tools button:nth-child(3) { display: none; }.figma-tools button { width: 18px; height: 18px; }.mobile-menu-backdrop { position: fixed; z-index: 2; inset: 56px 0 0; display: block; width: 100%; height: calc(100vh - 56px); padding: 0; border: 0; background: transparent; }
   .figma-hero { height: min(125vw, 650px); }.hero-detail { display: none; }.collection-link { bottom: 20px; left: 18px; font-size: 13px; }
-  .figma-collection { padding: 28px 14px 50px; }.figma-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 12px; }.figma-product h2 { margin-top: 12px; font-size: 13px; line-height: 1.4; }.figma-product p { margin-top: 5px; font-size: 12px; }.figma-product-image button { top: 10px; right: 10px; width: 18px; height: 17px; }
+  .figma-collection { padding: 28px 14px 50px; }.figma-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 12px; row-gap: 42px; }.figma-product h2 { margin-top: 12px; font-size: 13px; line-height: 1.4; }.figma-product p { margin-top: 5px; font-size: 12px; }.figma-product-image button { top: 10px; right: 10px; width: 18px; height: 17px; }
 }
 
 /* Wishlist page */
@@ -534,6 +538,19 @@ button { cursor: pointer; }
   .figma-tools { right: 22px; gap: 11px; }
   .figma-tools button { width: 15px; height: 15px; }
   .figma-hero { height: 720px; }
+}
+
+/* The bag artwork is a wide banner: keep its full width and natural height. */
+.figma-hero.figma-hero--bag {
+  height: auto;
+  aspect-ratio: auto;
+  background: #fff;
+  line-height: 0;
+}
+.figma-hero.figma-hero--bag .hero-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 /* Keep the detail sheet flush with the bottom of the viewport and reserve a solid header below the drag handle. */

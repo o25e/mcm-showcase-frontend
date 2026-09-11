@@ -7,6 +7,7 @@ import WishlistPage from './components/WishlistPage';
 import StoreHeader from './components/StoreHeader';
 import { ko } from './i18n/ko';
 import { useWishlist, wishlistIdForProduct } from './utils/wishlist';
+import { BAG_PRODUCT_IDS } from './data/bagProductIds';
 
 const NEW_COLLECTION_PRODUCT_IDS = [1, 2, 3, 7];
 
@@ -19,6 +20,10 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
   const navigate = useNavigate();
   const [isLoginOpen, setIsLoginOpen] = useState(autoOpenLogin);
   const [products, setProducts] = useState([]);
+  const [bagProducts, setBagProducts] = useState([]);
+  const [isBagPage, setIsBagPage] = useState(false);
+  const [isBagLoading, setIsBagLoading] = useState(false);
+  const [bagError, setBagError] = useState('');
   const [wishlist, toggleWishlist] = useWishlist(member?.memberId);
 
   useEffect(() => {
@@ -42,6 +47,44 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
 
     return () => { isActive = false; };
   }, []);
+
+  function mapProduct(product) {
+    return {
+      id: product.productId ?? product.id,
+      name: product.name,
+      nameEn: product.nameEn,
+      price: formatPrice(product.price),
+      image: product.imageUrl ?? product.image,
+      detailUrl: product.detailUrl ?? product.productUrl,
+    };
+  }
+
+  function showBagCollection(event) {
+    event?.preventDefault();
+    setIsBagPage(true);
+    setBagError('');
+    navigate('/#bag-collection');
+    window.requestAnimationFrame(() => {
+      document.getElementById('bag-collection')?.scrollIntoView();
+    });
+
+    if (bagProducts.length || isBagLoading) return;
+    const controller = new AbortController();
+    setIsBagLoading(true);
+    Promise.allSettled(BAG_PRODUCT_IDS.map((productId) => getProduct(productId, controller.signal)))
+      .then((results) => {
+        setBagProducts(results
+          .filter((result) => result.status === 'fulfilled')
+          .map((result) => mapProduct(result.value)));
+      })
+      .catch(() => setBagError('가방 상품을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'))
+      .finally(() => setIsBagLoading(false));
+  }
+
+  function showHomeCollection(event) {
+    setIsBagPage(false);
+    showStorefront(event, 'collection');
+  }
 
   const isCartPage = page === 'cart';
   const isWishlistPage = page === 'wishlist';
@@ -83,7 +126,8 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
         onLoginOpen={() => setIsLoginOpen(true)}
         onWishlistOpen={showWishlist}
         onCartOpen={showCart}
-        onCollectionNavigate={(event) => showStorefront(event, 'collection')}
+        onCollectionNavigate={showHomeCollection}
+        onBagNavigate={showBagCollection}
       />
 
       {isCartPage ? (
@@ -103,38 +147,35 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
           onLoginOpen={() => setIsLoginOpen(true)}
         />
       ) : <main>
-        <section className="figma-hero" aria-label={ko.home.heroAlt}>
-          <img className="hero-image" src="/assets/figma-hero.png" alt={ko.home.heroAlt} />
-          <div className="hero-detail"><img src="/assets/figma-hero-detail.png" alt={ko.home.detailAlt} /></div>
-          <a className="collection-link" href="#collection"><img src="/assets/icon-arrow.svg" alt="arrow" /> {ko.home.shopCollection}</a>
+        <section className={`figma-hero${isBagPage ? ' figma-hero--bag' : ''}`} aria-label={isBagPage ? 'MCM 가방 컬렉션' : ko.home.heroAlt}>
+          <img className="hero-image" src={isBagPage ? '/assets/bag-hero.png' : '/assets/figma-hero.png'} alt={isBagPage ? 'MCM 가방 컬렉션' : ko.home.heroAlt} />
+          {!isBagPage && <div className="hero-detail"><img src="/assets/figma-hero-detail.png" alt={ko.home.detailAlt} /></div>}
+          {!isBagPage && (
+            <a className="collection-link" href="#collection">
+              <img src="/assets/icon-arrow.svg" alt="arrow" /> {ko.home.shopCollection}
+            </a>
+          )}
         </section>
 
-        <section className="figma-collection" id="collection" aria-labelledby="collection-title">
+        {isBagPage ? (
+          <section className="figma-collection" id="bag-collection" aria-labelledby="bag-collection-title">
+            <h1 id="bag-collection-title">가방</h1>
+            {isBagLoading && <p className="product-list-status">가방 상품을 불러오는 중입니다.</p>}
+            {!isBagLoading && bagError && <p className="product-list-status product-list-status--error">{bagError}</p>}
+            {!isBagLoading && !bagError && bagProducts.length === 0 && <p className="product-list-status">등록된 가방 상품이 없습니다.</p>}
+            <div className="figma-product-grid">
+              {bagProducts.map((product) => <ProductCard key={product.id} product={product} wishlist={wishlist} onWishlist={handleProductWishlist} />)}
+            </div>
+          </section>
+        ) : <section className="figma-collection" id="collection" aria-labelledby="collection-title">
           <h1 id="collection-title">{ko.home.collectionTitle}</h1>
 
           <div className="figma-product-grid">
             {products.map((product) => (
-              <article className="figma-product" key={product.id}>
-                <div className="figma-product-image">
-                  <a href={product.detailUrl} target="_blank" rel="noreferrer" aria-label={`${product.name} ${ko.common.officialDetail}`}>
-                    <img src={product.image} alt={product.name} />
-                  </a>
-                  <button
-                    type="button"
-                    aria-label={`${product.name} ${ko.common.addWishlist}`}
-                    aria-pressed={wishlist.some((item) => item.productId === String(product.id))}
-                    onClick={() => handleProductWishlist(product)}
-                  >
-                    <img src={wishlist.some((item) => item.productId === String(product.id)) ? '/assets/icon-heart-small-click.svg' : '/assets/figma-heart-small.svg'} alt="" />
-                  </button>
-                </div>
-
-                <h2>{product.name}</h2>
-                <p>{product.price}</p>
-              </article>
+              <ProductCard key={product.id} product={product} wishlist={wishlist} onWishlist={handleProductWishlist} />
             ))}
           </div>
-        </section>
+        </section>}
       </main>}
 
       {isLoginOpen && (
@@ -155,5 +196,23 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
         />
       )}
     </div>
+  );
+}
+
+function ProductCard({ product, wishlist, onWishlist }) {
+  const isWished = wishlist.some((item) => item.productId === String(product.id));
+  return (
+    <article className="figma-product">
+      <div className="figma-product-image">
+        <a href={product.detailUrl} target="_blank" rel="noreferrer" aria-label={`${product.name} ${ko.common.officialDetail}`}>
+          <img src={product.image} alt={product.name} />
+        </a>
+        <button type="button" aria-label={`${product.name} ${ko.common.addWishlist}`} aria-pressed={isWished} onClick={() => onWishlist(product)}>
+          <img src={isWished ? '/assets/icon-heart-small-click.svg' : '/assets/figma-heart-small.svg'} alt="" />
+        </button>
+      </div>
+      <h2>{product.name}</h2>
+      <p>{product.price}</p>
+    </article>
   );
 }
