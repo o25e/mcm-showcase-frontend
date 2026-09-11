@@ -59,7 +59,7 @@ export default function StoreHeader({
     }
 
     if (onCollectionNavigate) {
-      onCollectionNavigate(event);
+      onCollectionNavigate(event, item);
       return;
     }
 
