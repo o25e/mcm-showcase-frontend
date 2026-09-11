@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getProduct } from './api/products';
 import CartPage from './components/CartPage';
 import LoginPanel from './components/LoginPanel';
 import WishlistPage from './components/WishlistPage';
@@ -7,12 +8,40 @@ import StoreHeader from './components/StoreHeader';
 import { ko } from './i18n/ko';
 import { useWishlist, wishlistIdForProduct } from './utils/wishlist';
 
-const { products } = ko;
+const NEW_COLLECTION_PRODUCT_IDS = [1, 2, 3, 7];
+
+function formatPrice(price) {
+  if (typeof price !== 'number') return price || '';
+  return `₩${price.toLocaleString('ko-KR')}`;
+}
 
 export default function App({ member, onLoginSuccess, onLogout, page = 'home', autoOpenLogin = false }) {
   const navigate = useNavigate();
   const [isLoginOpen, setIsLoginOpen] = useState(autoOpenLogin);
+  const [products, setProducts] = useState([]);
   const [wishlist, toggleWishlist] = useWishlist(member?.memberId);
+
+  useEffect(() => {
+    let isActive = true;
+
+    Promise.all(NEW_COLLECTION_PRODUCT_IDS.map((productId) => getProduct(productId)))
+      .then((productResponses) => {
+        if (!isActive) return;
+        setProducts(productResponses.map((product) => ({
+          id: product.productId,
+          name: product.name,
+          nameEn: product.nameEn,
+          price: formatPrice(product.price),
+          image: product.imageUrl,
+          productId: product.productId,
+        })));
+      })
+      .catch((error) => {
+        if (isActive) console.error('신규 컬렉션 상품을 불러오지 못했습니다.', error);
+      });
+
+    return () => { isActive = false; };
+  }, []);
 
   const isCartPage = page === 'cart';
   const isWishlistPage = page === 'wishlist';
