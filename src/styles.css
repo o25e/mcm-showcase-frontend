@@ -355,6 +355,8 @@ button { cursor: pointer; }
 .figma-hero--female .hero-image { object-fit: contain; }
 .figma-hero--male { height: auto; aspect-ratio: 4 / 1; }
 .figma-hero--male .hero-image { object-fit: contain; }
+.figma-hero--travel { height: auto; aspect-ratio: auto; background: #fff; line-height: 0; }
+.figma-hero--travel .hero-image { width: 100%; height: auto; object-fit: contain; }
 .hero-detail { position: absolute; top: 0; left: calc(40% + 253px); width: 512px; height: 215px; overflow: hidden; }
 .hero-detail img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .collection-link { position: absolute; bottom: 21px; left: 30px; color: #fff; font-size: 16px; text-decoration: none; }
@@ -578,6 +580,19 @@ button { cursor: pointer; }
   line-height: 0;
 }
 .figma-hero.figma-hero--male .hero-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Keep the travel artwork at its full width without cropping. */
+.figma-hero.figma-hero--travel {
+  height: auto;
+  aspect-ratio: auto;
+  background: #fff;
+  line-height: 0;
+}
+.figma-hero.figma-hero--travel .hero-image {
   width: 100%;
   height: auto;
   object-fit: contain;
