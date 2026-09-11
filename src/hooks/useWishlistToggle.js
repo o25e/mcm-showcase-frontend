@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AR_INTERACTION_TYPES, postArInteraction } from '../api/arInteractions';
+import { addMemberWishlistItem, removeMemberWishlistItem } from '../api/wishlist';
 import { removeWishlistItem, saveWishlistItem, wishlistIdForProduct } from '../utils/wishlist';
 import { ko } from '../i18n/ko';
 
@@ -31,6 +32,10 @@ export function useWishlistToggle({ arSessionId, memberId, onChange }) {
       });
       const latest = requestsRef.current.get(requestKey);
       if (latest?.requestNo !== requestNo) return;
+      if (memberId !== undefined && memberId !== null && String(memberId) !== '') {
+        if (nextValue) await addMemberWishlistItem(memberId, item.productId);
+        else await removeMemberWishlistItem(memberId, item.productId);
+      }
       const wishlistItem = {
         productId: item.productId,
         wishlistId: wishlistIdForProduct(item.productId),
