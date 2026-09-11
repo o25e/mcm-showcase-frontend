@@ -15,10 +15,10 @@ export default function SearchResultsPage({
   const filteredProducts = terms.length === 0
     ? []
     : products.filter((product) => {
-      const searchableName = `${product.name || ''} ${product.nameEn || ''}`
+      const searchableText = `${product.name || ''} ${product.nameEn || ''} ${product.searchText || ''}`
         .normalize('NFKC')
         .toLocaleLowerCase('ko-KR');
-      return terms.every((term) => searchableName.includes(term));
+      return terms.every((term) => searchableText.includes(term));
     });
 
   return (
