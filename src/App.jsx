@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProduct } from './api/products';
+import { getProduct, getProducts } from './api/products';
 import CartPage from './components/CartPage';
 import LoginPanel from './components/LoginPanel';
 import WishlistPage from './components/WishlistPage';
@@ -24,6 +24,10 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
   const [isBagPage, setIsBagPage] = useState(false);
   const [isBagLoading, setIsBagLoading] = useState(false);
   const [bagError, setBagError] = useState('');
+  const [femaleProducts, setFemaleProducts] = useState([]);
+  const [isFemalePage, setIsFemalePage] = useState(false);
+  const [isFemaleLoading, setIsFemaleLoading] = useState(false);
+  const [femaleError, setFemaleError] = useState('');
   const [wishlist, toggleWishlist] = useWishlist(member?.memberId);
 
   useEffect(() => {
@@ -61,6 +65,7 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
 
   function showBagCollection(event) {
     event?.preventDefault();
+    setIsFemalePage(false);
     setIsBagPage(true);
     setBagError('');
     navigate('/#bag-collection');
@@ -81,8 +86,28 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
       .finally(() => setIsBagLoading(false));
   }
 
+  function showFemaleCollection(event) {
+    event?.preventDefault();
+    setIsBagPage(false);
+    setIsFemalePage(true);
+    setFemaleError('');
+    navigate('/#female-collection');
+    window.requestAnimationFrame(() => {
+      document.getElementById('female-collection')?.scrollIntoView();
+    });
+
+    if (femaleProducts.length || isFemaleLoading) return;
+    const controller = new AbortController();
+    setIsFemaleLoading(true);
+    getProducts({ gender: 'FEMALE' }, controller.signal)
+      .then((products) => setFemaleProducts(products.map(mapProduct)))
+      .catch(() => setFemaleError('여성 상품을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'))
+      .finally(() => setIsFemaleLoading(false));
+  }
+
   function showHomeCollection(event) {
     setIsBagPage(false);
+    setIsFemalePage(false);
     showStorefront(event, 'collection');
   }
 
@@ -128,6 +153,7 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
         onCartOpen={showCart}
         onCollectionNavigate={showHomeCollection}
         onBagNavigate={showBagCollection}
+        onFemaleNavigate={showFemaleCollection}
       />
 
       {isCartPage ? (
@@ -147,10 +173,10 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
           onLoginOpen={() => setIsLoginOpen(true)}
         />
       ) : <main>
-        <section className={`figma-hero${isBagPage ? ' figma-hero--bag' : ''}`} aria-label={isBagPage ? 'MCM 가방 컬렉션' : ko.home.heroAlt}>
-          <img className="hero-image" src={isBagPage ? '/assets/bag-hero.png' : '/assets/figma-hero.png'} alt={isBagPage ? 'MCM 가방 컬렉션' : ko.home.heroAlt} />
-          {!isBagPage && <div className="hero-detail"><img src="/assets/figma-hero-detail.png" alt={ko.home.detailAlt} /></div>}
-          {!isBagPage && (
+        <section className={`figma-hero${isBagPage ? ' figma-hero--bag' : ''}${isFemalePage ? ' figma-hero--female' : ''}`} aria-label={isBagPage ? 'MCM 가방 컬렉션' : isFemalePage ? 'MCM 여성 컬렉션' : ko.home.heroAlt}>
+          <img className="hero-image" src={isBagPage ? '/assets/bag-hero.png' : isFemalePage ? '/assets/female-hero.png' : '/assets/figma-hero.png'} alt={isBagPage ? 'MCM 가방 컬렉션' : isFemalePage ? 'MCM 여성 컬렉션' : ko.home.heroAlt} />
+          {!isBagPage && !isFemalePage && <div className="hero-detail"><img src="/assets/figma-hero-detail.png" alt={ko.home.detailAlt} /></div>}
+          {!isBagPage && !isFemalePage && (
             <a className="collection-link" href="#collection">
               <img src="/assets/icon-arrow.svg" alt="arrow" /> {ko.home.shopCollection}
             </a>
@@ -165,6 +191,16 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
             {!isBagLoading && !bagError && bagProducts.length === 0 && <p className="product-list-status">등록된 가방 상품이 없습니다.</p>}
             <div className="figma-product-grid">
               {bagProducts.map((product) => <ProductCard key={product.id} product={product} wishlist={wishlist} onWishlist={handleProductWishlist} />)}
+            </div>
+          </section>
+        ) : isFemalePage ? (
+          <section className="figma-collection" id="female-collection" aria-labelledby="female-collection-title">
+            <h1 id="female-collection-title">여성</h1>
+            {isFemaleLoading && <p className="product-list-status">여성 상품을 불러오는 중입니다.</p>}
+            {!isFemaleLoading && femaleError && <p className="product-list-status product-list-status--error">{femaleError}</p>}
+            {!isFemaleLoading && !femaleError && femaleProducts.length === 0 && <p className="product-list-status">등록된 여성 상품이 없습니다.</p>}
+            <div className="figma-product-grid">
+              {femaleProducts.map((product) => <ProductCard key={product.id} product={product} wishlist={wishlist} onWishlist={handleProductWishlist} />)}
             </div>
           </section>
         ) : <section className="figma-collection" id="collection" aria-labelledby="collection-title">
