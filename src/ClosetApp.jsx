@@ -102,6 +102,11 @@ export default function ClosetApp() {
       <Route path="/cart" element={<App {...appProps} page="cart" />} />
       <Route path="/wishlist" element={<App {...appProps} page="wishlist" />} />
       <Route path="/search" element={<App {...appProps} page="search" />} />
+      <Route path="/new-products" element={<App {...appProps} page="collection" collectionType="new" />} />
+      <Route path="/bags" element={<App {...appProps} page="collection" collectionType="bags" />} />
+      <Route path="/women" element={<App {...appProps} page="collection" collectionType="women" />} />
+      <Route path="/men" element={<App {...appProps} page="collection" collectionType="men" />} />
+      <Route path="/travel" element={<App {...appProps} page="collection" collectionType="travel" />} />
       <Route path="/" element={<App {...appProps} page="home" />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

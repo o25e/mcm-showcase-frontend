@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ko } from '../i18n/ko';
 
 const utilityItems = [
@@ -9,11 +9,13 @@ const utilityItems = [
   { key: 'cart', label: ko.utilities.shoppingBag, icon: '/assets/figma-bag.svg' },
 ];
 
-function scrollToCollection() {
-  window.requestAnimationFrame(() => {
-    document.getElementById('collection')?.scrollIntoView();
-  });
-}
+const collectionRoutes = {
+  '신상품': '/new-products',
+  '가방': '/bags',
+  '여성': '/women',
+  '남성': '/men',
+  '트래블': '/travel',
+};
 
 export default function StoreHeader({
   activePage = 'home',
@@ -23,10 +25,6 @@ export default function StoreHeader({
   onCartOpen,
   onSearchOpen,
   onCollectionNavigate,
-  onBagNavigate,
-  onFemaleNavigate,
-  onMaleNavigate,
-  onTravelNavigate,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,38 +42,13 @@ export default function StoreHeader({
     event.preventDefault();
     closeMobileMenu();
 
-    if (item === '가방' && onBagNavigate) {
-      onBagNavigate(event);
-      return;
-    }
-
-    if (item === '여성' && onFemaleNavigate) {
-      onFemaleNavigate(event);
-      return;
-    }
-
-    if (item === '남성' && onMaleNavigate) {
-      onMaleNavigate(event);
-      return;
-    }
-
-    if (item === ko.navigation[4] && onTravelNavigate) {
-      onTravelNavigate(event);
-      return;
-    }
-
     if (onCollectionNavigate) {
       onCollectionNavigate(event, item);
       return;
     }
 
-    if (location.pathname !== '/') {
-      navigate('/#collection');
-      return;
-    }
-
     navigate('/#collection');
-    scrollToCollection();
+    window.requestAnimationFrame(() => document.getElementById('collection')?.scrollIntoView());
   }
 
   function handleLogoClick(event) {
@@ -151,10 +124,17 @@ export default function StoreHeader({
               >
                 {item}
               </a>
-            ) : (
-              <a href={item === '가방' ? '/#bag-collection' : item === '여성' ? '/#female-collection' : item === '남성' ? '/#male-collection' : item === ko.navigation[4] ? '/?zone=TRAVEL#travel-collection' : '/#collection'} key={item} onClick={(event) => handleCollectionNavigate(event, item)}>
+            ) : collectionRoutes[item] ? (
+              <Link
+                to={collectionRoutes[item]}
+                className={location.pathname === collectionRoutes[item] ? 'active' : ''}
+                key={item}
+                onClick={closeMobileMenu}
+              >
                 {item}
-              </a>
+              </Link>
+            ) : (
+              <a href="/#collection" key={item} onClick={(event) => handleCollectionNavigate(event, item)}>{item}</a>
             );
           })}
         </nav>
