@@ -25,6 +25,7 @@ export default function StoreHeader({
   onCollectionNavigate,
   onBagNavigate,
   onFemaleNavigate,
+  onMaleNavigate,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,6 +50,11 @@ export default function StoreHeader({
 
     if (item === '여성' && onFemaleNavigate) {
       onFemaleNavigate(event);
+      return;
+    }
+
+    if (item === '남성' && onMaleNavigate) {
+      onMaleNavigate(event);
       return;
     }
 
@@ -140,7 +146,7 @@ export default function StoreHeader({
                 {item}
               </a>
             ) : (
-              <a href={item === '가방' ? '/#bag-collection' : item === '여성' ? '/#female-collection' : '/#collection'} key={item} onClick={(event) => handleCollectionNavigate(event, item)}>
+              <a href={item === '가방' ? '/#bag-collection' : item === '여성' ? '/#female-collection' : item === '남성' ? '/#male-collection' : '/#collection'} key={item} onClick={(event) => handleCollectionNavigate(event, item)}>
                 {item}
               </a>
             );
