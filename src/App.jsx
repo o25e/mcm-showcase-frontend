@@ -25,37 +25,38 @@ function collectSearchText(value, seen = new WeakSet()) {
   return Object.values(value).map((item) => collectSearchText(item, seen)).join(' ');
 }
 
-export default function App({ member, onLoginSuccess, onLogout, page = 'home', autoOpenLogin = false }) {
+export default function App({ member, onLoginSuccess, onLogout, page = 'home', collectionType, autoOpenLogin = false }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoginOpen, setIsLoginOpen] = useState(autoOpenLogin);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [products, setProducts] = useState([]);
-  const [isProductsLoading, setIsProductsLoading] = useState(true);
+  const [isProductsLoading, setIsProductsLoading] = useState(page === 'home' || page === 'cart');
   const [productsError, setProductsError] = useState('');
   const [searchProducts, setSearchProducts] = useState([]);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [bagProducts, setBagProducts] = useState([]);
-  const [isBagPage, setIsBagPage] = useState(false);
   const [isBagLoading, setIsBagLoading] = useState(false);
   const [bagError, setBagError] = useState('');
   const [femaleProducts, setFemaleProducts] = useState([]);
-  const [isFemalePage, setIsFemalePage] = useState(false);
   const [isFemaleLoading, setIsFemaleLoading] = useState(false);
   const [femaleError, setFemaleError] = useState('');
   const [maleProducts, setMaleProducts] = useState([]);
-  const [isMalePage, setIsMalePage] = useState(false);
   const [isMaleLoading, setIsMaleLoading] = useState(false);
   const [maleError, setMaleError] = useState('');
   const [travelProducts, setTravelProducts] = useState([]);
-  const [isTravelPage, setIsTravelPage] = useState(false);
   const [isTravelLoading, setIsTravelLoading] = useState(false);
   const [travelError, setTravelError] = useState('');
   const [wishlist, toggleWishlist] = useWishlist(member?.memberId);
   const requestedSearchQuery = new URLSearchParams(location.search).get('q')?.trim() || '';
+  const isBagPage = page === 'collection' && collectionType === 'bags';
+  const isFemalePage = page === 'collection' && collectionType === 'women';
+  const isMalePage = page === 'collection' && collectionType === 'men';
+  const isTravelPage = page === 'collection' && collectionType === 'travel';
 
   useEffect(() => {
+    if (page !== 'home' && page !== 'cart') return undefined;
     let isActive = true;
 
     getProducts()
@@ -75,7 +76,40 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
     return () => {
       isActive = false;
     };
-  }, []);
+  }, [page]);
+
+  useEffect(() => {
+    if (page !== 'collection') return undefined;
+
+    const config = {
+      new: { query: {}, setProducts: setProducts, setLoading: setIsProductsLoading, setError: setProductsError },
+      bags: { query: { category: 'BAG' }, setProducts: setBagProducts, setLoading: setIsBagLoading, setError: setBagError },
+      women: { query: { gender: 'FEMALE' }, setProducts: setFemaleProducts, setLoading: setIsFemaleLoading, setError: setFemaleError },
+      men: { query: { gender: 'MALE' }, setProducts: setMaleProducts, setLoading: setIsMaleLoading, setError: setMaleError },
+      travel: { query: { zone: 'TRAVEL' }, setProducts: setTravelProducts, setLoading: setIsTravelLoading, setError: setTravelError },
+    }[collectionType];
+    if (!config) return undefined;
+
+    const controller = new AbortController();
+    let isActive = true;
+    config.setLoading(true);
+    config.setError('');
+    getProducts(config.query, controller.signal)
+      .then((response) => {
+        if (isActive) config.setProducts(response.map(mapProduct));
+      })
+      .catch((error) => {
+        if (isActive && error?.name !== 'AbortError') config.setError('상품을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      })
+      .finally(() => {
+        if (isActive) config.setLoading(false);
+      });
+
+    return () => {
+      isActive = false;
+      controller.abort();
+    };
+  }, [page, collectionType]);
 
   useEffect(() => {
     if (page !== 'search' || !requestedSearchQuery) {
@@ -119,98 +153,6 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
       image: product.imageUrl ?? product.image,
       detailUrl: product.detailUrl ?? product.productUrl,
     };
-  }
-
-  function showBagCollection(event) {
-    event?.preventDefault();
-    setIsFemalePage(false);
-    setIsMalePage(false);
-    setIsTravelPage(false);
-    setIsBagPage(true);
-    setBagError('');
-    navigate('/#bag-collection');
-    window.requestAnimationFrame(() => {
-      document.getElementById('bag-collection')?.scrollIntoView();
-    });
-
-    if (bagProducts.length || isBagLoading) return;
-    const controller = new AbortController();
-    setIsBagLoading(true);
-    getProducts({ category: 'BAG' }, controller.signal)
-      .then((products) => setBagProducts(products.map(mapProduct)))
-      .catch(() => setBagError('가방 상품을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'))
-      .finally(() => setIsBagLoading(false));
-  }
-
-  function showFemaleCollection(event) {
-    event?.preventDefault();
-    setIsBagPage(false);
-    setIsMalePage(false);
-    setIsTravelPage(false);
-    setIsFemalePage(true);
-    setFemaleError('');
-    navigate('/#female-collection');
-    window.requestAnimationFrame(() => {
-      document.getElementById('female-collection')?.scrollIntoView();
-    });
-
-    if (femaleProducts.length || isFemaleLoading) return;
-    const controller = new AbortController();
-    setIsFemaleLoading(true);
-    getProducts({ gender: 'FEMALE' }, controller.signal)
-      .then((products) => setFemaleProducts(products.map(mapProduct)))
-      .catch(() => setFemaleError('여성 상품을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'))
-      .finally(() => setIsFemaleLoading(false));
-  }
-
-  function showMaleCollection(event) {
-    event?.preventDefault();
-    setIsBagPage(false);
-    setIsFemalePage(false);
-    setIsTravelPage(false);
-    setIsMalePage(true);
-    setMaleError('');
-    navigate('/#male-collection');
-    window.requestAnimationFrame(() => {
-      document.getElementById('male-collection')?.scrollIntoView();
-    });
-
-    if (maleProducts.length || isMaleLoading) return;
-    const controller = new AbortController();
-    setIsMaleLoading(true);
-    getProducts({ gender: 'MALE' }, controller.signal)
-      .then((products) => setMaleProducts(products.map(mapProduct)))
-      .catch(() => setMaleError('남성 상품을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'))
-      .finally(() => setIsMaleLoading(false));
-  }
-
-  function showTravelCollection(event) {
-    event?.preventDefault();
-    setIsBagPage(false);
-    setIsFemalePage(false);
-    setIsMalePage(false);
-    setIsTravelPage(true);
-    setTravelError('');
-    navigate('/?zone=TRAVEL#travel-collection');
-    window.requestAnimationFrame(() => {
-      document.getElementById('travel-collection')?.scrollIntoView();
-    });
-
-    if (travelProducts.length || isTravelLoading) return;
-    const controller = new AbortController();
-    setIsTravelLoading(true);
-    getProducts({ zone: 'TRAVEL' }, controller.signal)
-      .then((products) => setTravelProducts(products.map(mapProduct)))
-      .catch(() => setTravelError('트래블 상품을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'))
-      .finally(() => setIsTravelLoading(false));
-  }
-
-  function showHomeCollection(event, item) {
-    setIsBagPage(false);
-    setIsFemalePage(false);
-    setIsMalePage(false);
-    setIsTravelPage(false);
-    showStorefront(event, 'collection', item === '신상품');
   }
 
   const isCartPage = page === 'cart';
@@ -257,11 +199,7 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
         onWishlistOpen={showWishlist}
         onCartOpen={showCart}
         onSearchOpen={() => setIsSearchOpen(true)}
-        onCollectionNavigate={showHomeCollection}
-        onBagNavigate={showBagCollection}
-        onFemaleNavigate={showFemaleCollection}
-        onMaleNavigate={showMaleCollection}
-        onTravelNavigate={showTravelCollection}
+        onCollectionNavigate={(event, item) => showStorefront(event, 'collection', item === '신상품')}
       />
 
       {isSearchOpen && <SearchOverlay onClose={() => setIsSearchOpen(false)} />}
