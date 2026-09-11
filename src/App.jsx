@@ -7,7 +7,6 @@ import WishlistPage from './components/WishlistPage';
 import StoreHeader from './components/StoreHeader';
 import { ko } from './i18n/ko';
 import { useWishlist, wishlistIdForProduct } from './utils/wishlist';
-import { BAG_PRODUCT_IDS } from './data/bagProductIds';
 
 const NEW_COLLECTION_PRODUCT_IDS = [1, 2, 3, 7];
 
@@ -76,12 +75,8 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
     if (bagProducts.length || isBagLoading) return;
     const controller = new AbortController();
     setIsBagLoading(true);
-    Promise.allSettled(BAG_PRODUCT_IDS.map((productId) => getProduct(productId, controller.signal)))
-      .then((results) => {
-        setBagProducts(results
-          .filter((result) => result.status === 'fulfilled')
-          .map((result) => mapProduct(result.value)));
-      })
+    getProducts({ category: 'BAG' }, controller.signal)
+      .then((products) => setBagProducts(products.map(mapProduct)))
       .catch(() => setBagError('가방 상품을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'))
       .finally(() => setIsBagLoading(false));
   }
