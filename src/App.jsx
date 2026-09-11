@@ -15,6 +15,16 @@ function formatPrice(price) {
   return `₩${price.toLocaleString('ko-KR')}`;
 }
 
+function collectSearchText(value, seen = new WeakSet()) {
+  if (typeof value === 'string') return value;
+  if (!value || typeof value !== 'object') return '';
+  if (seen.has(value)) return '';
+
+  seen.add(value);
+  if (Array.isArray(value)) return value.map((item) => collectSearchText(item, seen)).join(' ');
+  return Object.values(value).map((item) => collectSearchText(item, seen)).join(' ');
+}
+
 export default function App({ member, onLoginSuccess, onLogout, page = 'home', autoOpenLogin = false }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,6 +33,9 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
   const [products, setProducts] = useState([]);
   const [isProductsLoading, setIsProductsLoading] = useState(true);
   const [productsError, setProductsError] = useState('');
+  const [searchProducts, setSearchProducts] = useState([]);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState('');
   const [bagProducts, setBagProducts] = useState([]);
   const [isBagPage, setIsBagPage] = useState(false);
   const [isBagLoading, setIsBagLoading] = useState(false);
@@ -40,11 +53,12 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
   const [isTravelLoading, setIsTravelLoading] = useState(false);
   const [travelError, setTravelError] = useState('');
   const [wishlist, toggleWishlist] = useWishlist(member?.memberId);
+  const requestedSearchQuery = new URLSearchParams(location.search).get('q')?.trim() || '';
 
   useEffect(() => {
     let isActive = true;
 
-    getProducts({ zone: 'NEW' })
+    getProducts()
       .then((productResponses) => {
         if (!isActive) return;
         setProducts(productResponses.map(mapProduct));
@@ -63,11 +77,44 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
     };
   }, []);
 
+  useEffect(() => {
+    if (page !== 'search' || !requestedSearchQuery) {
+      setSearchProducts([]);
+      setSearchError('');
+      setIsSearchLoading(false);
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    let isActive = true;
+
+    setIsSearchLoading(true);
+    setSearchError('');
+    getProducts({ keyword: requestedSearchQuery }, controller.signal)
+      .then((productResponses) => {
+        if (isActive) setSearchProducts(productResponses.map(mapProduct));
+      })
+      .catch((error) => {
+        if (isActive && error?.name !== 'AbortError') {
+          setSearchError('검색 결과를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+        }
+      })
+      .finally(() => {
+        if (isActive) setIsSearchLoading(false);
+      });
+
+    return () => {
+      isActive = false;
+      controller.abort();
+    };
+  }, [page, requestedSearchQuery]);
+
   function mapProduct(product) {
     return {
       id: product.productId ?? product.id,
       name: product.name,
       nameEn: product.nameEn,
+      searchText: collectSearchText(product),
       price: formatPrice(product.price),
       image: product.imageUrl ?? product.image,
       detailUrl: product.detailUrl ?? product.productUrl,
@@ -169,7 +216,7 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
   const isCartPage = page === 'cart';
   const isWishlistPage = page === 'wishlist';
   const isSearchPage = page === 'search';
-  const searchQuery = new URLSearchParams(location.search).get('q')?.trim() || '';
+  const searchQuery = requestedSearchQuery;
 
   function showStorefront(event, sectionId, isNewProducts = false) {
     event?.preventDefault();
@@ -222,10 +269,10 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
       {isSearchPage ? (
         <SearchResultsPage
           query={searchQuery}
-          products={products}
+          products={searchProducts}
           wishlist={wishlist}
-          isLoading={isProductsLoading}
-          error={productsError}
+          isLoading={isSearchLoading}
+          error={searchError}
           onToggleWishlist={handleProductWishlist}
         />
       ) : isCartPage ? (
