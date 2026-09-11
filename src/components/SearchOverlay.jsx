@@ -27,9 +27,19 @@ export default function SearchOverlay({ onClose }) {
     const closeOnEscape = (event) => {
       if (event.key === 'Escape') onClose();
     };
+    const closeOnScroll = () => onClose();
 
     window.addEventListener('keydown', closeOnEscape);
-    return () => window.removeEventListener('keydown', closeOnEscape);
+    window.addEventListener('scroll', closeOnScroll, { passive: true });
+    window.addEventListener('wheel', closeOnScroll, { passive: true });
+    window.addEventListener('touchmove', closeOnScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('keydown', closeOnEscape);
+      window.removeEventListener('scroll', closeOnScroll);
+      window.removeEventListener('wheel', closeOnScroll);
+      window.removeEventListener('touchmove', closeOnScroll);
+    };
   }, [onClose]);
 
   function handleSubmit(event) {
