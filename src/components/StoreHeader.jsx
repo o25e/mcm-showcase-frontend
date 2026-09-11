@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ko } from '../i18n/ko';
 
 const utilityItems = [
-  { key: 'search', label: ko.utilities.search, icon: '/assets/figma-search.svg' },
+  { key: 'search', label: ko.utilities.search, icon: '/assets/icon-search.svg' },
   { key: 'myPage', label: ko.utilities.myPage, icon: '/assets/figma-user.svg' },
   { key: 'wishlist', label: ko.utilities.wishlist, icon: '/assets/figma-heart.svg' },
   { key: 'cart', label: ko.utilities.shoppingBag, icon: '/assets/figma-bag.svg' },
@@ -125,7 +125,7 @@ export default function StoreHeader({
         </button>
 
         <button className="mobile-search-button" type="button" aria-label={ko.common.search} onClick={() => handleUtilityClick('search')}>
-          <img src="/assets/figma-search.svg" alt="" />
+          <img src="/assets/icon-search.svg" alt="" />
         </button>
 
         <nav aria-label={ko.common.mainNav}>

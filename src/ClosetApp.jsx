@@ -101,6 +101,7 @@ export default function ClosetApp() {
       <Route path="/my-closet/:profileId" element={<ClosetRoute member={member} onLoginSuccess={setMember} onLogout={handleLogout} onWishlistOpen={handleWishlistOpen} onCartOpen={handleCartOpen} />} />
       <Route path="/cart" element={<App {...appProps} page="cart" />} />
       <Route path="/wishlist" element={<App {...appProps} page="wishlist" />} />
+      <Route path="/search" element={<App {...appProps} page="search" />} />
       <Route path="/" element={<App {...appProps} page="home" />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
