@@ -227,8 +227,8 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
           onLoginOpen={() => setIsLoginOpen(true)}
         />
       ) : <main>
-        <section className={`figma-hero${isBagPage ? ' figma-hero--bag' : ''}${isFemalePage ? ' figma-hero--female' : ''}${isMalePage ? ' figma-hero--male' : ''}`} aria-label={isBagPage ? 'MCM 가방 컬렉션' : isFemalePage ? 'MCM 여성 컬렉션' : isMalePage ? 'MCM 남성 컬렉션' : ko.home.heroAlt}>
-          <img className="hero-image" src={isBagPage ? '/assets/bag-hero.png' : isFemalePage ? '/assets/female-hero.png' : isMalePage ? '/assets/male-hero.png' : '/assets/figma-hero.png'} alt={isBagPage ? 'MCM 가방 컬렉션' : isFemalePage ? 'MCM 여성 컬렉션' : isMalePage ? 'MCM 남성 컬렉션' : ko.home.heroAlt} />
+        <section className={`figma-hero${isBagPage ? ' figma-hero--bag' : ''}${isFemalePage ? ' figma-hero--female' : ''}${isMalePage ? ' figma-hero--male' : ''}${isTravelPage ? ' figma-hero--travel' : ''}`} aria-label={isBagPage ? 'MCM 가방 컬렉션' : isFemalePage ? 'MCM 여성 컬렉션' : isMalePage ? 'MCM 남성 컬렉션' : isTravelPage ? 'MCM 트래블 컬렉션' : ko.home.heroAlt}>
+          <img className="hero-image" src={isBagPage ? '/assets/bag-hero.png' : isFemalePage ? '/assets/female-hero.png' : isMalePage ? '/assets/male-hero.png' : isTravelPage ? '/assets/travel-hero.png' : '/assets/figma-hero.png'} alt={isBagPage ? 'MCM 가방 컬렉션' : isFemalePage ? 'MCM 여성 컬렉션' : isMalePage ? 'MCM 남성 컬렉션' : isTravelPage ? 'MCM 트래블 컬렉션' : ko.home.heroAlt} />
           {!isBagPage && !isFemalePage && !isMalePage && !isTravelPage && <div className="hero-detail"><img src="/assets/figma-hero-detail.png" alt={ko.home.detailAlt} /></div>}
           {!isBagPage && !isFemalePage && !isMalePage && !isTravelPage && (
             <a className="collection-link" href="#collection">
