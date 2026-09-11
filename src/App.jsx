@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getProducts } from './api/products';
 import CartPage from './components/CartPage';
 import LoginPanel from './components/LoginPanel';
+import SearchOverlay from './components/SearchOverlay';
+import SearchResultsPage from './components/SearchResultsPage';
 import WishlistPage from './components/WishlistPage';
 import StoreHeader from './components/StoreHeader';
 import { ko } from './i18n/ko';
@@ -15,7 +17,9 @@ function formatPrice(price) {
 
 export default function App({ member, onLoginSuccess, onLogout, page = 'home', autoOpenLogin = false }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoginOpen, setIsLoginOpen] = useState(autoOpenLogin);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [isProductsLoading, setIsProductsLoading] = useState(true);
   const [productsError, setProductsError] = useState('');
@@ -164,6 +168,8 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
 
   const isCartPage = page === 'cart';
   const isWishlistPage = page === 'wishlist';
+  const isSearchPage = page === 'search';
+  const searchQuery = new URLSearchParams(location.search).get('q')?.trim() || '';
 
   function showStorefront(event, sectionId, isNewProducts = false) {
     event?.preventDefault();
@@ -203,6 +209,7 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
         onLoginOpen={() => setIsLoginOpen(true)}
         onWishlistOpen={showWishlist}
         onCartOpen={showCart}
+        onSearchOpen={() => setIsSearchOpen(true)}
         onCollectionNavigate={showHomeCollection}
         onBagNavigate={showBagCollection}
         onFemaleNavigate={showFemaleCollection}
@@ -210,7 +217,18 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
         onTravelNavigate={showTravelCollection}
       />
 
-      {isCartPage ? (
+      {isSearchOpen && <SearchOverlay onClose={() => setIsSearchOpen(false)} />}
+
+      {isSearchPage ? (
+        <SearchResultsPage
+          query={searchQuery}
+          products={products}
+          wishlist={wishlist}
+          isLoading={isProductsLoading}
+          error={productsError}
+          onToggleWishlist={handleProductWishlist}
+        />
+      ) : isCartPage ? (
         <CartPage
           member={member}
           products={products}

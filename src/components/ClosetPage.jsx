@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import LoginPanel from './LoginPanel';
+import SearchOverlay from './SearchOverlay';
 import StoreHeader from './StoreHeader';
 import { API_BASE_URL } from '../api/config';
 
@@ -50,6 +51,7 @@ function mapProduct(product, language) {
 
 export default function ClosetPage({ member, sharedStyleProfileId, detailStyleProfileId, onLoginSuccess, onLogout, onWishlistOpen, onCartOpen, language = 'ko' }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [looks, setLooks] = useState([]);
   const [lookError, setLookError] = useState('');
@@ -63,7 +65,7 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
   const isSharedLookVisible = true;
   const historyRef = useRef(null);
   const historyDragRef = useRef(null);
-  const isModalOpen = isLoginOpen || selectedRecord !== null;
+  const isModalOpen = isLoginOpen || isSearchOpen || selectedRecord !== null;
 
   useEffect(() => {
     if (!sharedStyleProfileId || !isSharedLookVisible) return undefined;
@@ -339,7 +341,10 @@ export default function ClosetPage({ member, sharedStyleProfileId, detailStylePr
         onLoginOpen={() => setIsLoginOpen(true)}
         onWishlistOpen={onWishlistOpen}
         onCartOpen={onCartOpen}
+        onSearchOpen={() => setIsSearchOpen(true)}
       />
+
+      {isSearchOpen && <SearchOverlay onClose={() => setIsSearchOpen(false)} />}
 
       <main>
         {detailError && !selectedRecord && <p role="alert">{detailError}</p>}
