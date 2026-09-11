@@ -35,12 +35,16 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
   const [isMalePage, setIsMalePage] = useState(false);
   const [isMaleLoading, setIsMaleLoading] = useState(false);
   const [maleError, setMaleError] = useState('');
+  const [travelProducts, setTravelProducts] = useState([]);
+  const [isTravelPage, setIsTravelPage] = useState(false);
+  const [isTravelLoading, setIsTravelLoading] = useState(false);
+  const [travelError, setTravelError] = useState('');
   const [wishlist, toggleWishlist] = useWishlist(member?.memberId);
 
   useEffect(() => {
     let isActive = true;
 
-    getProducts()
+    getProducts({ zone: 'NEW' })
       .then((productResponses) => {
         if (!isActive) return;
         setProducts(productResponses.map(mapProduct));
@@ -74,6 +78,7 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
     event?.preventDefault();
     setIsFemalePage(false);
     setIsMalePage(false);
+    setIsTravelPage(false);
     setIsBagPage(true);
     setBagError('');
     navigate('/#bag-collection');
@@ -94,6 +99,7 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
     event?.preventDefault();
     setIsBagPage(false);
     setIsMalePage(false);
+    setIsTravelPage(false);
     setIsFemalePage(true);
     setFemaleError('');
     navigate('/#female-collection');
@@ -114,6 +120,7 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
     event?.preventDefault();
     setIsBagPage(false);
     setIsFemalePage(false);
+    setIsTravelPage(false);
     setIsMalePage(true);
     setMaleError('');
     navigate('/#male-collection');
@@ -130,11 +137,33 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
       .finally(() => setIsMaleLoading(false));
   }
 
-  function showHomeCollection(event) {
+  function showTravelCollection(event) {
+    event?.preventDefault();
     setIsBagPage(false);
     setIsFemalePage(false);
     setIsMalePage(false);
-    showStorefront(event, 'collection');
+    setIsTravelPage(true);
+    setTravelError('');
+    navigate('/?zone=TRAVEL#travel-collection');
+    window.requestAnimationFrame(() => {
+      document.getElementById('travel-collection')?.scrollIntoView();
+    });
+
+    if (travelProducts.length || isTravelLoading) return;
+    const controller = new AbortController();
+    setIsTravelLoading(true);
+    getProducts({ zone: 'TRAVEL' }, controller.signal)
+      .then((products) => setTravelProducts(products.map(mapProduct)))
+      .catch(() => setTravelError('트래블 상품을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'))
+      .finally(() => setIsTravelLoading(false));
+  }
+
+  function showHomeCollection(event, item) {
+    setIsBagPage(false);
+    setIsFemalePage(false);
+    setIsMalePage(false);
+    setIsTravelPage(false);
+    showStorefront(event, 'collection', item === '신상품');
   }
 
   const isCartPage = page === 'cart';
@@ -142,9 +171,10 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
   const isSearchPage = page === 'search';
   const searchQuery = new URLSearchParams(location.search).get('q')?.trim() || '';
 
-  function showStorefront(event, sectionId) {
+  function showStorefront(event, sectionId, isNewProducts = false) {
     event?.preventDefault();
-    navigate(sectionId ? `/#${sectionId}` : '/');
+    const query = isNewProducts ? '?zone=NEW' : '';
+    navigate(sectionId ? `/${query}#${sectionId}` : `/${query}`);
     window.requestAnimationFrame(() => {
       if (sectionId) document.getElementById(sectionId)?.scrollIntoView();
       else window.scrollTo({ top: 0 });
@@ -184,6 +214,7 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
         onBagNavigate={showBagCollection}
         onFemaleNavigate={showFemaleCollection}
         onMaleNavigate={showMaleCollection}
+        onTravelNavigate={showTravelCollection}
       />
 
       {isSearchOpen && <SearchOverlay onClose={() => setIsSearchOpen(false)} />}
@@ -214,10 +245,10 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
           onLoginOpen={() => setIsLoginOpen(true)}
         />
       ) : <main>
-        <section className={`figma-hero${isBagPage ? ' figma-hero--bag' : ''}${isFemalePage ? ' figma-hero--female' : ''}${isMalePage ? ' figma-hero--male' : ''}`} aria-label={isBagPage ? 'MCM 가방 컬렉션' : isFemalePage ? 'MCM 여성 컬렉션' : isMalePage ? 'MCM 남성 컬렉션' : ko.home.heroAlt}>
-          <img className="hero-image" src={isBagPage ? '/assets/bag-hero.png' : isFemalePage ? '/assets/female-hero.png' : isMalePage ? '/assets/male-hero.png' : '/assets/figma-hero.png'} alt={isBagPage ? 'MCM 가방 컬렉션' : isFemalePage ? 'MCM 여성 컬렉션' : isMalePage ? 'MCM 남성 컬렉션' : ko.home.heroAlt} />
-          {!isBagPage && !isFemalePage && !isMalePage && <div className="hero-detail"><img src="/assets/figma-hero-detail.png" alt={ko.home.detailAlt} /></div>}
-          {!isBagPage && !isFemalePage && !isMalePage && (
+        <section className={`figma-hero${isBagPage ? ' figma-hero--bag' : ''}${isFemalePage ? ' figma-hero--female' : ''}${isMalePage ? ' figma-hero--male' : ''}${isTravelPage ? ' figma-hero--travel' : ''}`} aria-label={isBagPage ? 'MCM 가방 컬렉션' : isFemalePage ? 'MCM 여성 컬렉션' : isMalePage ? 'MCM 남성 컬렉션' : isTravelPage ? 'MCM 트래블 컬렉션' : ko.home.heroAlt}>
+          <img className="hero-image" src={isBagPage ? '/assets/bag-hero.png' : isFemalePage ? '/assets/female-hero.png' : isMalePage ? '/assets/male-hero.png' : isTravelPage ? '/assets/travel-hero.png' : '/assets/figma-hero.png'} alt={isBagPage ? 'MCM 가방 컬렉션' : isFemalePage ? 'MCM 여성 컬렉션' : isMalePage ? 'MCM 남성 컬렉션' : isTravelPage ? 'MCM 트래블 컬렉션' : ko.home.heroAlt} />
+          {!isBagPage && !isFemalePage && !isMalePage && !isTravelPage && <div className="hero-detail"><img src="/assets/figma-hero-detail.png" alt={ko.home.detailAlt} /></div>}
+          {!isBagPage && !isFemalePage && !isMalePage && !isTravelPage && (
             <a className="collection-link" href="#collection">
               <img src="/assets/icon-arrow.svg" alt="arrow" /> {ko.home.shopCollection}
             </a>
@@ -252,6 +283,16 @@ export default function App({ member, onLoginSuccess, onLogout, page = 'home', a
             {!isMaleLoading && !maleError && maleProducts.length === 0 && <p className="product-list-status">등록된 남성 상품이 없습니다.</p>}
             <div className="figma-product-grid">
               {maleProducts.map((product) => <ProductCard key={product.id} product={product} wishlist={wishlist} onWishlist={handleProductWishlist} />)}
+            </div>
+          </section>
+        ) : isTravelPage ? (
+          <section className="figma-collection" id="travel-collection" aria-labelledby="travel-collection-title">
+            <h1 id="travel-collection-title">트래블</h1>
+            {isTravelLoading && <p className="product-list-status">트래블 상품을 불러오는 중입니다.</p>}
+            {!isTravelLoading && travelError && <p className="product-list-status product-list-status--error">{travelError}</p>}
+            {!isTravelLoading && !travelError && travelProducts.length === 0 && <p className="product-list-status">등록된 트래블 상품이 없습니다.</p>}
+            <div className="figma-product-grid">
+              {travelProducts.map((product) => <ProductCard key={product.id} product={product} wishlist={wishlist} onWishlist={handleProductWishlist} />)}
             </div>
           </section>
         ) : <section className="figma-collection" id="collection" aria-labelledby="collection-title">
